@@ -242,3 +242,21 @@ app_license = "mit"
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+
+
+# havano_zim_payroll/hooks.py
+
+fixtures = [
+    {
+        "dt": "Client Script",
+        "filters": [
+            ["module", "=", "Havano Zim Payroll"]
+        ]
+    },
+    {
+        "dt": "Print Format",
+        "filters": [
+            ["module", "=", "Havano Zim Payroll"]
+        ]
+    }
+]

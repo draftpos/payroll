@@ -1,0 +1,57 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "havano_salary_component",
+  "enabled": 1,
+  "modified": "2025-10-22 17:08:55.924107",
+  "module": "Havano Zim Payroll",
+  "name": "havano_salary_component_medical",
+  "script": "frappe.ui.form.on('havano_salary_component', {\n    component_mode: function(frm) {\n        if (frm.doc.component_mode === 'Medical Aid') {\n            // Show the section\n            frm.set_df_property('section_break_mgmx', 'hidden', false);\n        } else {\n            // Hide the section\n            frm.set_df_property('section_break_mgmx', 'hidden', true);\n\n            // Optional: clear values inside the section\n            frm.set_value('employee_amount', '');\n            frm.set_value('employer_amount', '');\n        }\n    },\n    refresh: function(frm) {\n        // Trigger logic on form load\n        frm.trigger('component_mode');\n    }\n});\n",
+  "view": "Form"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "havano_salary_structure",
+  "enabled": 1,
+  "modified": "2025-10-17 16:27:03.545870",
+  "module": "Havano Zim Payroll",
+  "name": "filter earnin",
+  "script": "frappe.ui.form.on('havano_salary_structure', {\n    setup: function(frm) {\n        // Helper function to set up filters for both tables\n        function set_component_filter(child_table_name, component_type) {\n            frm.fields_dict[child_table_name].grid.get_field('components').get_query = function(doc, cdt, cdn) {\n                return {\n                    filters: [\n                        ['type', '=', component_type],\n                        ['company', '=', frm.doc.company],\n                        // Nested child table condition:\n                        // Only include components whose linked \"account\" child table has matching company\n                        ['havano_salary_accounts', 'company', '=', frm.doc.company]\n                    ]\n                };\n            };\n        }\n\n        // 🔹 Apply for Earnings\n        set_component_filter('earnings', 'Earning');\n\n        // 🔹 Apply for Deductions\n        set_component_filter('deductions', 'Deduction');\n    }\n});\n",
+  "view": "Form"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "havano_employee",
+  "enabled": 1,
+  "modified": "2025-10-17 17:02:13.043431",
+  "module": "Havano Zim Payroll",
+  "name": "havano_employee_filter",
+  "script": "frappe.ui.form.on('havano_employee', {\n    setup: function(frm) {\n        // Helper function to set up filters for both tables\n        function set_component_filter(child_table_name, component_type) {\n            frm.fields_dict[child_table_name].grid.get_field('components').get_query = function(doc, cdt, cdn) {\n                return {\n                    filters: [\n                        ['type', '=', component_type],\n                        ['company', '=', frm.doc.company],\n                        // Nested child table condition:\n                        // Only include components whose linked \"account\" child table has matching company\n                        ['havano_salary_accounts', 'company', '=', frm.doc.company]\n                    ]\n                };\n            };\n        }\n\n        // 🔹 Apply for Earnings\n        set_component_filter('employee_earnings', 'Earning');\n\n        // 🔹 Apply for Deductions\n        set_component_filter('employee_deductions', 'Deduction');\n    }\n});\n",
+  "view": "Form"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "havano_employee",
+  "enabled": 1,
+  "modified": "2025-10-21 08:41:46.843544",
+  "module": "Havano Zim Payroll",
+  "name": "havano_employee_currency_change",
+  "script": "frappe.ui.form.on('havano_employee', {\n    onload(frm) {\n        toggle_sections(frm);\n    },\n\n    refresh(frm) {\n        toggle_sections(frm);\n    },\n\n    payslip_type(frm) {\n        toggle_sections(frm);\n    }\n});\n\nfunction toggle_sections(frm) {\n    const payslip_type = frm.doc.payslip_type;\n\n    // Show these only for Base Currency\n    const show_base = payslip_type === \"Base Currency\";\n    frm.toggle_display('hidden_calculations_section', show_base);\n    frm.toggle_display('net_income_section', show_base);\n\n    // Show these only for Split Currency\n    const show_split = payslip_type === \"Split Currency\";\n    frm.toggle_display('all_net_incomes_section', show_split);\n    frm.toggle_display('double_calculations_section', show_split);\n}\n",
+  "view": "Form"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "havano_employee",
+  "enabled": 1,
+  "modified": "2025-10-21 09:46:20.816077",
+  "module": "Havano Zim Payroll",
+  "name": "payslip",
+  "script": "frappe.ui.form.on('havano_employee', {\n    refresh(frm) {\n        if(!frm.is_new()) {\n            frm.add_custom_button('Generate Payslip', () => {\n                frappe.call({\n                    method: \"frappe.client.get\",\n                    args: {\n                        doctype: frm.doc.doctype,\n                        name: frm.doc.name\n                    },\n                    callback: function(r) {\n                        const html = frappe.render_template(\"Havano Employee Payslip\", { doc: r.message });\n                        const w = window.open('', '_blank');\n                        w.document.write(html);\n                        w.document.close();\n                        w.focus();\n                        w.print();\n                    }\n                });\n            });\n        }\n    }\n});\n",
+  "view": "Form"
+ }
+]

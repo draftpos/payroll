@@ -1,0 +1,121 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:salary_component",
+ "creation": "2025-10-16 16:44:16.161959",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "salary_component",
+  "code",
+  "type",
+  "column_break_nqva",
+  "is_tax_applicable",
+  "component_mode",
+  "section_break_mgmx",
+  "employee_amount",
+  "column_break_navt",
+  "employer_amount",
+  "section_break_pagn",
+  "accounts"
+ ],
+ "fields": [
+  {
+   "fieldname": "salary_component",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "code",
+   "fieldtype": "Data",
+   "label": "Code"
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "Earning\nDeduction",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_nqva",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_tax_applicable",
+   "fieldtype": "Check",
+   "label": "Is Tax Applicable"
+  },
+  {
+   "fieldname": "section_break_mgmx",
+   "fieldtype": "Section Break",
+   "label": "Medical Aid Split"
+  },
+  {
+   "fieldname": "column_break_navt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_pagn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "accounts",
+   "fieldtype": "Table",
+   "label": "Accounts",
+   "options": "havano_salary_accounts",
+   "reqd": 1
+  },
+  {
+   "fieldname": "component_mode",
+   "fieldtype": "Link",
+   "label": "Component Mode",
+   "options": "havano_salary_component_type"
+  },
+  {
+   "fieldname": "employee_amount",
+   "fieldtype": "Data",
+   "label": "Employee Percentage"
+  },
+  {
+   "fieldname": "employer_amount",
+   "fieldtype": "Data",
+   "label": "Employer Percentage"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-10-18 10:16:34.097011",
+ "modified_by": "Administrator",
+ "module": "Havano Zim Payroll",
+ "name": "havano_salary_component",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "search_fields": "salary_component",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "salary_component"
+}
