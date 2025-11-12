@@ -1,0 +1,147 @@
+[
+ {
+  "accounts": [
+   {
+    "account": "1110 - Cash - SC",
+    "company": "Aa Fridays",
+    "cost_center": null,
+    "currency": "USD",
+    "parent": "Basic Salary",
+    "parentfield": "accounts",
+    "parenttype": "havano_salary_component",
+    "supplier": null
+   }
+  ],
+  "code": "BS",
+  "component_mode": "",
+  "docstatus": 0,
+  "doctype": "havano_salary_component",
+  "employee_amount": "",
+  "employer_amount": "",
+  "is_tax_applicable": 1,
+  "modified": "2025-11-12 11:12:17.316892",
+  "name": "Basic Salary",
+  "salary_component": "Basic Salary",
+  "type": "Earning",
+  "usd_ceiling": 0.0,
+  "usd_ceiling_amount": 0.0,
+  "zwg_ceiling": 0.0,
+  "zwg_ceiling_amount": 0.0
+ },
+ {
+  "accounts": [
+   {
+    "account": "1100 - Cash In Hand - SC",
+    "company": "Aa Fridays",
+    "cost_center": null,
+    "currency": "USD",
+    "parent": "NEC",
+    "parentfield": "accounts",
+    "parenttype": "havano_salary_component",
+    "supplier": null
+   }
+  ],
+  "code": "NC",
+  "component_mode": "NEC",
+  "docstatus": 0,
+  "doctype": "havano_salary_component",
+  "employee_amount": "",
+  "employer_amount": "1",
+  "is_tax_applicable": 1,
+  "modified": "2025-11-12 11:56:29.321672",
+  "name": "NEC",
+  "salary_component": "NEC",
+  "type": "Deduction",
+  "usd_ceiling": 0.0,
+  "usd_ceiling_amount": 0.0,
+  "zwg_ceiling": 0.0,
+  "zwg_ceiling_amount": 0.0
+ },
+ {
+  "accounts": [
+   {
+    "account": "1100 - Cash In Hand - SC",
+    "company": "Aa Fridays",
+    "cost_center": null,
+    "currency": "USD",
+    "parent": "PAYEE",
+    "parentfield": "accounts",
+    "parenttype": "havano_salary_component",
+    "supplier": null
+   }
+  ],
+  "code": "PY",
+  "component_mode": null,
+  "docstatus": 0,
+  "doctype": "havano_salary_component",
+  "employee_amount": "",
+  "employer_amount": "",
+  "is_tax_applicable": 0,
+  "modified": "2025-11-12 11:14:20.705133",
+  "name": "PAYEE",
+  "salary_component": "PAYEE",
+  "type": "Deduction",
+  "usd_ceiling": 0.0,
+  "usd_ceiling_amount": 0.0,
+  "zwg_ceiling": 0.0,
+  "zwg_ceiling_amount": 0.0
+ },
+ {
+  "accounts": [
+   {
+    "account": "1100 - Cash In Hand - SC",
+    "company": "Aa Fridays",
+    "cost_center": null,
+    "currency": "USD",
+    "parent": "Aids Levy",
+    "parentfield": "accounts",
+    "parenttype": "havano_salary_component",
+    "supplier": null
+   }
+  ],
+  "code": "AL",
+  "component_mode": null,
+  "docstatus": 0,
+  "doctype": "havano_salary_component",
+  "employee_amount": "",
+  "employer_amount": "",
+  "is_tax_applicable": 1,
+  "modified": "2025-11-12 11:17:58.591825",
+  "name": "Aids Levy",
+  "salary_component": "Aids Levy",
+  "type": "Deduction",
+  "usd_ceiling": 0.0,
+  "usd_ceiling_amount": 0.0,
+  "zwg_ceiling": 0.0,
+  "zwg_ceiling_amount": 0.0
+ },
+ {
+  "accounts": [
+   {
+    "account": "1100 - Cash In Hand - SC",
+    "company": "Aa Fridays",
+    "cost_center": null,
+    "currency": "USD",
+    "parent": "NSSA",
+    "parentfield": "accounts",
+    "parenttype": "havano_salary_component",
+    "supplier": null
+   }
+  ],
+  "code": "NS",
+  "component_mode": "NSSA",
+  "docstatus": 0,
+  "doctype": "havano_salary_component",
+  "employee_amount": "",
+  "employer_amount": "",
+  "is_tax_applicable": 0,
+  "modified": "2025-11-12 11:13:36.584669",
+  "name": "NSSA",
+  "salary_component": "NSSA",
+  "type": "Deduction",
+  "usd_ceiling": 700.0,
+  "usd_ceiling_amount": 31.0,
+  "zwg_ceiling": 0.0,
+  "zwg_ceiling_amount": 0.0
+ }
+]

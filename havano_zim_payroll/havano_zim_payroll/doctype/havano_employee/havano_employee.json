@@ -88,6 +88,10 @@
   "bank_details_section",
   "bank_name",
   "payslip_type",
+  "overtime",
+  "hours",
+  "overtime_amount",
+  "formula_display",
   "column_break_heye",
   "bank_ac_no",
   "iban",
@@ -1193,6 +1197,29 @@
    "fieldname": "medical",
    "fieldtype": "Float",
    "label": "Medical"
+  },
+  {
+   "fieldname": "overtime",
+   "fieldtype": "Select",
+   "label": "Overtime",
+   "options": "Short Time\nDouble Time"
+  },
+  {
+   "fieldname": "hours",
+   "fieldtype": "Float",
+   "label": "Hours"
+  },
+  {
+   "fieldname": "overtime_amount",
+   "fieldtype": "Float",
+   "label": "Overtime Amount"
+  },
+  {
+   "default": "sadfgfdfd",
+   "fieldname": "formula_display",
+   "fieldtype": "HTML",
+   "label": "Formular",
+   "options": "his is my default text"
   }
  ],
  "icon": "fa fa-user",
@@ -1200,7 +1227,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-11-05 11:38:49.633378",
+ "modified": "2025-11-12 12:46:23.595157",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_employee",
