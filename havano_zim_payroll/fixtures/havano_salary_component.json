@@ -31,6 +31,64 @@
  {
   "accounts": [
    {
+    "account": "1000 - Application of Funds (Assets) - SC",
+    "company": "Aa Fridays",
+    "cost_center": null,
+    "currency": "USD",
+    "parent": "Overtime Short",
+    "parentfield": "accounts",
+    "parenttype": "havano_salary_component",
+    "supplier": null
+   }
+  ],
+  "code": "OS",
+  "component_mode": null,
+  "docstatus": 0,
+  "doctype": "havano_salary_component",
+  "employee_amount": "",
+  "employer_amount": "",
+  "is_tax_applicable": 0,
+  "modified": "2025-11-12 15:16:54.594340",
+  "name": "Overtime Short",
+  "salary_component": "Overtime Short",
+  "type": "Earning",
+  "usd_ceiling": 0.0,
+  "usd_ceiling_amount": 0.0,
+  "zwg_ceiling": 0.0,
+  "zwg_ceiling_amount": 0.0
+ },
+ {
+  "accounts": [
+   {
+    "account": "1000 - Application of Funds (Assets) - SC",
+    "company": "Aa Fridays",
+    "cost_center": null,
+    "currency": "USD",
+    "parent": "Overtime Double",
+    "parentfield": "accounts",
+    "parenttype": "havano_salary_component",
+    "supplier": null
+   }
+  ],
+  "code": "OD",
+  "component_mode": null,
+  "docstatus": 0,
+  "doctype": "havano_salary_component",
+  "employee_amount": "",
+  "employer_amount": "",
+  "is_tax_applicable": 0,
+  "modified": "2025-11-12 14:58:16.673819",
+  "name": "Overtime Double",
+  "salary_component": "Overtime Double",
+  "type": "Earning",
+  "usd_ceiling": 0.0,
+  "usd_ceiling_amount": 0.0,
+  "zwg_ceiling": 0.0,
+  "zwg_ceiling_amount": 0.0
+ },
+ {
+  "accounts": [
+   {
     "account": "1100-1600 - Current Assets - SC",
     "company": "Aa Fridays",
     "cost_center": null,
@@ -89,35 +147,6 @@
  {
   "accounts": [
    {
-    "account": "1000 - Application of Funds (Assets) - SC",
-    "company": "Aa Fridays",
-    "cost_center": null,
-    "currency": "USD",
-    "parent": "Overtime Short",
-    "parentfield": "accounts",
-    "parenttype": "havano_salary_component",
-    "supplier": null
-   }
-  ],
-  "code": "OS",
-  "component_mode": null,
-  "docstatus": 0,
-  "doctype": "havano_salary_component",
-  "employee_amount": "",
-  "employer_amount": "",
-  "is_tax_applicable": 0,
-  "modified": "2025-11-12 15:16:54.594340",
-  "name": "Overtime Short",
-  "salary_component": "Overtime Short",
-  "type": "Earning",
-  "usd_ceiling": 0.0,
-  "usd_ceiling_amount": 0.0,
-  "zwg_ceiling": 0.0,
-  "zwg_ceiling_amount": 0.0
- },
- {
-  "accounts": [
-   {
     "account": "1100 - Cash In Hand - SC",
     "company": "Aa Fridays",
     "cost_center": null,
@@ -138,6 +167,35 @@
   "modified": "2025-11-12 11:17:58.591825",
   "name": "Aids Levy",
   "salary_component": "Aids Levy",
+  "type": "Deduction",
+  "usd_ceiling": 0.0,
+  "usd_ceiling_amount": 0.0,
+  "zwg_ceiling": 0.0,
+  "zwg_ceiling_amount": 0.0
+ },
+ {
+  "accounts": [
+   {
+    "account": "Cash - CI",
+    "company": "company 2",
+    "cost_center": null,
+    "currency": "USD",
+    "parent": "NEC",
+    "parentfield": "accounts",
+    "parenttype": "havano_salary_component",
+    "supplier": null
+   }
+  ],
+  "code": "NC",
+  "component_mode": "NEC",
+  "docstatus": 0,
+  "doctype": "havano_salary_component",
+  "employee_amount": "1",
+  "employer_amount": "2",
+  "is_tax_applicable": 1,
+  "modified": "2025-11-12 21:59:09.107708",
+  "name": "NEC",
+  "salary_component": "NEC",
   "type": "Deduction",
   "usd_ceiling": 0.0,
   "usd_ceiling_amount": 0.0,
@@ -170,64 +228,6 @@
   "type": "Deduction",
   "usd_ceiling": 700.0,
   "usd_ceiling_amount": 31.0,
-  "zwg_ceiling": 0.0,
-  "zwg_ceiling_amount": 0.0
- },
- {
-  "accounts": [
-   {
-    "account": "1000 - Application of Funds (Assets) - SC",
-    "company": "Aa Fridays",
-    "cost_center": null,
-    "currency": "USD",
-    "parent": "Overtime Double",
-    "parentfield": "accounts",
-    "parenttype": "havano_salary_component",
-    "supplier": null
-   }
-  ],
-  "code": "OD",
-  "component_mode": null,
-  "docstatus": 0,
-  "doctype": "havano_salary_component",
-  "employee_amount": "",
-  "employer_amount": "",
-  "is_tax_applicable": 0,
-  "modified": "2025-11-12 14:58:16.673819",
-  "name": "Overtime Double",
-  "salary_component": "Overtime Double",
-  "type": "Earning",
-  "usd_ceiling": 0.0,
-  "usd_ceiling_amount": 0.0,
-  "zwg_ceiling": 0.0,
-  "zwg_ceiling_amount": 0.0
- },
- {
-  "accounts": [
-   {
-    "account": "1100 - Cash In Hand - SC",
-    "company": "Aa Fridays",
-    "cost_center": null,
-    "currency": "USD",
-    "parent": "NEC",
-    "parentfield": "accounts",
-    "parenttype": "havano_salary_component",
-    "supplier": null
-   }
-  ],
-  "code": "NC",
-  "component_mode": "NEC",
-  "docstatus": 0,
-  "doctype": "havano_salary_component",
-  "employee_amount": "",
-  "employer_amount": "1",
-  "is_tax_applicable": 1,
-  "modified": "2025-11-12 11:56:29.321672",
-  "name": "NEC",
-  "salary_component": "NEC",
-  "type": "Deduction",
-  "usd_ceiling": 0.0,
-  "usd_ceiling_amount": 0.0,
   "zwg_ceiling": 0.0,
   "zwg_ceiling_amount": 0.0
  },

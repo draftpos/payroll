@@ -131,6 +131,8 @@ def main(self):
 
         overtime_doc.insert()
         frappe.db.commit()
+        self.overtime=""
+        self.hours=0
             
 
 
