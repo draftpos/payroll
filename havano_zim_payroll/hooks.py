@@ -247,7 +247,6 @@ app_license = "mit"
 # havano_zim_payroll/hooks.py
 
 # havano_zim_payroll/hooks.py
-
 fixtures = [
     # Client Scripts for your module
     {
@@ -266,16 +265,46 @@ fixtures = [
     # Salary Components
     {
         "doctype": "havano_salary_component",
-        "filters": [["name", "in", ["Basic Salary", "PAYEE", "NSSA", "NEC", "Aids Levy"]]]
+        "filters": [
+            [
+                "name",
+                "in",
+                [
+                    "Basic Salary",
+                    "PAYEE",
+                    "NSSA",
+                    "NEC",
+                    "Aids Levy",
+                    "Airtime Non Tax",
+                    "Airtime Taxed",
+                    "Overtime Bulk",
+                    "Overtime Short",
+                    "Overtime Double"
+                ]
+            ]
+        ]
     },
     # Custom Field for Company
-    {
-        "doctype": "Custom Field",
-        "filters": [["name", "in", ["custom_payslip_type-company"]]]
+   {
+    "doctype": "Custom Field",
+    "filters": [["name", "in", ["Company-custom_payslip_type"]]]
     },
     # Havano Leave Types
     {
         "doctype": "Havano Leave Type",
-        "filters": [["name", "in", ["Maternity Leave", "Annual Leave", "Sick Leave", "Bereavement Leave", "Special Leave", "Study Leave"]]]
+        "filters": [
+            [
+                "name",
+                "in",
+                [
+                    "Maternity Leave",
+                    "Annual Leave",
+                    "Sick Leave",
+                    "Bereavement Leave",
+                    "Special Leave",
+                    "Study Leave"
+                ]
+            ]
+        ]
     }
 ]

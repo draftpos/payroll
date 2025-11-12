@@ -90,8 +90,8 @@
   "payslip_type",
   "overtime",
   "hours",
-  "overtime_amount",
   "formula_display",
+  "overtime_amount",
   "column_break_heye",
   "bank_ac_no",
   "iban",
@@ -1202,7 +1202,7 @@
    "fieldname": "overtime",
    "fieldtype": "Select",
    "label": "Overtime",
-   "options": "Short Time\nDouble Time"
+   "options": "\nShort Time\nDouble Time"
   },
   {
    "fieldname": "hours",
@@ -1227,7 +1227,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-11-12 12:46:23.595157",
+ "modified": "2025-11-12 17:51:13.793413",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_employee",

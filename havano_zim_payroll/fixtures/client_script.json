@@ -64,5 +64,16 @@
   "name": "payroll entry",
   "script": "frappe.listview_settings['Havano Payroll Entry'] = {\n    onload(listview) {\n        listview.page.add_inner_button('Run Payroll', () => {\n            let d = new frappe.ui.Dialog({\n                title: \"Run Payroll\",\n                fields: [\n                    {\n                        label: \"Month\",\n                        fieldname: \"month\",\n                        fieldtype: \"Select\",\n                        options: [\n                            \"January\", \"February\", \"March\", \"April\",\n                            \"May\", \"June\", \"July\", \"August\",\n                            \"September\", \"October\", \"November\", \"December\"\n                        ],\n                        reqd: 1\n                    },\n                    {\n                        label: \"Year\",\n                        fieldname: \"year\",\n                        fieldtype: \"Int\",\n                        reqd: 1,\n                        default: new Date().getFullYear()\n                    }\n                ],\n                primary_action_label: \"Run Payroll\",\n                primary_action(values) {\n                      frappe.call({\n                            method: \"havano_zim_payroll.api.run_payroll\",\n                            args: { month: values.month, year: values.year },\n                            callback(r) {\n                                frappe.msgprint(r.message);\n                            }\n                        });\n                        d.hide();\n                }\n            });\n\n            // make the \"Run Payroll\" button blue\n            d.$wrapper.find('.btn-primary').addClass('btn-primary');\n\n            d.show();\n        });\n    }\n};\n",
   "view": "List"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "havano_employee",
+  "enabled": 1,
+  "modified": "2025-11-12 14:20:39.268325",
+  "module": "Havano Zim Payroll",
+  "name": "overtime type",
+  "script": "frappe.ui.form.on(\"havano_employee\", {\n    overtime(frm) {\n        let value = frm.doc.overtime;\n\n        if (value === \"Short Time\") {\n            frm.fields_dict.formula_display.$wrapper.html(\"<b>Formula:</b> (= hourly rate * hours worked * 1.5)\");\n        } else if (value === \"Double Time\") {\n            frm.fields_dict.formula_display.$wrapper.html(\"<b>Formula:</b> (= hourly rate * hours worked * 2)\");\n        } else {\n            frm.fields_dict.formula_display.$wrapper.html(\"<b>Formula:</b> Select overtime type to view calculation</b>\");\n        }\n    },\n});\n",
+  "view": "Form"
  }
 ]

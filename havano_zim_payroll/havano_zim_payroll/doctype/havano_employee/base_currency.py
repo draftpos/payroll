@@ -88,6 +88,93 @@ def main(self):
     total_amount_basic_and_bonus_and_allowances=0
     ensurable_earnings= 0
     basic_salary= 0
+    overtime=self.overtime
+
+    # Remove any existing "Basic Salary" rows first
+    if self.overtime == "Short Time":
+        print("overt time-----------------")
+        # remove existing "Overtime Short" rows properly
+        for e in self.employee_earnings:
+            if e.components == "Overtime Short":
+                self.remove(e)
+             # remove existing "Overtime Short" rows properly
+        basic_now=0
+        for e in self.employee_earnings:
+            if e.components == "Basic Salary":
+           
+                if self.salary_currency == "USD":
+                    basic_now += flt(e.amount_zwg) / exchange_rate
+                    basic_now += flt(e.amount_usd)
+                else: 
+                    basic_now += flt(e.amount_usd) * exchange_rate
+                    basic_now += flt(e.amount_zwg)
+        
+
+        hourly_rate = flt(basic_now / 26 / 7.5, 2)
+        overtime_amount = flt(hourly_rate * self.hours * (2 if self.overtime == "Double Time" else 1 if self.overtime == "Short Time" else 0))
+        print(f"-----------------overrr-------{basic_now}")
+        self.overtime_amount = overtime_amount
+        # total_amount_basic_and_bonus_and_allowances += overtime_amount
+        # append new row
+        new_row = self.append("employee_earnings", {})
+        new_row.components = "Overtime Short"
+        new_row.amount_zwg = 0
+        new_row.amount_usd = overtime_amount
+        new_row.is_tax_applicable = True
+        # Create a new Havano Employee Overtime document
+        overtime_doc = frappe.get_doc({
+            "doctype": "Havano Employee Overtime",
+            "employee": self.name,
+            "overtime_type": self.overtime,
+            "amount": overtime_amount
+        })
+
+        overtime_doc.insert()
+        frappe.db.commit()
+            
+
+
+
+    elif self.overtime == "Double Time":
+        print("overt time-----------------")
+        # remove existing "Overtime Short" rows properly
+        for e in self.employee_earnings:
+            if e.components == "Overtime Double":
+                self.remove(e)
+             # remove existing "Overtime Short" rows properly
+        basic_now=0
+        for e in self.employee_earnings:
+            if e.components == "Basic Salary":
+           
+                if self.salary_currency == "USD":
+                    basic_now += flt(e.amount_zwg) / exchange_rate
+                    basic_now += flt(e.amount_usd)
+                else: 
+                    basic_now += flt(e.amount_usd) * exchange_rate
+                    basic_now += flt(e.amount_zwg)
+        
+
+        hourly_rate = flt(basic_now / 26 / 7.5, 2)
+        overtime_amount = flt(hourly_rate * self.hours * (2 if self.overtime == "Double Time" else 1 if self.overtime == "Short Time" else 0))
+        self.overtime_amount = overtime_amount
+        # total_amount_basic_and_bonus_and_allowances += overtime_amount
+        # append new row
+        new_row = self.append("employee_earnings", {})
+        new_row.components = "Overtime Double"
+        new_row.amount_zwg = 0
+        new_row.amount_usd = overtime_amount
+        new_row.is_tax_applicable = True
+        # Create a new Havano Employee Overtime document
+        overtime_doc = frappe.get_doc({
+            "doctype": "Havano Employee Overtime",
+            "employee": self.name,
+            "overtime_type": self.overtime,
+            "amount": overtime_amount
+        })
+
+        overtime_doc.insert()
+        frappe.db.commit()
+            
 
     for e in self.employee_earnings:
         # Capture Basic Salary
@@ -98,6 +185,8 @@ def main(self):
             else: 
                 basic_salary += flt(e.amount_usd) * exchange_rate
                 basic_salary += flt(e.amount_zwg)
+
+
 
         salary_structure.append("earnings", {
             "components": e.components,
@@ -121,6 +210,8 @@ def main(self):
             else: 
                 ensurable_earnings += flt(e.amount_zwg)
                 ensurable_earnings += flt(e.amount_usd) * exchange_rate
+
+
 
     # frappe.msgprint(str(total_amount_basic_and_bonus_and_allowances))
     self.total_income=total_amount_basic_and_bonus_and_allowances
@@ -251,7 +342,7 @@ def main(self):
     # Link back to employee
     self.salary_structure = salary_structure.name
 
-    
+ 
 
 def payee_against_slab(amount):
     """
