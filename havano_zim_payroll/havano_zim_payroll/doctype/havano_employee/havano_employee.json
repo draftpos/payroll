@@ -2,7 +2,6 @@
  "actions": [],
  "allow_events_in_timeline": 1,
  "allow_import": 1,
- "allow_rename": 1,
  "autoname": "naming_series:",
  "creation": "2022-02-21 11:54:09.632218",
  "doctype": "DocType",
@@ -29,6 +28,8 @@
   "date_of_joining",
   "image",
   "status",
+  "total_leave_allocated",
+  "total_leave_taken",
   "erpnext_user",
   "user_id",
   "create_user",
@@ -79,7 +80,6 @@
   "ctc",
   "salary_currency",
   "salary_mode",
-  "payslip_type",
   "column_break_xujn",
   "post_cost_center",
   "salary_computed",
@@ -87,6 +87,7 @@
   "update_structure",
   "bank_details_section",
   "bank_name",
+  "payslip_type",
   "column_break_heye",
   "bank_ac_no",
   "iban",
@@ -95,6 +96,7 @@
   "mode_of_payment",
   "column_break_fhzq",
   "payrol_frequency",
+  "wcif_percentage",
   "earnings",
   "employee_earnings",
   "section_break_mase",
@@ -103,6 +105,7 @@
   "total_deductions",
   "payee",
   "aids_levy",
+  "nec",
   "column_break_asoi",
   "total_income",
   "total_taxable_income",
@@ -111,6 +114,7 @@
   "total_tax_credits",
   "net_income_section",
   "net_income",
+  "medical",
   "double_calculations_section",
   "total_earnings_usd",
   "total_ensuarable_earnings_usd",
@@ -129,6 +133,10 @@
   "total_deduction_zwg",
   "payee_zwg",
   "aids_levy_zwg",
+  "section_break_vxed",
+  "wcif_usd",
+  "column_break_mfxq",
+  "wcif_zwg",
   "all_net_incomes_section",
   "total_net_income_usd",
   "column_break_bouw",
@@ -184,7 +192,8 @@
    "label": "Employee",
    "no_copy": 1,
    "print_hide": 1,
-   "report_hide": 1
+   "report_hide": 1,
+   "unique": 1
   },
   {
    "fieldname": "naming_series",
@@ -335,7 +344,8 @@
    "fieldtype": "Link",
    "ignore_user_permissions": 1,
    "label": "User ID",
-   "options": "User"
+   "options": "User",
+   "unique": 1
   },
   {
    "depends_on": "eval:(!doc.user_id)",
@@ -453,12 +463,13 @@
    "width": "50%"
   },
   {
+   "default": "Cash",
    "fieldname": "salary_mode",
    "fieldtype": "Select",
    "label": "Salary Mode",
    "oldfieldname": "salary_mode",
    "oldfieldtype": "Select",
-   "options": "\nBank\nCash\nCheque",
+   "options": "Bank\nCash\nCheque",
    "reqd": 1
   },
   {
@@ -1025,12 +1036,6 @@
    "label": "Total Taxable Income"
   },
   {
-   "fieldname": "payslip_type",
-   "fieldtype": "Select",
-   "label": "Payslip Type",
-   "options": "Single Currency\nBase Currency\nSplit Currency"
-  },
-  {
    "fieldname": "double_calculations_section",
    "fieldtype": "Section Break",
    "label": "Double Calculations"
@@ -1137,6 +1142,57 @@
    "fieldname": "aids_levy_zwg",
    "fieldtype": "Float",
    "label": "AIDS Levy ZWG"
+  },
+  {
+   "default": "0",
+   "fieldname": "wcif_percentage",
+   "fieldtype": "Float",
+   "label": "WCIF %"
+  },
+  {
+   "fieldname": "section_break_vxed",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "wcif_usd",
+   "fieldtype": "Data",
+   "label": "WCIF USD"
+  },
+  {
+   "fieldname": "wcif_zwg",
+   "fieldtype": "Float",
+   "label": "WCIF ZWG"
+  },
+  {
+   "fieldname": "column_break_mfxq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "nec",
+   "fieldtype": "Float",
+   "label": "NEC"
+  },
+  {
+   "fieldname": "total_leave_allocated",
+   "fieldtype": "Data",
+   "label": "Total Leave Allocated"
+  },
+  {
+   "fieldname": "total_leave_taken",
+   "fieldtype": "Data",
+   "label": "Total Leave Taken"
+  },
+  {
+   "fieldname": "payslip_type",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Payslip Type",
+   "options": "Base Currency\nSplit Currency"
+  },
+  {
+   "fieldname": "medical",
+   "fieldtype": "Float",
+   "label": "Medical"
   }
  ],
  "icon": "fa fa-user",
@@ -1144,7 +1200,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-10-21 08:37:57.051536",
+ "modified": "2025-11-05 11:38:49.633378",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_employee",

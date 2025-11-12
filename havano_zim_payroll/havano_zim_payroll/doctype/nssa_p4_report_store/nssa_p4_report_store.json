@@ -1,0 +1,134 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-10-29 10:21:17.720415",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "prepayments_zwg_column",
+  "surname",
+  "first_name",
+  "start_date",
+  "end_date",
+  "total_insuarable_earnings_usd",
+  "total_insuarable_earnings_zwg",
+  "current_contributions_usd",
+  "current_contributions_zwg",
+  "arrears_usd",
+  "arrears_zwg",
+  "prepayments_usd",
+  "surcharge_usd",
+  "surchage_zwg",
+  "total_payment_usd",
+  "total_payment_zwg"
+ ],
+ "fields": [
+  {
+   "fieldname": "surname",
+   "fieldtype": "Data",
+   "label": "Surname"
+  },
+  {
+   "fieldname": "first_name",
+   "fieldtype": "Data",
+   "label": "First Name"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date"
+  },
+  {
+   "fieldname": "total_insuarable_earnings_usd",
+   "fieldtype": "Float",
+   "label": "Total Insuarable Earnings (USD)"
+  },
+  {
+   "fieldname": "prepayments_zwg_column",
+   "fieldtype": "Column Break",
+   "label": "Prepayments ZWG"
+  },
+  {
+   "fieldname": "total_insuarable_earnings_zwg",
+   "fieldtype": "Float",
+   "label": "Total Insuarable Earnings (ZWG)"
+  },
+  {
+   "fieldname": "current_contributions_usd",
+   "fieldtype": "Float",
+   "label": "Current Contribution (USD)"
+  },
+  {
+   "fieldname": "current_contributions_zwg",
+   "fieldtype": "Float",
+   "label": "Current Contribution (ZWG)"
+  },
+  {
+   "fieldname": "arrears_usd",
+   "fieldtype": "Float",
+   "label": "Arrears USD"
+  },
+  {
+   "fieldname": "arrears_zwg",
+   "fieldtype": "Float",
+   "label": "Arrears ZWG"
+  },
+  {
+   "fieldname": "prepayments_usd",
+   "fieldtype": "Float",
+   "label": "Prepayments USD"
+  },
+  {
+   "fieldname": "surchage_zwg",
+   "fieldtype": "Float",
+   "label": "Surchage ZWG"
+  },
+  {
+   "fieldname": "total_payment_usd",
+   "fieldtype": "Float",
+   "label": "Total Payment USD"
+  },
+  {
+   "fieldname": "total_payment_zwg",
+   "fieldtype": "Float",
+   "label": "Total Payment ZWG"
+  },
+  {
+   "fieldname": "surcharge_usd",
+   "fieldtype": "Float",
+   "label": "Surcharge USD"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-10-31 14:20:26.649230",
+ "modified_by": "Administrator",
+ "module": "Havano Zim Payroll",
+ "name": "NSSA P4 Report Store",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

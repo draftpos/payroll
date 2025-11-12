@@ -1,0 +1,107 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:employee_id",
+ "creation": "2025-11-01 09:46:23.813264",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "surname",
+  "first_name",
+  "employee_id",
+  "dob",
+  "start_date",
+  "end_date",
+  "gross_paye",
+  "basic_pension",
+  "payee",
+  "aids_levy",
+  "currency"
+ ],
+ "fields": [
+  {
+   "fieldname": "surname",
+   "fieldtype": "Data",
+   "label": "Surname"
+  },
+  {
+   "fieldname": "first_name",
+   "fieldtype": "Data",
+   "label": "First Name"
+  },
+  {
+   "fieldname": "employee_id",
+   "fieldtype": "Data",
+   "label": "Employee ID",
+   "unique": 1
+  },
+  {
+   "fieldname": "dob",
+   "fieldtype": "Date",
+   "label": "DOB"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Data",
+   "label": "Start Date"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date"
+  },
+  {
+   "fieldname": "gross_paye",
+   "fieldtype": "Float",
+   "label": "Gross Pay"
+  },
+  {
+   "fieldname": "basic_pension",
+   "fieldtype": "Float",
+   "label": "Basic Pension"
+  },
+  {
+   "fieldname": "payee",
+   "fieldtype": "Float",
+   "label": "Payee"
+  },
+  {
+   "fieldname": "aids_levy",
+   "fieldtype": "Float",
+   "label": "Aids Levy"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Data",
+   "label": "Currency"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-11-01 10:25:08.802501",
+ "modified_by": "Administrator",
+ "module": "Havano Zim Payroll",
+ "name": "ZIMRA ITF16",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

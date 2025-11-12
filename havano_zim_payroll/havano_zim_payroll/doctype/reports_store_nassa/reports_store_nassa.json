@@ -1,0 +1,109 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-10-28 09:34:26.021329",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "column_break_gmzo",
+  "first_name",
+  "surname",
+  "nssa_zwg_employee",
+  "nssa_zwg_employer",
+  "nssa_usd_employee",
+  "nssa_usd_employer",
+  "payroll_period",
+  "wcif_usd",
+  "wcif_zwg",
+  "ncdf_usd",
+  "ncf_zwg"
+ ],
+ "fields": [
+  {
+   "fieldname": "surname",
+   "fieldtype": "Data",
+   "label": "Surname"
+  },
+  {
+   "fieldname": "nssa_usd_employee",
+   "fieldtype": "Data",
+   "label": "NASSA (USD) Employee"
+  },
+  {
+   "fieldname": "column_break_gmzo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "nssa_usd_employer",
+   "fieldtype": "Data",
+   "label": "NASSA (USD) Employer"
+  },
+  {
+   "fieldname": "payroll_period",
+   "fieldtype": "Data",
+   "label": "Payroll Period"
+  },
+  {
+   "fieldname": "first_name",
+   "fieldtype": "Data",
+   "label": "First Name"
+  },
+  {
+   "fieldname": "nssa_zwg_employee",
+   "fieldtype": "Float",
+   "label": "NASSA (ZWG) Employee"
+  },
+  {
+   "fieldname": "nssa_zwg_employer",
+   "fieldtype": "Data",
+   "label": "NASSA (ZWG) Employer"
+  },
+  {
+   "fieldname": "wcif_usd",
+   "fieldtype": "Float",
+   "label": "WCIF USD"
+  },
+  {
+   "fieldname": "wcif_zwg",
+   "fieldtype": "Float",
+   "label": "WCIF ZWG"
+  },
+  {
+   "fieldname": "ncdf_usd",
+   "fieldtype": "Float",
+   "label": "NCF USD"
+  },
+  {
+   "fieldname": "ncf_zwg",
+   "fieldtype": "Float",
+   "label": "NCF ZWG"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-10-31 14:45:32.478014",
+ "modified_by": "Administrator",
+ "module": "Havano Zim Payroll",
+ "name": "Reports Store NASSA",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -6,9 +6,14 @@ from . import base_currency,split_currency
 
 class havano_employee(Document):
     def before_save(self):
-        if self.payslip_type == "Base Currency":
+        company = self.company
+        payslip_type = frappe.db.get_value("Company", company, "custom_payslip_type")
+        self.payslip_type=payslip_type
+        print(f"-------------------------{payslip_type}")
+
+        if payslip_type == "Base Currency":
             base_currency.main(self)
-        elif self.payslip_type == "Split Currency":
+        elif payslip_type == "Split Currency":
             split_currency.main(self)
         
 

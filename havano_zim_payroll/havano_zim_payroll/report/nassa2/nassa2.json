@@ -1,0 +1,37 @@
+{
+ "add_total_row": 1,
+ "add_translate_data": 0,
+ "columns": [],
+ "creation": "2025-10-28 12:21:32.952176",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [
+  {
+   "fieldname": "MM",
+   "fieldtype": "Check",
+   "label": "MMMM",
+   "mandatory": 0,
+   "wildcard_filter": 0
+  }
+ ],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": "NSSA P4",
+ "letterhead": null,
+ "modified": "2025-10-28 12:48:02.297765",
+ "modified_by": "Administrator",
+ "module": "Havano Zim Payroll",
+ "name": "Nassa2",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Reports Store",
+ "report_name": "Nassa2",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ],
+ "timeout": 0
+}

@@ -2,10 +2,12 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils import now_datetime
 from frappe.utils import flt
+from frappe.utils import nowdate
+
 
 
 def main(self):
-    frappe.msgprint(self.payslip_type)
+    # frappe.msgprint(self.payslip_type)
     default_currency = frappe.db.get_value("Company", self.company, "default_currency")
     self.salary_currency=default_currency
 
@@ -137,23 +139,36 @@ def main(self):
 
         # If NSSA, calculate 4.5% of Basic Salary
         if d.components == "NSSA":
-            nassa=flt(ensurable_earnings) * 0.045
+            nassa_component = frappe.get_doc("havano_salary_component", "NSSA")
+            nssa=0
             if self.salary_currency == "USD":
-                d.amount_usd = nassa
+                if flt(ensurable_earnings) >= nassa_component.usd_ceiling:
+                    nssa= nassa_component.usd_ceiling_amount
+                else:
+                    nssa=flt(ensurable_earnings) * 0.045
+            else:
+                if flt(ensurable_earnings) >= nassa_component.zwg_ceiling:
+                    nssa=  nassa_component.zwg_ceiling_amount
+                else:
+                    nssa=flt(ensurable_earnings) * 0.045
+
+            if self.salary_currency == "USD":
+                d.amount_usd = nssa
                 d.amount_zwg = 0
                 total_allowable_deductions
             else: 
                 d.amount_usd = 0
-                d.amount_zwg = nassa
+                d.amount_zwg = nssa
+                
         
-            total_allowable_deductions += flt(nassa)
-            total_deduction += flt(nassa)
+            total_allowable_deductions += flt(nssa)
+            total_deduction += flt(nssa)
+            print(f"total nec---------------------{nssa}")
+    
             # frappe.msgprint(f"{total_deduction}")
 
         # If Medical Aid, apply employer percentage
         elif component_doc.component_mode == "Medical Aid":
-            #frappe.msgprint("✅ Medical Aid Deduction Found")
-            print(f"Employer Percentage: {flt(component_doc.employer_amount)}")
             medical=0
             if self.salary_currency == "USD":
                 medical += flt(d.amount_zwg) / exchange_rate
@@ -164,7 +179,8 @@ def main(self):
 
             #----------------------------------------------------------------------------
             
-            tax_credits += (medical * (flt(component_doc.employer_amount) / 100))
+            tax_credits += (medical * (flt(component_doc.employee_amount) / 100))
+            self.medical=medical
             total_deduction += flt(medical)
             #----------------------------------------------------------------------------
             # self.append("tax_credits", {
@@ -174,6 +190,32 @@ def main(self):
             # })
             self.total_tax_credits = tax_credits
             # total_allowable_deductions += flt(medical)
+
+
+
+        # If NEC, apply employer percentage
+        elif component_doc.component_mode == "NEC":
+            #frappe.msgprint("✅ Medical Aid Deduction Found")
+            print(f"Employer Percentage: {flt(component_doc.employer_amount)}")
+            nec=0
+            if self.salary_currency == "USD":
+                nec += flt(d.amount_zwg) / exchange_rate
+                nec += d.amount_usd
+            else:
+                nec += flt(d.amount_zwg)
+                nec += flt(d.amount_usd) * exchange_rate
+
+            nec_total=nec * flt(component_doc.employer_amount) /100
+            total_allowable_deductions += flt(nec_total)
+            total_deduction += flt(nec_total)
+          
+            print(f"total nec---------------------{nec_total}")
+            self.nec=nec_total
+    
+            #----------------------------------------------------------------------------
+            
+            # tax_credits += (medical * (flt(component_doc.employer_amount) / 100))
+            #----------------------------------------------------------------------------
 
 
         salary_structure.append("deductions", {
@@ -187,6 +229,14 @@ def main(self):
     print(f"Total Deductions: {total_allowable_deductions}")
     self.allowable_deductions=total_allowable_deductions
     self.ensuarable_earnings=self.total_taxable_income-self.allowable_deductions
+    if default_currency == "USD":
+        self.wcif_usd=self.total_taxable_income * self.wcif_percentage/100
+        self.wcif_zwg=0
+    else:
+        self.wcif_zwg=self.total_taxable_income * self.wcif_percentage/100
+        self.wcif_usd=0
+
+    print(self.ensuarable_earnings)
     payee = round(max(payee_against_slab(self.ensuarable_earnings) - tax_credits, 0), 2)
     ads_levy = round(0.03 * payee, 2)
     total_deduction += payee
@@ -202,27 +252,6 @@ def main(self):
     self.salary_structure = salary_structure.name
 
     
-
-#------------------------------------------------------------------splt currecy--------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-#------------------------------------------------------------------splt currecy--------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
 
 def payee_against_slab(amount):
     """
@@ -244,7 +273,6 @@ def payee_against_slab(amount):
     for lower, upper, percent, fixed in slabs:
         if lower <= amount <= upper:
             payee = ( amount * percent) - fixed
-            print(f"{amount} -----wwwwwwwwwwwwwwwww-----percent {percent} --fixed {fixed}-----------payee {payee}")
             break
 
     return flt(payee)

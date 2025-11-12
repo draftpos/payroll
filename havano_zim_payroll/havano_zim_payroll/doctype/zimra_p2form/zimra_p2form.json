@@ -1,0 +1,92 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-11-01 08:58:58.313239",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "employer_name",
+  "trade_name",
+  "tin_number",
+  "tax_period",
+  "total_renumeration",
+  "gross_paye",
+  "aids_levy",
+  "total_tax_due",
+  "currency"
+ ],
+ "fields": [
+  {
+   "fieldname": "employer_name",
+   "fieldtype": "Data",
+   "label": "Employer's Name"
+  },
+  {
+   "fieldname": "trade_name",
+   "fieldtype": "Data",
+   "label": "Trade Name"
+  },
+  {
+   "fieldname": "tin_number",
+   "fieldtype": "Data",
+   "label": "TIN Number"
+  },
+  {
+   "fieldname": "tax_period",
+   "fieldtype": "Data",
+   "label": "Tax Period"
+  },
+  {
+   "fieldname": "total_renumeration",
+   "fieldtype": "Float",
+   "label": "Total Renumeration"
+  },
+  {
+   "fieldname": "gross_paye",
+   "fieldtype": "Float",
+   "label": "Gross PAYE"
+  },
+  {
+   "fieldname": "aids_levy",
+   "fieldtype": "Float",
+   "label": "AIDS LEVY"
+  },
+  {
+   "fieldname": "total_tax_due",
+   "fieldtype": "Float",
+   "label": "Total Tax Due"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Data",
+   "label": "Currency"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-11-01 09:30:11.028071",
+ "modified_by": "Administrator",
+ "module": "Havano Zim Payroll",
+ "name": "ZIMRA P2FORM",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

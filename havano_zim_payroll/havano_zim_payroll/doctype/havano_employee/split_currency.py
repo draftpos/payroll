@@ -1,11 +1,11 @@
 import frappe
 from frappe.model.document import Document
 from frappe.utils import now_datetime
+from frappe.utils import nowdate
 from frappe.utils import flt
 
 
 def main(self):
-    frappe.msgprint('DDDDDDDDDDDDDDDDD')
     default_currency = frappe.db.get_value("Company", self.company, "default_currency")
     self.salary_currency=default_currency
 
@@ -82,7 +82,6 @@ def main(self):
             total_ensuarable_earnings_usd += flt(e.amount_usd)
 
     # frappe.msgprint(str(total_amount_basic_and_bonus_and_allowances))
-    frappe.msgprint(f"{total_ensuarable_earnings_zwg}")
     self.total_income_usd=total_amount_basic_and_bonus_and_allowances_usd
     self.total_income_zwg=total_amount_basic_and_bonus_and_allowances_zwg
     self.total_ensuarable_earnings_usd=total_ensuarable_earnings_usd
@@ -99,7 +98,6 @@ def main(self):
     for d in self.employee_deductions:
         # Get the related component document
         component_doc = frappe.get_doc("havano_salary_component", d.components)
-        print(f"-----------------------component doc--------------{component_doc}")
 
         # If NSSA, calculate 4.5% of Basic Salary
         if d.components == "NSSA":
@@ -115,6 +113,7 @@ def main(self):
 
             self.total_deduction_usd += flt(nassa_usd)
             self.total_deduction_zwg += flt(nassa_zwg)
+            
             # frappe.msgprint(f"{total_deduction}")
 
         # If Medical Aid, apply employer percentage
@@ -217,7 +216,6 @@ def payee_against_slab(amount):
             break
 
     return flt(payee)
-
 
 
 

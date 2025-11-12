@@ -1,0 +1,149 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:leave_type_name",
+ "creation": "2025-10-23 14:52:12.425809",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "leave_type_name",
+  "max_leaves_allowed",
+  "applicable_after",
+  "max_continuous_days_allowed",
+  "column_break_vnyf",
+  "is_carry_forward",
+  "allow_negative",
+  "carry_forward_section",
+  "maximum_carry_forwarded_leaves",
+  "expire_carry_forwarded_leaves_after_days",
+  "lft",
+  "rgt",
+  "is_group",
+  "old_parent",
+  "parent_havano_leave_type"
+ ],
+ "fields": [
+  {
+   "fieldname": "leave_type_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Leave Type Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "max_leaves_allowed",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Maximum Leave Allocation Allowed per Leave Period",
+   "reqd": 1
+  },
+  {
+   "fieldname": "applicable_after",
+   "fieldtype": "Int",
+   "label": "Allow Leave Application After (Working Days)"
+  },
+  {
+   "fieldname": "max_continuous_days_allowed",
+   "fieldtype": "Int",
+   "label": "Maximum Consecutive Leaves Allowed"
+  },
+  {
+   "fieldname": "column_break_vnyf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_carry_forward",
+   "fieldtype": "Check",
+   "label": "Is Carry Forward"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_negative",
+   "fieldtype": "Check",
+   "label": "Allow Negative Balance"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "carry_forward_section",
+   "fieldtype": "Section Break",
+   "label": "Carry Forward"
+  },
+  {
+   "fieldname": "maximum_carry_forwarded_leaves",
+   "fieldtype": "Float",
+   "label": "Maximum Carry Forwarded Leaves"
+  },
+  {
+   "fieldname": "expire_carry_forwarded_leaves_after_days",
+   "fieldtype": "Int",
+   "label": "Expire Carry Forwarded Leaves (Days)"
+  },
+  {
+   "fieldname": "lft",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Left",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "rgt",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Right",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_group",
+   "fieldtype": "Check",
+   "label": "Is Group"
+  },
+  {
+   "fieldname": "old_parent",
+   "fieldtype": "Link",
+   "label": "Old Parent",
+   "options": "havano_leave_type"
+  },
+  {
+   "fieldname": "parent_havano_leave_type",
+   "fieldtype": "Link",
+   "ignore_user_permissions": 1,
+   "label": "Parent havano_leave_type",
+   "options": "havano_leave_type"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_tree": 1,
+ "links": [],
+ "modified": "2025-10-24 16:40:38.644648",
+ "modified_by": "Administrator",
+ "module": "Havano Zim Payroll",
+ "name": "havano_leave_type",
+ "naming_rule": "By fieldname",
+ "nsm_parent_field": "parent_havano_leave_type",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
