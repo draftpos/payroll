@@ -139,8 +139,10 @@
   "aids_levy_zwg",
   "section_break_vxed",
   "wcif_usd",
+  "nec_usd",
   "column_break_mfxq",
   "wcif_zwg",
+  "nec_zwg",
   "all_net_incomes_section",
   "total_net_income_usd",
   "column_break_bouw",
@@ -1220,6 +1222,16 @@
    "fieldtype": "HTML",
    "label": "Formular",
    "options": "his is my default text"
+  },
+  {
+   "fieldname": "nec_usd",
+   "fieldtype": "Float",
+   "label": "NEC USD"
+  },
+  {
+   "fieldname": "nec_zwg",
+   "fieldtype": "Float",
+   "label": "NEC ZWG"
   }
  ],
  "icon": "fa fa-user",
@@ -1227,7 +1239,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-11-12 17:51:13.793413",
+ "modified": "2025-11-13 10:46:04.542915",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_employee",

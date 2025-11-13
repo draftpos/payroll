@@ -146,6 +146,22 @@ def main(self):
             self.total_tax_credits_zwg = tax_credits_zwg
             # total_allowable_deductions += flt(medical)
 
+        elif component_doc.component_mode == "NEC":
+            #frappe.msgprint("✅ Medical Aid Deduction Found")
+            print(f"Employer Percentage: {flt(component_doc.employer_amount)}")
+            self.nec_usd=self.total_ensuarable_earnings_usd * 0.01
+            self.nec_zwg=self.total_ensuarable_earnings_zwg * 0.01
+
+            d.amount_usd = self.nec_usd
+            d.amount_zwg = self.nec_zwg
+
+            total_allowable_deductions_zwg += flt(self.nec_zwg)
+            total_allowable_deductions_usd += flt( self.nec_usd)
+
+            self.total_deduction_usd += flt(self.nec_usd)
+            self.total_deduction_zwg += flt(self.nec_zwg)
+
+
 
         salary_structure.append("deductions", {
             "components": d.components,

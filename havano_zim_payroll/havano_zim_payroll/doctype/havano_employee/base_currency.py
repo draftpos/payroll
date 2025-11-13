@@ -301,7 +301,7 @@ def main(self):
             nec_total=nec * flt(component_doc.employer_amount) /100
             total_allowable_deductions += flt(nec_total)
             total_deduction += flt(nec_total)
-          
+        
             print(f"total nec---------------------{nec_total}")
             self.nec=nec_total
     
