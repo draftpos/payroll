@@ -89,64 +89,6 @@
  {
   "accounts": [
    {
-    "account": "1100-1600 - Current Assets - SC",
-    "company": "Aa Fridays",
-    "cost_center": null,
-    "currency": "USD",
-    "parent": "Overtime Bulk",
-    "parentfield": "accounts",
-    "parenttype": "havano_salary_component",
-    "supplier": null
-   }
-  ],
-  "code": "OB",
-  "component_mode": null,
-  "docstatus": 0,
-  "doctype": "havano_salary_component",
-  "employee_amount": "",
-  "employer_amount": "",
-  "is_tax_applicable": 1,
-  "modified": "2025-11-12 16:46:36.477983",
-  "name": "Overtime Bulk",
-  "salary_component": "Overtime Bulk",
-  "type": "Earning",
-  "usd_ceiling": 0.0,
-  "usd_ceiling_amount": 0.0,
-  "zwg_ceiling": 0.0,
-  "zwg_ceiling_amount": 0.0
- },
- {
-  "accounts": [
-   {
-    "account": "1100 - Cash In Hand - SC",
-    "company": "Aa Fridays",
-    "cost_center": null,
-    "currency": "USD",
-    "parent": "PAYEE",
-    "parentfield": "accounts",
-    "parenttype": "havano_salary_component",
-    "supplier": null
-   }
-  ],
-  "code": "PY",
-  "component_mode": null,
-  "docstatus": 0,
-  "doctype": "havano_salary_component",
-  "employee_amount": "",
-  "employer_amount": "",
-  "is_tax_applicable": 0,
-  "modified": "2025-11-12 11:14:20.705133",
-  "name": "PAYEE",
-  "salary_component": "PAYEE",
-  "type": "Deduction",
-  "usd_ceiling": 0.0,
-  "usd_ceiling_amount": 0.0,
-  "zwg_ceiling": 0.0,
-  "zwg_ceiling_amount": 0.0
- },
- {
-  "accounts": [
-   {
     "account": "1100 - Cash In Hand - SC",
     "company": "Aa Fridays",
     "cost_center": null,
@@ -222,14 +164,14 @@
   "employee_amount": "",
   "employer_amount": "",
   "is_tax_applicable": 0,
-  "modified": "2025-11-12 11:13:36.584669",
+  "modified": "2025-11-13 09:17:30.453806",
   "name": "NSSA",
   "salary_component": "NSSA",
   "type": "Deduction",
   "usd_ceiling": 700.0,
   "usd_ceiling_amount": 31.0,
-  "zwg_ceiling": 0.0,
-  "zwg_ceiling_amount": 0.0
+  "zwg_ceiling": 5010.83,
+  "zwg_ceiling_amount": 225.49
  },
  {
   "accounts": [
@@ -255,6 +197,64 @@
   "name": "Basic Salary",
   "salary_component": "Basic Salary",
   "type": "Earning",
+  "usd_ceiling": 0.0,
+  "usd_ceiling_amount": 0.0,
+  "zwg_ceiling": 0.0,
+  "zwg_ceiling_amount": 0.0
+ },
+ {
+  "accounts": [
+   {
+    "account": "1100-1600 - Current Assets - SC",
+    "company": "Aa Fridays",
+    "cost_center": null,
+    "currency": "USD",
+    "parent": "Overtime Bulk",
+    "parentfield": "accounts",
+    "parenttype": "havano_salary_component",
+    "supplier": null
+   }
+  ],
+  "code": "OB",
+  "component_mode": null,
+  "docstatus": 0,
+  "doctype": "havano_salary_component",
+  "employee_amount": "",
+  "employer_amount": "",
+  "is_tax_applicable": 1,
+  "modified": "2025-11-12 16:46:36.477983",
+  "name": "Overtime Bulk",
+  "salary_component": "Overtime Bulk",
+  "type": "Earning",
+  "usd_ceiling": 0.0,
+  "usd_ceiling_amount": 0.0,
+  "zwg_ceiling": 0.0,
+  "zwg_ceiling_amount": 0.0
+ },
+ {
+  "accounts": [
+   {
+    "account": "1100 - Cash In Hand - SC",
+    "company": "Aa Fridays",
+    "cost_center": null,
+    "currency": "USD",
+    "parent": "PAYEE",
+    "parentfield": "accounts",
+    "parenttype": "havano_salary_component",
+    "supplier": null
+   }
+  ],
+  "code": "PY",
+  "component_mode": null,
+  "docstatus": 0,
+  "doctype": "havano_salary_component",
+  "employee_amount": "",
+  "employer_amount": "",
+  "is_tax_applicable": 0,
+  "modified": "2025-11-12 11:14:20.705133",
+  "name": "PAYEE",
+  "salary_component": "PAYEE",
+  "type": "Deduction",
   "usd_ceiling": 0.0,
   "usd_ceiling_amount": 0.0,
   "zwg_ceiling": 0.0,
