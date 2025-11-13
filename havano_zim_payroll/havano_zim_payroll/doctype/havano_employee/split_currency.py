@@ -98,13 +98,18 @@ def main(self):
     for d in self.employee_deductions:
         # Get the related component document
         component_doc = frappe.get_doc("havano_salary_component", d.components)
-
+        nassa_component = frappe.get_doc("havano_salary_component", "NSSA")
         # If NSSA, calculate 4.5% of Basic Salary
         if d.components == "NSSA":
-            nassa_usd=flt(self.total_ensuarable_earnings_usd) * 0.045
-            print(f"-----------------nassa-------------usd {nassa_usd}")
-            nassa_zwg=flt(self.total_ensuarable_earnings_zwg) * 0.045
-            print(f"-----------------nassa-------------usd {nassa_zwg}")
+            if flt(self.total_ensuarable_earnings_usd) >= nassa_component.usd_ceiling:
+                nassa_usd= nassa_component.usd_ceiling_amount
+            else:
+                nassa_usd=flt(self.total_ensuarable_earnings_usd) * 0.045
+            if flt(self.total_ensuarable_earnings_zwg) >= nassa_component.zwg_ceiling:
+                nassa_zwg=  nassa_component.zwg_ceiling_amount
+            else:
+                nassa_zwg=flt(self.total_ensuarable_earnings_zwg) * 0.045
+
             d.amount_usd = nassa_usd
             d.amount_zwg = nassa_zwg
 
@@ -158,8 +163,8 @@ def main(self):
     self.total_earnings_zwg=total_amount_basic_and_bonus_and_allowances_zwg
     self.total_taxable_income_usd=self.total_ensuarable_earnings_usd-self.total_allowable_deductions_usd
     self.total_taxable_income_zwg=self.total_ensuarable_earnings_zwg-self.total_allowable_deductions_zwg
-    payee_usd=max(payee_against_slab(self.total_taxable_income_usd)-tax_credits_usd,0)
-    payee_zwg=max(payee_against_slab(self.total_taxable_income_zwg)-tax_credits_zwg,0)
+    payee_usd=max(payee_against_slab_usd(self.total_taxable_income_usd)-tax_credits_usd,0)
+    payee_zwg=max(payee_against_slab_zwg(self.total_taxable_income_zwg)-tax_credits_zwg,0)
     self.total_deduction_usd += payee_usd
     self.total_deduction_zwg += payee_zwg
     aids_levy_usd=0.03 * payee_usd
@@ -192,7 +197,7 @@ def main(self):
 
 #------------------------------------------------------------------splt currecy--------------------------------------------------------------------------------------
 
-def payee_against_slab(amount):
+def payee_against_slab_usd(amount):
     """
     Calculate PAYE based on given slabs.
     :param amount: Taxable income (float)
@@ -216,6 +221,37 @@ def payee_against_slab(amount):
             break
 
     return flt(payee)
+
+
+
+def payee_against_slab_zwg(amount):
+    """
+    Calculate PAYE based on given slabs.
+    :param amount: Taxable income (float)
+    :return: PAYE amount (float)
+    """
+    from frappe.utils import flt
+    payee = 0.0
+    slabs = [
+        (0.00, 2800.00, 0.0, 0.00),
+        (2800.01, 8400.00, 0.20, 560.00),
+        (8400.01, 28000.00, 0.25, 980.00),
+        (28000.01, 56000.00, 0.30, 2380.00),
+        (56000.01, 84000.00, 0.35, 5180.00),
+        (84000.01, 1000000.00, 0.40, 9380.00),
+    ]
+
+    for lower, upper, percent, fixed in slabs:
+        if lower <= amount <= upper:
+            payee = ( amount * percent) - fixed
+            print(f"{amount} -----wwwwwwwwwwwwwwwww-----percent {percent} --fixed {fixed}-----------payee {payee}")
+            break
+
+    return flt(payee)
+
+
+
+
 
 
 
