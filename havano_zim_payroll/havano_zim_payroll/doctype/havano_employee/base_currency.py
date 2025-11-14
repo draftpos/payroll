@@ -275,18 +275,18 @@ def main(self):
                 d.amount_zwg = nssa
             total_allowable_deductions += flt(nssa)
             total_deduction += flt(nssa)
-        elif component_doc.component_mode == "Medical Aid":
-            medical=0
-            if self.salary_currency == "USD":
-                medical += flt(d.amount_zwg) / exchange_rate
-                medical += d.amount_usd
-            else:
-                medical += flt(d.amount_zwg)
-                medical += flt(d.amount_usd) * exchange_rate
-            tax_credits += (medical * (flt(component_doc.employee_amount) / 100))
-            self.medical=medical
-            total_deduction += flt(medical)
-            self.total_tax_credits = tax_credits
+        # elif component_doc.component_mode == "Medical Aid":
+        #     medical=0
+        #     if self.salary_currency == "USD":
+        #         medical += flt(d.amount_zwg) / exchange_rate
+        #         medical += d.amount_usd
+        #     else:
+        #         medical += flt(d.amount_zwg)
+        #         medical += flt(d.amount_usd) * exchange_rate
+        #     tax_credits += (medical * (flt(component_doc.employee_amount) / 100))
+        #     self.medical=medical
+        #     total_deduction += flt(medical)
+        #     self.total_tax_credits = tax_credits
 
         # If NEC, apply employer percentage
         elif component_doc.component_mode == "allowable_deduction":
@@ -331,7 +331,7 @@ def main(self):
             #-----------------------------------------------
         elif d.components.upper() == "UFAWUZ":
             ufawuz=0.03 * basic_salary
-            total_deduction += flt(funeral_employee)
+            total_deduction += flt(ufawuz)
             print(f"total ufawuz---------------------{ufawuz}")
             d.amount_usd = ufawuz
             d.amount_zwg = 0
@@ -353,23 +353,8 @@ def main(self):
             self.lapf_employee=lapf_employee
             self.lapf_employer=lapf_employer
                 
-
-
-            
-
-
-
-
-
-
-
         else:
             total_deduction += flt(d.amount_usd )
-
-
-
-
-
             #----------------------------------------------------------------------------
 
         salary_structure.append("deductions", {
@@ -404,6 +389,7 @@ def main(self):
     print(f"havano_salary_structure saved: {salary_structure.name}")
     # Link back to employee
     self.salary_structure = salary_structure.name
+    self.total_tax_credits=total_tax_credits
 
  
 
