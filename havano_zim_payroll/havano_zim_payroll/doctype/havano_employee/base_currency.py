@@ -314,8 +314,8 @@ def main(self):
                 total_deduction += flt(cimas_employee)
                 tax_credits += cimas_employee
                 print(f"total cimas---------------------{cimas_employee}")
-                self.cimas_employee=nec_employee
-                self.cimas_employer=nec_employer
+                self.cimas_employee=cimas_employee
+                self.cimas_employer=cimas_employer
             #----------------------------------------------------------------------------
 
             if d.components.upper() == "FUNERAL POLICY":
