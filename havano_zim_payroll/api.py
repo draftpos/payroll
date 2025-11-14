@@ -3,7 +3,7 @@ import frappe
 @frappe.whitelist()
 def run_payroll(month, year):
     """Runs payroll for all employees immediately (synchronous)."""
-    employees = frappe.get_all("havano_employee", fields=["name", "first_name", "last_name"])
+    employees = frappe.get_all("havano_employee", fields=["name", "first_name", "last_name","net_income"])
 
     if not employees:
         return "No employees found."
@@ -17,16 +17,51 @@ def run_payroll(month, year):
         payroll.payroll_period = f"{month} {year}"
         nssa_usd=0
         nssa_zwg=0
+        try:
+            emp_netpay = emp.net_income
+        except AttributeError as e:
+            print(f"Net income not found for employee {emp.employee}: {e}")
+
 
         # Copy Earnings
         if hasattr(emp_doc, "employee_earnings"):
             for e in emp_doc.employee_earnings:
+
+                if e.components == "Backpay":
+                    emp_netpay -=e.amount_usd
+
+                    print("--------0000000000000000000000000000")
                 payroll.append("employee_earnings", {
                     "components": e.components,
                     "item_code": e.item_code,
                     "amount_usd": e.amount_usd,
                     "amount_zwg": e.amount_zwg
                 })
+
+        print(f"---------------------rrrr----{emp_netpay}")
+        # Fetch the ledger for the employee
+        ledger = frappe.db.get_value(
+            "Employee Ledger",
+            {"employee": emp.name},
+            ["name", "employee", "current_balance_owing", "balance_added"],
+            as_dict=True
+        )
+
+        if not ledger:
+            # If no ledger exists, create one
+            ledger_doc = frappe.get_doc({
+                "doctype": "Employee Ledger",
+                "employee": emp.name,
+                "balance_added": emp_netpay,   # x
+                "current_balance_owing": emp_netpay  # starting from 0 + x
+            })
+            ledger_doc.insert(ignore_permissions=True)
+        else:
+            # Update existing ledger
+            ledger_doc = frappe.get_doc("Employee Ledger", ledger["name"])
+            ledger_doc.balance_added = emp_netpay   # x
+            ledger_doc.current_balance_owing = (ledger["current_balance_owing"] or 0) + emp_netpay
+            ledger_doc.save(ignore_permissions=True)
 
         # Copy Deductions
         if hasattr(emp_doc, "employee_deductions"):
