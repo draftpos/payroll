@@ -1,0 +1,151 @@
+{
+ "actions": [],
+ "autoname": "autoincrement",
+ "creation": "2025-11-13 11:07:15.090843",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "department",
+  "supplier",
+  "currency",
+  "column_break_zijd",
+  "branch",
+  "employee_type",
+  "account_from",
+  "account_to",
+  "mode_of_payment",
+  "section_break_kaaj",
+  "employee",
+  "section_break_xqdy",
+  "total_amount",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "label": "Branch",
+   "options": "Branch"
+  },
+  {
+   "fieldname": "employee_type",
+   "fieldtype": "Select",
+   "label": "Employee Type",
+   "options": "Part Time\nContract\nPermanent"
+  },
+  {
+   "fieldname": "column_break_zijd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_kaaj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Supplier",
+   "options": "Supplier",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_xqdy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Float",
+   "label": "Total Amount"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Table",
+   "label": "Employee",
+   "options": "Employee Payment Processing Employee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "account_from",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Account From",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency",
+   "reqd": 1
+  },
+  {
+   "fieldname": "mode_of_payment",
+   "fieldtype": "Link",
+   "label": "Mode of Payment",
+   "options": "Mode of Payment",
+   "reqd": 1
+  },
+  {
+   "fieldname": "account_to",
+   "fieldtype": "Link",
+   "label": "Account To",
+   "options": "Account"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Employee Payment Processing",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-11-14 11:57:08.048023",
+ "modified_by": "Administrator",
+ "module": "Havano Zim Payroll",
+ "name": "Employee Payment Processing",
+ "naming_rule": "Autoincrement",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

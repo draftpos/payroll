@@ -80,6 +80,7 @@
   "ctc",
   "salary_currency",
   "salary_mode",
+  "backpay",
   "column_break_xujn",
   "post_cost_center",
   "salary_computed",
@@ -1232,6 +1233,11 @@
    "fieldname": "nec_zwg",
    "fieldtype": "Float",
    "label": "NEC ZWG"
+  },
+  {
+   "fieldname": "backpay",
+   "fieldtype": "Float",
+   "label": "Backpay"
   }
  ],
  "icon": "fa fa-user",
@@ -1239,7 +1245,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-11-13 10:46:04.542915",
+ "modified": "2025-11-13 11:37:10.601439",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_employee",

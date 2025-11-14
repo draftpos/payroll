@@ -179,6 +179,7 @@ def main(self):
             
 
     for e in self.employee_earnings:
+        print(e.components)
         # Capture Basic Salary
         if e.components == "Basic Salary":
             if self.salary_currency == "USD":
@@ -187,6 +188,26 @@ def main(self):
             else: 
                 basic_salary += flt(e.amount_usd) * exchange_rate
                 basic_salary += flt(e.amount_zwg)
+        # -----------------------------------------------------START BACKPAY-----------------------------------------------------
+        elif e.components == "Backpay":
+            print("----------------------------------back pay")
+            backpay=0
+            if self.salary_currency == "USD":
+                backpay += flt(e.amount_zwg) / exchange_rate
+                backpay += e.amount_usd
+            else:
+                backpay += flt(e.amount_zwg)
+                backpay += flt(e.amount_usd) * exchange_rate
+
+            # if self.backpay < backpay:
+            #     frappe.throw(f"Back pay should not exceed amount owed in component: {self.backpay}")    
+            
+            # tax_credits += (medical * (flt(component_doc.employee_amount) / 100))
+            # self.medical=medical
+            # total_deduction += flt(medical)
+            # self.total_tax_credits = tax_credits
+
+# -----------------------------------------------------END BACKPAY-----------------------------------------------------
 
 
 
@@ -252,15 +273,8 @@ def main(self):
             else: 
                 d.amount_usd = 0
                 d.amount_zwg = nssa
-                
-        
             total_allowable_deductions += flt(nssa)
             total_deduction += flt(nssa)
-            print(f"total nec---------------------{nssa}")
-    
-            # frappe.msgprint(f"{total_deduction}")
-
-        # If Medical Aid, apply employer percentage
         elif component_doc.component_mode == "Medical Aid":
             medical=0
             if self.salary_currency == "USD":
@@ -269,22 +283,10 @@ def main(self):
             else:
                 medical += flt(d.amount_zwg)
                 medical += flt(d.amount_usd) * exchange_rate
-
-            #----------------------------------------------------------------------------
-            
             tax_credits += (medical * (flt(component_doc.employee_amount) / 100))
             self.medical=medical
             total_deduction += flt(medical)
-            #----------------------------------------------------------------------------
-            # self.append("tax_credits", {
-            #     "credit_name": d.components,
-            #     "amount_usd": usd_medical,
-            #     "amount_zwg": zwg_medical
-            # })
             self.total_tax_credits = tax_credits
-            # total_allowable_deductions += flt(medical)
-
-
 
         # If NEC, apply employer percentage
         elif component_doc.component_mode == "NEC":

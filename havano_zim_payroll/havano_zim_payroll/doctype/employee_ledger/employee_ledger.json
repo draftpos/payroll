@@ -1,0 +1,72 @@
+{
+ "actions": [],
+ "autoname": "autoincrement",
+ "creation": "2025-11-13 11:04:25.439944",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "employee",
+  "employee_name",
+  "added_last_month",
+  "balance_added",
+  "current_balance_owing"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "label": "Employee",
+   "options": "havano_employee",
+   "unique": 1
+  },
+  {
+   "fetch_from": "employee.first_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name"
+  },
+  {
+   "fieldname": "current_balance_owing",
+   "fieldtype": "Float",
+   "label": "Current Balance Owing"
+  },
+  {
+   "fieldname": "added_last_month",
+   "fieldtype": "Float",
+   "label": "Last Month Balance"
+  },
+  {
+   "fieldname": "balance_added",
+   "fieldtype": "Float",
+   "label": "Balance Added This Month"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-11-13 15:05:26.553471",
+ "modified_by": "Administrator",
+ "module": "Havano Zim Payroll",
+ "name": "Employee Ledger",
+ "naming_rule": "Autoincrement",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
