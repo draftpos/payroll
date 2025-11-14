@@ -75,5 +75,16 @@
   "name": "overtime type",
   "script": "frappe.ui.form.on(\"havano_employee\", {\n    overtime(frm) {\n        let value = frm.doc.overtime;\n\n        if (value === \"Short Time\") {\n            frm.fields_dict.formula_display.$wrapper.html(\"<b>Formula:</b> (= hourly rate * hours worked * 1.5)\");\n        } else if (value === \"Double Time\") {\n            frm.fields_dict.formula_display.$wrapper.html(\"<b>Formula:</b> (= hourly rate * hours worked * 2)\");\n        } else {\n            frm.fields_dict.formula_display.$wrapper.html(\"<b>Formula:</b> Select overtime type to view calculation</b>\");\n        }\n    },\n});\n",
   "view": "Form"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Employee Payment Processing",
+  "enabled": 1,
+  "modified": "2025-11-14 10:32:36.025240",
+  "module": "Havano Zim Payroll",
+  "name": "get employees",
+  "script": "frappe.ui.form.on(\"Employee Payment Processing\", {\n    refresh: function(frm) {\n        frm.add_custom_button(__('Get Employees'), function() {\n            if (!frm.doc.company || !frm.doc.branch || !frm.doc.department) {\n                frappe.msgprint(__('Please select Company, Branch, and Department first.'));\n                return;\n            }\n\n            frappe.call({\n                method: \"havano_zim_payroll.havano_zim_payroll.doctype.employee_payment_processing.employee_payment_processing.get_employees_with_ledger\",\n                args: {\n                    company: frm.doc.company,\n                    branch: frm.doc.branch,\n                    department: frm.doc.department\n                },\n                callback: function(r) {\n                    if (r.message) {\n                        frm.clear_table(\"employee\");\n                        r.message.forEach(emp => {\n                            let row = frm.add_child(\"employee\");\n                            console.log(emp);\n                            row.employee = emp.employee;\n                            row.employee_name=emp.employee_name;\n                            row.amount_payable = emp.current_balance_owing;\n                        });\n                        frm.refresh_field(\"employee\");\n                        frappe.msgprint(__('Employees loaded successfully.'));\n                    } else {\n                        frappe.msgprint(__('No employees found.'));\n                    }\n                }\n            });\n        });\n    }\n});\n",
+  "view": "Form"
  }
 ]
