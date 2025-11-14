@@ -110,7 +110,6 @@
   "total_deductions",
   "payee",
   "aids_levy",
-  "nec",
   "column_break_asoi",
   "total_income",
   "total_taxable_income",
@@ -148,6 +147,16 @@
   "total_net_income_usd",
   "column_break_bouw",
   "total_net_income_zwg",
+  "section_break_apmw",
+  "pungwe_column",
+  "nec_employee",
+  "nec_employer",
+  "cimas_employee",
+  "cimas_employer",
+  "funeral_employee",
+  "funeral_employer",
+  "lapf_employee",
+  "lapf_employer",
   "personal_details",
   "marital_status",
   "family_background",
@@ -1163,21 +1172,18 @@
   {
    "fieldname": "wcif_usd",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "WCIF USD"
   },
   {
    "fieldname": "wcif_zwg",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "WCIF ZWG"
   },
   {
    "fieldname": "column_break_mfxq",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "nec",
-   "fieldtype": "Float",
-   "label": "NEC"
   },
   {
    "fieldname": "total_leave_allocated",
@@ -1227,17 +1233,68 @@
   {
    "fieldname": "nec_usd",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "NEC USD"
   },
   {
    "fieldname": "nec_zwg",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "NEC ZWG"
   },
   {
    "fieldname": "backpay",
    "fieldtype": "Float",
    "label": "Backpay"
+  },
+  {
+   "fieldname": "section_break_apmw",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "pungwe_column",
+   "fieldtype": "Column Break",
+   "label": "Pungwe"
+  },
+  {
+   "fieldname": "cimas_employee",
+   "fieldtype": "Float",
+   "label": "CIMAS Employee"
+  },
+  {
+   "fieldname": "cimas_employer",
+   "fieldtype": "Float",
+   "label": "CIMAS Employer"
+  },
+  {
+   "fieldname": "funeral_employee",
+   "fieldtype": "Float",
+   "label": "Funeral Employee"
+  },
+  {
+   "fieldname": "funeral_employer",
+   "fieldtype": "Float",
+   "label": "Funeral Employer"
+  },
+  {
+   "fieldname": "lapf_employee",
+   "fieldtype": "Float",
+   "label": "LAPF Employee"
+  },
+  {
+   "fieldname": "lapf_employer",
+   "fieldtype": "Float",
+   "label": "LAPF Employer"
+  },
+  {
+   "fieldname": "nec_employee",
+   "fieldtype": "Float",
+   "label": "Nec Employee"
+  },
+  {
+   "fieldname": "nec_employer",
+   "fieldtype": "Float",
+   "label": "Nec Employer"
   }
  ],
  "icon": "fa fa-user",
@@ -1245,7 +1302,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-11-13 11:37:10.601439",
+ "modified": "2025-11-14 17:00:55.498374",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_employee",

@@ -60,35 +60,6 @@
  {
   "accounts": [
    {
-    "account": "1100 - Cash In Hand - SC",
-    "company": "Aa Fridays",
-    "cost_center": null,
-    "currency": "USD",
-    "parent": "NEC",
-    "parentfield": "accounts",
-    "parenttype": "havano_salary_component",
-    "supplier": null
-   }
-  ],
-  "code": "NC",
-  "component_mode": "NEC",
-  "docstatus": 0,
-  "doctype": "havano_salary_component",
-  "employee_amount": "",
-  "employer_amount": "",
-  "is_tax_applicable": 1,
-  "modified": "2025-11-13 10:44:46.428878",
-  "name": "NEC",
-  "salary_component": "NEC",
-  "type": "Deduction",
-  "usd_ceiling": 0.0,
-  "usd_ceiling_amount": 0.0,
-  "zwg_ceiling": 0.0,
-  "zwg_ceiling_amount": 0.0
- },
- {
-  "accounts": [
-   {
     "account": "1000 - Application of Funds (Assets) - SC",
     "company": "Aa Fridays",
     "cost_center": null,
@@ -151,56 +122,27 @@
     "company": "Aa Fridays",
     "cost_center": null,
     "currency": "USD",
-    "parent": "PAYEE",
+    "parent": "NEC",
     "parentfield": "accounts",
     "parenttype": "havano_salary_component",
     "supplier": null
    }
   ],
-  "code": "PY",
-  "component_mode": null,
+  "code": "NC",
+  "component_mode": "allowable_deduction",
   "docstatus": 0,
   "doctype": "havano_salary_component",
-  "employee_amount": "",
-  "employer_amount": "",
-  "is_tax_applicable": 0,
-  "modified": "2025-11-12 11:14:20.705133",
-  "name": "PAYEE",
-  "salary_component": "PAYEE",
-  "type": "Deduction",
-  "usd_ceiling": 0.0,
-  "usd_ceiling_amount": 0.0,
-  "zwg_ceiling": 0.0,
-  "zwg_ceiling_amount": 0.0
- },
- {
-  "accounts": [
-   {
-    "account": "1100 - Cash In Hand - SC",
-    "company": "Aa Fridays",
-    "cost_center": null,
-    "currency": "USD",
-    "parent": "Aids Levy",
-    "parentfield": "accounts",
-    "parenttype": "havano_salary_component",
-    "supplier": null
-   }
-  ],
-  "code": "AL",
-  "component_mode": null,
-  "docstatus": 0,
-  "doctype": "havano_salary_component",
-  "employee_amount": "",
-  "employer_amount": "",
+  "employee_amount": "1",
+  "employer_amount": "50",
   "is_tax_applicable": 1,
-  "modified": "2025-11-12 11:17:58.591825",
-  "name": "Aids Levy",
-  "salary_component": "Aids Levy",
+  "modified": "2025-11-14 17:35:05.287677",
+  "name": "NEC",
+  "salary_component": "NEC",
   "type": "Deduction",
-  "usd_ceiling": 0.0,
-  "usd_ceiling_amount": 0.0,
-  "zwg_ceiling": 0.0,
-  "zwg_ceiling_amount": 0.0
+  "usd_ceiling": 44.0,
+  "usd_ceiling_amount": 4.0,
+  "zwg_ceiling": 44.0,
+  "zwg_ceiling_amount": 4.0
  },
  {
   "accounts": [
@@ -255,6 +197,64 @@
   "name": "Basic Salary",
   "salary_component": "Basic Salary",
   "type": "Earning",
+  "usd_ceiling": 0.0,
+  "usd_ceiling_amount": 0.0,
+  "zwg_ceiling": 0.0,
+  "zwg_ceiling_amount": 0.0
+ },
+ {
+  "accounts": [
+   {
+    "account": "1100 - Cash In Hand - SC",
+    "company": "Aa Fridays",
+    "cost_center": null,
+    "currency": "USD",
+    "parent": "Aids Levy",
+    "parentfield": "accounts",
+    "parenttype": "havano_salary_component",
+    "supplier": null
+   }
+  ],
+  "code": "AL",
+  "component_mode": null,
+  "docstatus": 0,
+  "doctype": "havano_salary_component",
+  "employee_amount": "",
+  "employer_amount": "",
+  "is_tax_applicable": 1,
+  "modified": "2025-11-12 11:17:58.591825",
+  "name": "Aids Levy",
+  "salary_component": "Aids Levy",
+  "type": "Deduction",
+  "usd_ceiling": 0.0,
+  "usd_ceiling_amount": 0.0,
+  "zwg_ceiling": 0.0,
+  "zwg_ceiling_amount": 0.0
+ },
+ {
+  "accounts": [
+   {
+    "account": "1100 - Cash In Hand - SC",
+    "company": "Aa Fridays",
+    "cost_center": null,
+    "currency": "USD",
+    "parent": "PAYEE",
+    "parentfield": "accounts",
+    "parenttype": "havano_salary_component",
+    "supplier": null
+   }
+  ],
+  "code": "PY",
+  "component_mode": null,
+  "docstatus": 0,
+  "doctype": "havano_salary_component",
+  "employee_amount": "",
+  "employer_amount": "",
+  "is_tax_applicable": 0,
+  "modified": "2025-11-12 11:14:20.705133",
+  "name": "PAYEE",
+  "salary_component": "PAYEE",
+  "type": "Deduction",
   "usd_ceiling": 0.0,
   "usd_ceiling_amount": 0.0,
   "zwg_ceiling": 0.0,
