@@ -308,8 +308,8 @@ def main(self):
             #----------------------------------------------------------------------------
             if d.components.upper() == "CIMAS":
                 print(f"Employer Percentage: {flt(component_doc.employer_amount)}")
-                cimas_employee= self.total_taxable_income * flt(component_doc.employee_amount) /100
-                cimas_employer= self.total_taxable_income * flt(component_doc.employer_amount) /100
+                cimas_employee= d.amount_usd  * flt(component_doc.employee_amount) /100
+                cimas_employer= d.amount_usd  * flt(component_doc.employer_amount) /100
                 # total_allowable_deductions += flt(cimas_employee)
                 total_deduction += flt(cimas_employee)
                 tax_credits += cimas_employee
@@ -320,14 +320,14 @@ def main(self):
 
             if d.components.upper() == "FUNERAL POLICY":
                 print(f"Employer Percentage: {flt(component_doc.employer_amount)}")
-                funeral_employee= self.total_taxable_income * flt(component_doc.employee_amount) /100
-                funeral_employer= self.total_taxable_income * flt(component_doc.employer_amount) /100
+                funeral_employee= d.amount_usd  * flt(component_doc.employee_amount) /100
+                funeral_employer= d.amount_usd  * flt(component_doc.employer_amount) /100
                 # total_allowable_deductions += flt(cimas_employee)
                 total_deduction += flt(funeral_employee)
                 # tax_credits += funeral_employee
                 print(f"total funeral---------------------{funeral_employee}")
                 self.funeral_employee=funeral_employee
-                self.funeral_employee=funeral_employer
+                self.funeral_employer=funeral_employer
             #-----------------------------------------------
         elif d.components.upper() == "UFAWUZ":
             ufawuz=0.03 * basic_salary
@@ -346,7 +346,7 @@ def main(self):
         elif d.components.upper() == "LAPF":
             lapf_employee=0.06 * basic_salary
             lapf_employer=0.173 * basic_salary
-            total_deduction += flt(lapf)
+            total_deduction += flt(lapf_employee)
             print(f"total lapf_employee---------------------{lapf_employee}")
             d.amount_usd = lapf_employee
             d.amount_zwg = 0
