@@ -134,9 +134,6 @@ def main(self):
         self.overtime=""
         self.hours=0
             
-
-
-
     elif self.overtime == "Double Time":
         print("overt time-----------------")
         # remove existing "Overtime Short" rows properly
@@ -147,7 +144,6 @@ def main(self):
         basic_now=0
         for e in self.employee_earnings:
             if e.components == "Basic Salary":
-           
                 if self.salary_currency == "USD":
                     basic_now += flt(e.amount_zwg) / exchange_rate
                     basic_now += flt(e.amount_usd)
@@ -182,13 +178,25 @@ def main(self):
         print(e.components)
         # Capture Basic Salary
         if e.components == "Basic Salary":
-            if self.salary_currency == "USD":
-                basic_salary += flt(e.amount_zwg) / exchange_rate
-                basic_salary += flt(e.amount_usd)
-            else: 
-                basic_salary += flt(e.amount_usd) * exchange_rate
-                basic_salary += flt(e.amount_zwg)
+            component_doc = frappe.get_doc("havano_salary_component", e.components)
+            if component_doc.component_mode == "daily rate":
+                print("BASIC IS DAILY")
+                if self.salary_currency == "USD":
+                    basic_salary += flt(e.amount_zwg) / 26 / exchange_rate * self.total_days_worked
+                    basic_salary += flt(e.amount_usd) / 26 * self.total_days_worked
+                else: 
+                    basic_salary += flt(e.amount_usd) * exchange_rate  / 26 * self.total_days_worked
+                    basic_salary += flt(e.amount_zwg)  / 26 * self.total_days_worked
+            else:
+                if self.salary_currency == "USD":
+                    basic_salary += flt(e.amount_zwg) / exchange_rate
+                    basic_salary += flt(e.amount_usd)
+                else: 
+                    basic_salary += flt(e.amount_usd) * exchange_rate
+                    basic_salary += flt(e.amount_zwg)
+            self.basic_salary_calculated=basic_salary
         # -----------------------------------------------------START BACKPAY-----------------------------------------------------
+
         elif e.components == "Backpay":
             print("----------------------------------back pay")
             backpay=0
@@ -219,16 +227,35 @@ def main(self):
             "amount_currency": "ZWG" if e.amount_zwg else "USD"
         })
         if self.salary_currency == "USD":
-            total_amount_basic_and_bonus_and_allowances += flt(e.amount_zwg) / exchange_rate
-            total_amount_basic_and_bonus_and_allowances += flt(e.amount_usd)
+            if e.components == "Basic Salary":
+                component_doc = frappe.get_doc("havano_salary_component", e.components)
+                if component_doc.component_mode == "daily rate":
+                    total_amount_basic_and_bonus_and_allowances += flt(e.amount_zwg) / exchange_rate /26 *  self.total_days_worked
+                    total_amount_basic_and_bonus_and_allowances += flt(e.amount_usd) /26 *  self.total_days_worked
+                else:
+                    total_amount_basic_and_bonus_and_allowances += flt(e.amount_zwg) / exchange_rate
+                    total_amount_basic_and_bonus_and_allowances += flt(e.amount_usd)
+            else:
+                total_amount_basic_and_bonus_and_allowances += flt(e.amount_zwg) / exchange_rate
+                total_amount_basic_and_bonus_and_allowances += flt(e.amount_usd)
         else: 
             total_amount_basic_and_bonus_and_allowances += flt(e.amount_zwg) 
             total_amount_basic_and_bonus_and_allowances += flt(e.amount_usd) * exchange_rate
 
         if bool(e.is_tax_applicable):
             if self.salary_currency == "USD":
-                ensurable_earnings += flt(e.amount_zwg) / exchange_rate
-                ensurable_earnings += flt(e.amount_usd)
+                if e.components == "Basic Salary":
+                    component_doc = frappe.get_doc("havano_salary_component", e.components)
+                    if component_doc.component_mode == "daily rate":
+                        ensurable_earnings += flt(e.amount_zwg) / exchange_rate  /26 *  self.total_days_worked
+                        ensurable_earnings += flt(e.amount_usd)  /26 *  self.total_days_worked
+                    else:
+                        ensurable_earnings += flt(e.amount_zwg) / exchange_rate
+                        ensurable_earnings += flt(e.amount_usd)
+
+                else:
+                    ensurable_earnings += flt(e.amount_zwg) / exchange_rate
+                    ensurable_earnings += flt(e.amount_usd)
 
             else: 
                 ensurable_earnings += flt(e.amount_zwg)
@@ -260,6 +287,7 @@ def main(self):
                     nssa= nassa_component.usd_ceiling_amount
                 else:
                     nssa=flt(ensurable_earnings) * 0.045
+                    print(f"fffffffffffffffff{nssa}fff{total_allowable_deductions}fffffffe{ensurable_earnings}")
             else:
                 if flt(ensurable_earnings) >= nassa_component.zwg_ceiling:
                     nssa=  nassa_component.zwg_ceiling_amount
@@ -269,7 +297,6 @@ def main(self):
             if self.salary_currency == "USD":
                 d.amount_usd = nssa
                 d.amount_zwg = 0
-                total_allowable_deductions
             else: 
                 d.amount_usd = 0
                 d.amount_zwg = nssa
@@ -389,7 +416,7 @@ def main(self):
     print(f"havano_salary_structure saved: {salary_structure.name}")
     # Link back to employee
     self.salary_structure = salary_structure.name
-    self.total_tax_credits=total_tax_credits
+    self.total_tax_credits=tax_credits
 
  
 

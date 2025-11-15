@@ -96,6 +96,7 @@
   "column_break_heye",
   "bank_ac_no",
   "iban",
+  "total_days_worked",
   "salary_structures_section",
   "payment_account",
   "mode_of_payment",
@@ -157,6 +158,7 @@
   "funeral_employer",
   "lapf_employee",
   "lapf_employer",
+  "basic_salary_calculated",
   "personal_details",
   "marital_status",
   "family_background",
@@ -1205,6 +1207,7 @@
   {
    "fieldname": "medical",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Medical"
   },
   {
@@ -1295,6 +1298,17 @@
    "fieldname": "nec_employer",
    "fieldtype": "Float",
    "label": "Nec Employer"
+  },
+  {
+   "fieldname": "basic_salary_calculated",
+   "fieldtype": "Float",
+   "label": "Basic Salary Calculated"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_days_worked",
+   "fieldtype": "Float",
+   "label": "Total Days Worked"
   }
  ],
  "icon": "fa fa-user",
@@ -1302,7 +1316,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-11-14 17:00:55.498374",
+ "modified": "2025-11-15 10:41:23.832764",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_employee",
