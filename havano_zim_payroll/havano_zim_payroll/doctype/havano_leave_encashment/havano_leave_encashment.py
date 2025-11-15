@@ -6,4 +6,5 @@ from frappe.model.document import Document
 
 
 class havano_leave_encashment(Document):
-	pass
+	def before_save(self):
+		print("leave--------------------")

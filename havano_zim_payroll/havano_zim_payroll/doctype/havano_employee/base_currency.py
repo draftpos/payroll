@@ -359,6 +359,7 @@ def main(self):
         elif d.components.upper() == "UFAWUZ":
             ufawuz=0.03 * basic_salary
             total_deduction += flt(ufawuz)
+            total_allowable_deductions += flt(ufawuz)
             print(f"total ufawuz---------------------{ufawuz}")
             d.amount_usd = ufawuz
             d.amount_zwg = 0
@@ -366,6 +367,7 @@ def main(self):
         elif d.components.upper() == "ZIBAWU":
             zibawu=0.02 * basic_salary
             total_deduction += flt(zibawu)
+            total_allowable_deductions += flt(zibawu)
             print(f"total ufawuz---------------------{zibawu}")
             d.amount_usd = zibawu
             d.amount_zwg = 0
@@ -375,6 +377,7 @@ def main(self):
             lapf_employer=0.173 * basic_salary
             total_deduction += flt(lapf_employee)
             print(f"total lapf_employee---------------------{lapf_employee}")
+            total_allowable_deductions += flt(lapf_employee)
             d.amount_usd = lapf_employee
             d.amount_zwg = 0
             self.lapf_employee=lapf_employee
