@@ -8,6 +8,10 @@ from frappe.utils import nowdate
 
 def main(self):
     # frappe.msgprint(self.payslip_type)
+    if (self.cimas_employer_ + self.cimas_employee_)>100:
+        frappe.throw("Please makesure the % for cimas employer and employee are not more than 100")
+    if (self.funeral_policy_employer_ + self.funeral_policy_employee_)>100:
+        frappe.throw("Please makesure the % for funeral policy employer and employee are not more than 100")
     default_currency = frappe.db.get_value("Company", self.company, "default_currency")
     self.salary_currency=default_currency
 
@@ -335,8 +339,8 @@ def main(self):
             #----------------------------------------------------------------------------
             if d.components.upper() == "CIMAS":
                 print(f"Employer Percentage: {flt(component_doc.employer_amount)}")
-                cimas_employee= d.amount_usd  * flt(component_doc.employee_amount) /100
-                cimas_employer= d.amount_usd  * flt(component_doc.employer_amount) /100
+                cimas_employee= d.amount_usd  * flt(self.cimas_employee_) /100
+                cimas_employer= d.amount_usd  * flt(self.cimas_employer_ ) /100
                 # total_allowable_deductions += flt(cimas_employee)
                 total_deduction += flt(cimas_employee)
                 tax_credits += cimas_employee
@@ -347,8 +351,8 @@ def main(self):
 
             if d.components.upper() == "FUNERAL POLICY":
                 print(f"Employer Percentage: {flt(component_doc.employer_amount)}")
-                funeral_employee= d.amount_usd  * flt(component_doc.employee_amount) /100
-                funeral_employer= d.amount_usd  * flt(component_doc.employer_amount) /100
+                funeral_employee= d.amount_usd  * flt(self.funeral_policy_employee_) /100
+                funeral_employer= d.amount_usd  * flt(self.funeral_policy_employer_) /100
                 # total_allowable_deductions += flt(cimas_employee)
                 total_deduction += flt(funeral_employee)
                 # tax_credits += funeral_employee

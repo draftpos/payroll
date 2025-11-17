@@ -104,6 +104,12 @@
   "column_break_fhzq",
   "payrol_frequency",
   "wcif_percentage",
+  "funeral_and_cimas_section",
+  "cimas_employer_",
+  "cimas_employee_",
+  "column_break_dqsm",
+  "funeral_policy_employer_",
+  "funeral_policy_employee_",
   "earnings",
   "employee_earnings",
   "section_break_mase",
@@ -1315,6 +1321,39 @@
    "fieldname": "native_employee_id",
    "fieldtype": "Data",
    "label": "Native Employee ID"
+  },
+  {
+   "fieldname": "funeral_and_cimas_section",
+   "fieldtype": "Section Break",
+   "label": "Funeral and CIMAS"
+  },
+  {
+   "default": "0",
+   "fieldname": "cimas_employer_",
+   "fieldtype": "Float",
+   "label": "CIMAS EMPLOYER %"
+  },
+  {
+   "default": "0",
+   "fieldname": "cimas_employee_",
+   "fieldtype": "Float",
+   "label": "CIMAS EMPLOYEE %"
+  },
+  {
+   "fieldname": "column_break_dqsm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "funeral_policy_employer_",
+   "fieldtype": "Float",
+   "label": "Funeral Policy Employer %"
+  },
+  {
+   "default": "0",
+   "fieldname": "funeral_policy_employee_",
+   "fieldtype": "Float",
+   "label": "Funeral Policy Employee %"
   }
  ],
  "icon": "fa fa-user",
@@ -1322,7 +1361,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-11-17 09:16:32.148557",
+ "modified": "2025-11-17 10:55:35.023975",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_employee",
