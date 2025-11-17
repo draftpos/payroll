@@ -30,6 +30,7 @@
   "status",
   "total_leave_allocated",
   "total_leave_taken",
+  "native_employee_id",
   "erpnext_user",
   "user_id",
   "create_user",
@@ -1309,6 +1310,11 @@
    "fieldname": "total_days_worked",
    "fieldtype": "Float",
    "label": "Total Days Worked"
+  },
+  {
+   "fieldname": "native_employee_id",
+   "fieldtype": "Data",
+   "label": "Native Employee ID"
   }
  ],
  "icon": "fa fa-user",
@@ -1316,7 +1322,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-11-15 10:41:23.832764",
+ "modified": "2025-11-17 09:16:32.148557",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_employee",
