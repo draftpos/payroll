@@ -59,5 +59,5 @@ class havano_employee(Document):
             employee_doc.insert(ignore_permissions=True)
             frappe.db.commit()
 
-            # self.native_employee_id = employee_doc.name
-            frappe.msgprint(f"Created Employee: {employee_doc.name}")
+            self.native_employee_id = employee_doc.name
+            #frappe.msgprint(f"Created Employee: {employee_doc.name}")
