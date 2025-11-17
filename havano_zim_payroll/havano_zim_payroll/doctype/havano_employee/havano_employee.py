@@ -41,6 +41,7 @@ class havano_employee(Document):
 
             # frappe.msgprint(f"Updated Employee: {employee_doc.name}")
 
+
         else:
             # CREATE EMPLOYEE
             employee_doc = frappe.get_doc({
