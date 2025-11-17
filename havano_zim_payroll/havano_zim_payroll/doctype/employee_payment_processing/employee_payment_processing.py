@@ -7,53 +7,54 @@ from frappe.model.document import Document
 
 class EmployeePaymentProcessing(Document):
     
-   def before_save(self):
-      self.supplier=self.get_basic_salary_supplier()
-   
-      total_amount = 0
-      for idx, row in enumerate(self.employee, start=1):
-         amount_owing = row.amount_payable or 0
-         amount_paid = row.amount_paying or 0
+    def before_save(self):
+        self.supplier=self.get_basic_salary_supplier()
+    
+        total_amount = 0
+        for idx, row in enumerate(self.employee, start=1):
+            amount_owing = row.amount_payable or 0
+            amount_paid = row.amount_paying or 0
 
-         if amount_paid > amount_owing:
-            frappe.throw(
-                  (f"Amount to be paid ({amount_paid}) cannot be greater than amount owing ({amount_owing}) for row {idx}")
-            )
+            if amount_paid > amount_owing:
+                frappe.throw(
+                    (f"Amount to be paid ({amount_paid}) cannot be greater than amount owing ({amount_owing}) for row {idx}")
+                )
 
-         total_amount += amount_paid      
-      self.total_amount = total_amount
-      a=create_payment_entry(
-                  company=self.company,
-                  payment_type="Pay",
-                  party_type="Supplier",
-                  party= self.supplier,
-                  paid_from=self.account_from,
-                  paid_from_currency=self.currency,
-                  paid_amount=total_amount,            
-                  received_amount=total_amount,     
-                  mode_of_payment=self.mode_of_payment,
-                  paid_to=self.account_to,
-                  paid_to_currency=self.currency,
+            total_amount += amount_paid      
+        self.total_amount = total_amount
+        a=create_payment_entry(
+                    company=self.company,
+                    payment_type="Pay",
+                    party_type="Supplier",
+                    party= self.supplier,
+                    paid_from=self.account_from,
+                    paid_from_currency=self.currency,
+                    paid_amount=total_amount,            
+                    received_amount=total_amount,     
+                    mode_of_payment=self.mode_of_payment,
+                    paid_to=self.account_to,
+                    paid_to_currency=self.currency,
 
 
-   
-               )
-      if a["status"] == 200:     # 200 is integer, not string
-         for idx, row in enumerate(self.employee, start=1):
+    
+                )
+        if a["status"] != 200:
+            frappe.throw(f"Payment Entry Failed: {a['message']}")
+        for idx, row in enumerate(self.employee, start=1):
 
             amount_owing = row.amount_payable or 0
             amount_paid = row.amount_paying or 0
 
             # Fetch employee ledger
             ledger = frappe.db.get_value(
-                  "Employee Ledger",
-                  {"employee": row.employee},
-                  ["name", "employee", "current_balance_owing"],
-                  as_dict=True
+                    "Employee Ledger",
+                    {"employee": row.employee},
+                    ["name", "employee", "current_balance_owing"],
+                    as_dict=True
             )
 
             if not ledger:
-                  frappe.throw(f"No Employee Ledger found for employee {row.employee}")
+                    frappe.throw(f"No Employee Ledger found for employee {row.employee}")
 
             # Calculate new balance
             new_balance = ledger.current_balance_owing - amount_paid
@@ -63,36 +64,32 @@ class EmployeePaymentProcessing(Document):
             ledger_doc.current_balance_owing = new_balance
             ledger_doc.save(ignore_permissions=True)
 
-
-
-
-
-   def get_basic_salary_supplier(self):
+    def get_basic_salary_supplier(self):
       # Step 1: Get the Havano Salary Component with component = "Basic Salary"
-      salary_component = frappe.get_all(
+        salary_component = frappe.get_all(
          "havano_salary_component",
          filters={"salary_component": "Basic Salary"},
          fields=["name"],
          limit=1
-      )
+       )
 
-      if not salary_component:
-         frappe.throw("No 'Basic Salary' component found.")
+        if not salary_component:
+            frappe.throw("No 'Basic Salary' component found.")
 
       # Step 2: Get the doc to access the child table 'accounts'
-      doc = frappe.get_doc("havano_salary_component", salary_component[0].name)
+        doc = frappe.get_doc("havano_salary_component", salary_component[0].name)
 
-      # Step 3: Grab the supplier from the child table
-      supplier = None
-      for row in doc.accounts:
-         if row.supplier:
-               supplier = row.supplier
-               break
+        # Step 3: Grab the supplier from the child table
+        supplier = None
+        for row in doc.accounts:
+            if row.supplier:
+                supplier = row.supplier
+                break
 
-      if not supplier:
-         frappe.throw("No supplier ID found in the 'Accounts' child table for Basic Salary.")
+        if not supplier:
+            frappe.throw("No supplier ID found in the 'Accounts' child table for Basic Salary.")
 
-      return supplier
+        return supplier
 
 @frappe.whitelist()
 def create_payment_entry(
