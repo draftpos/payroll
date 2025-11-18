@@ -83,7 +83,7 @@ app_license = "mit"
 # ------------
 
 # before_install = "havano_zim_payroll.install.before_install"
-# after_install = "havano_zim_payroll.install.after_install"
+after_install = "havano_zim_payroll.havano_zim_payroll.defaults.install_defaults"
 
 # Uninstallation
 # ------------
