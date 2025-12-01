@@ -10,8 +10,24 @@ class HavanoLeaveEncashment(Document):
 		employee=self.employee
 		amount=self.paid_amount
 		days=self.encashment_days
-		print(f"jjjjjjjjjjjjjjj{amount} {days}")
+		use_fomular=self.use_fomular
+		if self.use_fomular is 0  and self.paid_amount == 0:
+			frappe.throw("Paid Amount cannot be zero or empty. Enable 'Use Formula' to auto calculate the amount.")
+		if self.use_fomular == 1:
+			emp = frappe.get_doc("havano_employee", employee) 
+			# Loop through the child table
+			basic_salary_row = None
+			for earning in emp.employee_earnings:
+				if earning.components == "Basic Salary":
+					basic_salary_row = earning
+					break  # stop at the first match
 
+			if basic_salary_row:
+				print("Found Basic Salary row:", basic_salary_row.amount_usd)
+				self.paid_amount = (basic_salary_row.amount_usd/ 26 ) * days
+			else:
+				frappe.throw("No Basic Salary row found")
+				
 		leave_balance_data = frappe.db.get_value(
 			"Havano Leave Balances",
 			{"employee": employee, "havano_leave_type": "Annual Leave"},
@@ -39,7 +55,6 @@ class HavanoLeaveEncashment(Document):
 			for row in emp.employee_earnings:
 				if row.components.upper() == "CASH IN LIEU":
 					existing_row = row
-					print("existsssssssssssssssssssssssssssssssssssssssss")
 					break
 
 			if existing_row:

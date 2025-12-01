@@ -12,7 +12,7 @@
   "currencys",
   "posting_date",
   "column_break_lgui",
-  "paid_amount",
+  "use_fomular",
   "section_break_ttnum",
   "employee",
   "employee_name",
@@ -20,7 +20,8 @@
   "leave_type",
   "column_break_cevy",
   "encashment_days",
-  "amended_from"
+  "amended_from",
+  "paid_amount"
  ],
  "fields": [
   {
@@ -63,7 +64,8 @@
    "fieldname": "encashment_days",
    "fieldtype": "Float",
    "label": "Encashment Days",
-   "no_copy": 1
+   "no_copy": 1,
+   "reqd": 1
   },
   {
    "fieldname": "accounting_section",
@@ -75,14 +77,6 @@
    "fieldname": "posting_date",
    "fieldtype": "Date",
    "label": "Posting Date"
-  },
-  {
-   "default": "0.0",
-   "description": "Amount paid against this encashment",
-   "fieldname": "paid_amount",
-   "fieldtype": "Currency",
-   "label": "Paid Amount",
-   "no_copy": 1
   },
   {
    "fieldname": "section_break_ttnum",
@@ -109,11 +103,24 @@
   {
    "fieldname": "column_break_lgui",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "(Basic Salary / 26 )* Leave Days",
+   "fieldname": "use_fomular",
+   "fieldtype": "Check",
+   "label": "Use Fomular"
+  },
+  {
+   "default": "0",
+   "fieldname": "paid_amount",
+   "fieldtype": "Float",
+   "label": "Paid Amount"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2025-11-15 13:23:26.754997",
+ "modified": "2025-11-27 11:30:41.404268",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "Havano  Leave Encashment",

@@ -93,9 +93,10 @@ def main(self):
     ensurable_earnings= 0
     basic_salary= 0
     overtime=self.overtime
+    nassa_tracking=0
 
     # Remove any existing "Basic Salary" rows first
-    if self.overtime == "Short Time":
+    if self.overtime == "Time & Half":
         print("overt time-----------------")
         # remove existing "Overtime Short" rows properly
         for e in self.employee_earnings:
@@ -114,10 +115,11 @@ def main(self):
                     basic_now += flt(e.amount_zwg)
         
 
-        hourly_rate = flt(basic_now / 26 / 7.5, 2)
-        overtime_amount = flt(hourly_rate * self.hours * (2 if self.overtime == "Double Time" else 1 if self.overtime == "Short Time" else 0))
-        print(f"-----------------overrr-------{basic_now}")
+        hourly_rate = flt(basic_now / 26 / 7.5)
+        overtime_amount = flt(hourly_rate * self.hours * (2 if self.overtime == "Double Time" else 1.5 if self.overtime == "Time & Half" else 0))
+       
         self.overtime_amount = overtime_amount
+        print(f"-----------------overrr-------{basic_now} and amount is {overtime_amount}")
         # total_amount_basic_and_bonus_and_allowances += overtime_amount
         # append new row
         new_row = self.append("employee_earnings", {})
@@ -199,8 +201,16 @@ def main(self):
                     basic_salary += flt(e.amount_usd) * exchange_rate
                     basic_salary += flt(e.amount_zwg)
             self.basic_salary_calculated=basic_salary
+        # -----------------------------------------------------START LONG SERVICE-----------------------------------------------------
+        elif e.components.upper() == "LONG SERVICE ALLOWANCE":
+            long_service=self.basic_salary_calculated * 0.01
+            if self.salary_currency == "USD":
+                e.amount_usd = long_service
+                e.amount_zwg = 0
+            else: 
+                e.amount_usd = long_service
+                e.amount_zwg = 0
         # -----------------------------------------------------START BACKPAY-----------------------------------------------------
-
         elif e.components == "Backpay":
             print("----------------------------------back pay")
             backpay=0
@@ -264,6 +274,15 @@ def main(self):
             else: 
                 ensurable_earnings += flt(e.amount_zwg)
                 ensurable_earnings += flt(e.amount_usd) * exchange_rate
+        component=component_doc = frappe.get_doc("havano_salary_component", e.components)
+        if bool(component.track_nassa):
+            if self.salary_currency == "USD":
+                # if e.components != "Basic Salary":
+                nassa_tracking += flt(e.amount_zwg) / exchange_rate
+                nassa_tracking += flt(e.amount_usd)
+            else: 
+                nassa_tracking += flt(e.amount_zwg)
+                nassa_tracking += flt(e.amount_usd) * exchange_rate
 
 
 
@@ -287,16 +306,16 @@ def main(self):
             nassa_component = frappe.get_doc("havano_salary_component", "NSSA")
             nssa=0
             if self.salary_currency == "USD":
-                if flt(ensurable_earnings) >= nassa_component.usd_ceiling:
+                if flt(nassa_tracking) >= nassa_component.usd_ceiling:
                     nssa= nassa_component.usd_ceiling_amount
                 else:
-                    nssa=flt(ensurable_earnings) * 0.045
+                    nssa=flt(nassa_tracking) * 0.045
                     print(f"fffffffffffffffff{nssa}fff{total_allowable_deductions}fffffffe{ensurable_earnings}")
             else:
-                if flt(ensurable_earnings) >= nassa_component.zwg_ceiling:
+                if flt(nassa_tracking) >= nassa_component.zwg_ceiling:
                     nssa=  nassa_component.zwg_ceiling_amount
                 else:
-                    nssa=flt(ensurable_earnings) * 0.045
+                    nssa=flt(nassa_tracking) * 0.045
 
             if self.salary_currency == "USD":
                 d.amount_usd = nssa

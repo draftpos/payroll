@@ -373,3 +373,57 @@ def create_payroll_report(
     except Exception as e:
         frappe.log_error(message=frappe.get_traceback(), title="Payroll Summary Creation Failed")
         return {"status": "error", "message": str(e)}
+
+from frappe.utils.pdf import get_pdf
+
+@frappe.whitelist()
+def generate_salary_slips_bulk(month, year):
+    """
+    Generate a single PDF of salary slips for all employees.
+    Each employee gets a page.
+    """
+
+    # 1️⃣ Fetch all employees
+    employees = frappe.get_all("havano_employee", fields=["name", "employee_name"])
+
+    html_list = []
+
+    # 2️⃣ Loop through employees
+    for emp in employees:
+        # Load the full employee document
+        employee_doc = frappe.get_doc("havano_employee", emp.name)
+
+        # 3️⃣ Render the print format for this employee
+        html = frappe.get_print(
+            doctype="havano_employee",
+            name=emp.name,
+            print_format="havano payslip single currency",  # your print format
+            no_letterhead=0,
+            doc=employee_doc
+        )
+
+        # 4️⃣ Add optional header
+        html = f"<h2>{emp.employee_name} — {month} {year}</h2>" + html
+
+        # 5️⃣ Append to the list
+        html_list.append(html)
+
+    # 6️⃣ Combine all HTMLs with page breaks
+    all_html = "".join([
+    f"<div style='page-break-after: {"always" if i < len(html_list)-1 else "auto"}'>{html}</div>"
+    for i, html in enumerate(html_list)
+])
+
+    # 7️⃣ Generate PDF once
+    pdf = get_pdf(all_html, options={"enable-local-file-access": True})
+
+    # 8️⃣ Save as Frappe File
+    file_doc = frappe.get_doc({
+        "doctype": "File",
+        "file_name": f"Salary_Slips_{month}_{year}.pdf",
+        "is_private": 0,
+        "content": pdf
+    })
+    file_doc.save()
+
+    return file_doc.file_url

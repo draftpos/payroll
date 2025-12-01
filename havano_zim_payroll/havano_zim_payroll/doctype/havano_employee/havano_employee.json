@@ -1221,7 +1221,7 @@
    "fieldname": "overtime",
    "fieldtype": "Select",
    "label": "Overtime",
-   "options": "\nShort Time\nDouble Time"
+   "options": "\nTime & Half\nDouble Time"
   },
   {
    "fieldname": "hours",
@@ -1361,7 +1361,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-11-17 10:55:35.023975",
+ "modified": "2025-11-27 09:49:11.173302",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_employee",

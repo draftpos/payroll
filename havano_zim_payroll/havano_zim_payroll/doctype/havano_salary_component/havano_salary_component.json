@@ -12,6 +12,7 @@
   "column_break_nqva",
   "is_tax_applicable",
   "component_mode",
+  "track_nassa",
   "section_break_mgmx",
   "employee_amount",
   "column_break_navt",
@@ -121,12 +122,18 @@
    "fieldname": "zwg_ceiling_amount",
    "fieldtype": "Float",
    "label": "ZWG Ceiling Amount"
+  },
+  {
+   "default": "0",
+   "fieldname": "track_nassa",
+   "fieldtype": "Check",
+   "label": "Track Nassa"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-18 14:01:55.763298",
+ "modified": "2025-11-27 10:20:27.687796",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_salary_component",
