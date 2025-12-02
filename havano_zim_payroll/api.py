@@ -409,10 +409,11 @@ def generate_salary_slips_bulk(month, year):
         html_list.append(html)
 
     # 6️⃣ Combine all HTMLs with page breaks
-    all_html = "".join([
-    f"<div style='page-break-after: {"always" if i < len(html_list)-1 else "auto"}'>{html}</div>"
-    for i, html in enumerate(html_list)
-])
+        all_html = "".join([
+            f'<div style="page-break-after: {"always" if i < len(html_list)-1 else "auto"}">{html}</div>'
+            for i, html in enumerate(html_list)
+        ])
+
 
     # 7️⃣ Generate PDF once
     pdf = get_pdf(all_html, options={"enable-local-file-access": True})

@@ -295,12 +295,10 @@ def main(self):
     print(f"Ensurable Earnings USD: {ensurable_earnings}")
     # ---------------- Populate Deductions ----------------
     total_allowable_deductions= 0
-
     for d in self.employee_deductions:
         # Get the related component document
         component_doc = frappe.get_doc("havano_salary_component", d.components)
         print(f"-----------------------component doc--------------{component_doc}")
-
         # If NSSA, calculate 4.5% of Basic Salary
         if d.components == "NSSA":
             nassa_component = frappe.get_doc("havano_salary_component", "NSSA")
@@ -369,7 +367,7 @@ def main(self):
             #----------------------------------------------------------------------------
 
             if d.components.upper() == "FUNERAL POLICY":
-                print(f"Employer Percentage: {flt(component_doc.employer_amount)}")
+                print(f"Employer Percentage: {flt(component_doc.employe_amount)}")
                 funeral_employee= d.amount_usd  * flt(self.funeral_policy_employee_) /100
                 funeral_employer= d.amount_usd  * flt(self.funeral_policy_employer_) /100
                 # total_allowable_deductions += flt(cimas_employee)
@@ -378,6 +376,28 @@ def main(self):
                 print(f"total funeral---------------------{funeral_employee}")
                 self.funeral_employee=funeral_employee
                 self.funeral_employer=funeral_employer
+            #-----------------------------------------------
+            if d.components.upper() == "NECWEI":
+                print(f"Employer Percentage: {flt(component_doc.employee_amount)}")
+                necwei= basic_salary * flt(component_doc.employee_amount) /100
+                # total_allowable_deductions += flt(cimas_employee)
+                total_deduction += flt(necwei)
+                # tax_credits += funeral_employee
+                print(f"total necwei---------------------{necwei}")
+                self.necwei=necwei
+                d.amount_usd = necwei
+                d.amount_zwg = 0
+            #-----------------------------------------------
+            if d.components.upper() == "ZESCWU":
+                print(f"Employer Percentage: {flt(component_doc.employee_amount)}")
+                zescwu= basic_salary * flt(component_doc.employee_amount) /100
+                # total_allowable_deductions += flt(cimas_employee)
+                total_deduction += flt(zescwu)
+                # tax_credits += funeral_employee
+                print(f"total necwei---------------------{zescwu}")
+                self.zescwu=zescwu
+                d.amount_usd = zescwu
+                d.amount_zwg = 0
             #-----------------------------------------------
         elif d.components.upper() == "UFAWUZ":
             ufawuz=0.03 * basic_salary
@@ -405,7 +425,7 @@ def main(self):
             d.amount_zwg = 0
             self.lapf_employee=lapf_employee
             self.lapf_employer=lapf_employer
-                
+               
         else:
             total_deduction += flt(d.amount_usd )
             #----------------------------------------------------------------------------

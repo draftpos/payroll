@@ -158,6 +158,7 @@
   "section_break_apmw",
   "pungwe_column",
   "nec_employee",
+  "necwei",
   "nec_employer",
   "cimas_employee",
   "cimas_employer",
@@ -166,6 +167,7 @@
   "lapf_employee",
   "lapf_employer",
   "basic_salary_calculated",
+  "zescwu",
   "personal_details",
   "marital_status",
   "family_background",
@@ -1354,6 +1356,16 @@
    "fieldname": "funeral_policy_employee_",
    "fieldtype": "Float",
    "label": "Funeral Policy Employee %"
+  },
+  {
+   "fieldname": "necwei",
+   "fieldtype": "Float",
+   "label": "NECWEI"
+  },
+  {
+   "fieldname": "zescwu",
+   "fieldtype": "Float",
+   "label": "ZESCWU"
   }
  ],
  "icon": "fa fa-user",
@@ -1361,7 +1373,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-11-27 09:49:11.173302",
+ "modified": "2025-12-01 17:17:23.855158",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_employee",

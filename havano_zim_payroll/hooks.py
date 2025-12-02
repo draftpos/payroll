@@ -247,64 +247,42 @@ after_install = "havano_zim_payroll.havano_zim_payroll.defaults.install_defaults
 # havano_zim_payroll/hooks.py
 
 # havano_zim_payroll/hooks.py
-# fixtures = [
-#     # Client Scripts for your module
-#     {
-#         "doctype": "Client Script",
-#         "filters": [
-#             ["module", "=", "Havano Zim Payroll"]
-#         ]
-#     },
-#     # Print Formats for your module
-#     {
-#         "doctype": "Print Format",
-#         "filters": [
-#             ["module", "=", "Havano Zim Payroll"]
-#         ]
-#     },
-#     # Salary Components
-#     {
-#         "doctype": "havano_salary_component",
-#         "filters": [
-#             [
-#                 "name",
-#                 "in",
-#                 [
-#                     "Basic Salary",
-#                     "PAYEE",
-#                     "NSSA",
-#                     "NEC",
-#                     "Aids Levy",
-#                     "Airtime Non Tax",
-#                     "Airtime Taxed",
-#                     "Overtime Bulk",
-#                     "Overtime Short",
-#                     "Overtime Double"
-#                 ]
-#             ]
-#         ]
-#     },
-#     # Custom Field for Company
-#    {
-#     "doctype": "Custom Field",
-#     "filters": [["name", "in", ["Company-custom_payslip_type"]]]
-#     },
-#     # Havano Leave Types
-#     {
-#         "doctype": "Havano Leave Type",
-#         "filters": [
-#             [
-#                 "name",
-#                 "in",
-#                 [
-#                     "Maternity Leave",
-#                     "Annual Leave",
-#                     "Sick Leave",
-#                     "Bereavement Leave",
-#                     "Special Leave",
-#                     "Study Leave"
-#                 ]
-#             ]
-#         ]
-#     }
-# ]
+fixtures = [
+    # Client Scripts for your module
+    {
+        "doctype": "Client Script",
+        "filters": [
+            ["module", "=", "Havano Zim Payroll"]
+        ]
+    },
+    # Print Formats for your module
+    {
+        "doctype": "Print Format",
+        "filters": [
+            ["module", "=", "Havano Zim Payroll"]
+        ]
+    },
+    # Custom Field for Company
+   {
+    "doctype": "Custom Field",
+    "filters": [["name", "in", ["Company-custom_payslip_type"]]]
+    },
+    # Havano Leave Types
+    {
+        "doctype": "Havano Leave Type",
+        "filters": [
+            [
+                "name",
+                "in",
+                [
+                    "Maternity Leave",
+                    "Annual Leave",
+                    "Sick Leave",
+                    "Bereavement Leave",
+                    "Special Leave",
+                    "Study Leave"
+                ]
+            ]
+        ]
+    }
+]
