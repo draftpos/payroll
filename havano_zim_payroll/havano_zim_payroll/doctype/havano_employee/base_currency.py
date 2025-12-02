@@ -114,7 +114,6 @@ def main(self):
                     basic_now += flt(e.amount_usd) * exchange_rate
                     basic_now += flt(e.amount_zwg)
         
-
         hourly_rate = flt(basic_now / 26 / 7.5)
         overtime_amount = flt(hourly_rate * self.hours * (2 if self.overtime == "Double Time" else 1.5 if self.overtime == "Time & Half" else 0))
        
@@ -228,11 +227,7 @@ def main(self):
             # self.medical=medical
             # total_deduction += flt(medical)
             # self.total_tax_credits = tax_credits
-
 # -----------------------------------------------------END BACKPAY-----------------------------------------------------
-
-
-
         salary_structure.append("earnings", {
             "components": e.components,
             "amount_zwg": e.amount_zwg,
@@ -266,11 +261,9 @@ def main(self):
                     else:
                         ensurable_earnings += flt(e.amount_zwg) / exchange_rate
                         ensurable_earnings += flt(e.amount_usd)
-
                 else:
                     ensurable_earnings += flt(e.amount_zwg) / exchange_rate
                     ensurable_earnings += flt(e.amount_usd)
-
             else: 
                 ensurable_earnings += flt(e.amount_zwg)
                 ensurable_earnings += flt(e.amount_usd) * exchange_rate
@@ -283,8 +276,6 @@ def main(self):
             else: 
                 nassa_tracking += flt(e.amount_zwg)
                 nassa_tracking += flt(e.amount_usd) * exchange_rate
-
-
 
     # frappe.msgprint(str(total_amount_basic_and_bonus_and_allowances))
     self.total_income=total_amount_basic_and_bonus_and_allowances
@@ -314,7 +305,6 @@ def main(self):
                     nssa=  nassa_component.zwg_ceiling_amount
                 else:
                     nssa=flt(nassa_tracking) * 0.045
-
             if self.salary_currency == "USD":
                 d.amount_usd = nssa
                 d.amount_zwg = 0
@@ -323,20 +313,6 @@ def main(self):
                 d.amount_zwg = nssa
             total_allowable_deductions += flt(nssa)
             total_deduction += flt(nssa)
-        # elif component_doc.component_mode == "Medical Aid":
-        #     medical=0
-        #     if self.salary_currency == "USD":
-        #         medical += flt(d.amount_zwg) / exchange_rate
-        #         medical += d.amount_usd
-        #     else:
-        #         medical += flt(d.amount_zwg)
-        #         medical += flt(d.amount_usd) * exchange_rate
-        #     tax_credits += (medical * (flt(component_doc.employee_amount) / 100))
-        #     self.medical=medical
-        #     total_deduction += flt(medical)
-        #     self.total_tax_credits = tax_credits
-
-        # If NEC, apply employer percentage
         elif component_doc.component_mode == "allowable_deduction":
             if d.components.upper() == "NEC":
                 print(f"Employer Percentage: {flt(component_doc.employer_amount)}")
@@ -365,7 +341,6 @@ def main(self):
                 self.cimas_employee=cimas_employee
                 self.cimas_employer=cimas_employer
             #----------------------------------------------------------------------------
-
             if d.components.upper() == "FUNERAL POLICY":
                 print(f"Employer Percentage: {flt(component_doc.employe_amount)}")
                 funeral_employee= d.amount_usd  * flt(self.funeral_policy_employee_) /100
@@ -425,11 +400,9 @@ def main(self):
             d.amount_zwg = 0
             self.lapf_employee=lapf_employee
             self.lapf_employer=lapf_employer
-               
         else:
             total_deduction += flt(d.amount_usd )
             #----------------------------------------------------------------------------
-
         salary_structure.append("deductions", {
             "components": d.components,
             "amount_zwg": d.amount_zwg,
@@ -447,12 +420,11 @@ def main(self):
     else:
         self.wcif_zwg=self.total_taxable_income * self.wcif_percentage/100
         self.wcif_usd=0
-
     print(self.ensuarable_earnings)
     payee = round(max(payee_against_slab(self.ensuarable_earnings) - tax_credits, 0), 2)
     ads_levy = round(0.03 * payee, 2)
-    total_deduction += payee
-    total_deduction += ads_levy
+    # total_deduction += payee
+    # total_deduction += ads_levy
     self.payee=payee
     self.aids_levy=ads_levy
     self.total_deductions=round(total_deduction,2)
@@ -460,11 +432,9 @@ def main(self):
     # Save it
     salary_structure.save()
     print(f"havano_salary_structure saved: {salary_structure.name}")
-    # Link back to employee
     self.salary_structure = salary_structure.name
     self.total_tax_credits=tax_credits
 
- 
 
 def payee_against_slab(amount):
     """
@@ -482,7 +452,6 @@ def payee_against_slab(amount):
         (2000.01, 3000.00, 0.35, 185.00),
         (3000.01, 1000000.00, 0.40, 335.00),
     ]
-
     for lower, upper, percent, fixed in slabs:
         if lower <= amount <= upper:
             payee = ( amount * percent) - fixed
