@@ -1,4 +1,6 @@
 import frappe
+from frappe.utils import nowdate, flt
+
 
 @frappe.whitelist()
 def run_payroll(month, year):
@@ -7,7 +9,7 @@ def run_payroll(month, year):
 
     if not employees:
         return "No employees found."
-
+    total_net_salary_now=0
     for emp in employees:
         emp_doc = frappe.get_doc("havano_employee", emp.name)
         # Create new Payroll Entry
@@ -19,6 +21,7 @@ def run_payroll(month, year):
         nssa_zwg=0
         try:
             emp_netpay = emp.net_income
+            total_net_salary_now += emp.net_income
         except AttributeError as e:
             print(f"Net income not found for employee {emp.employee}: {e}")
 
@@ -80,12 +83,15 @@ def run_payroll(month, year):
 
         payroll.insert(ignore_permissions=True)
         frappe.db.commit()
+       # Get Basic Salary Component parent doc
+        comp = get_basic_salary_component()
+
+        # Extract child table row (accounts)
+       
         update_havano_leave_balances(emp.name)
         a=update_employee_annual_leave(emp.name,payroll_period=f"{month} {year}")
         frappe.db.set_value("havano_employee", emp.name, "total_leave_allocated", a)
         frappe.db.commit()
-        
-        print(f"----------------leave allocation {a}")
         if emp_doc.salary_currency == "USD" and emp_doc.payslip_type =="Base Currency":
             create_nssa_p4_report_store(surname=emp_doc.last_name,first_name=emp_doc.first_name,total_insuarable_earnings_zwg=0,total_insuarable_earnings_usd=emp_doc.total_taxable_income, current_contributions_usd=nssa_usd,current_contributions_zwg=0,total_payment_usd=nssa_usd,total_payment_zwg=0)
             create_zimra_p2form(employer_name="DPT",trade_name="DPT",tax_period=f"{month} {year}",total_renumeration=emp_doc.total_income,gross_paye=emp_doc.payee,aids_levy=emp_doc.aids_levy,total_tax_due = float(emp_doc.aids_levy or 0) + float(emp_doc.payee or 0),currency="USD")
@@ -95,8 +101,68 @@ def run_payroll(month, year):
             create_zimra_p2form(employer_name="DPT",trade_name="DPT",tax_period=f"{month} {year}",total_renumeration=emp_doc.total_income,gross_paye=emp_doc.payee,aids_levy=emp_doc.aids_levy,total_tax_due = float(emp_doc.aids_levy or 0) + float(emp_doc.payee or 0),currency="ZWG")
             a=create_zimra_itf16(surname=emp_doc.last_name,first_name=emp_doc.first_name,employee_id=emp_doc.name,gross_paye=emp_doc.total_income,payee=emp_doc.payee,aids_levy=emp_doc.aids_levy,currency="ZWG",dob=emp_doc.date_of_birth,start_date=emp_doc.final_confirmation_date,end_date=emp_doc.contract_end_date)
 
+    acc = get_basic_salary_component()[0]
+    print(acc)
+    c = create_salary_purchase_invoice(
+        item_name=acc["item"],
+        supplier=acc["supplier"],
+        company=acc["company"],
+        cost_center=acc["cost_center"],
+        total=total_net_salary_now,
+        salary_account=acc["account"],
+        currency=acc["currency"],
+        expense_account=acc["account"]
+    )
+    print(c)
     return f"Payroll created for {len(employees)} employees for {month} {year}."
 
+@frappe.whitelist()
+def get_basic_salary_component():
+    doc = frappe.get_doc("havano_salary_component", "Basic Salary")
+    return doc.as_dict().get("accounts")
+
+@frappe.whitelist()
+def create_salary_purchase_invoice(
+    item_name, supplier, company, cost_center, total,
+    salary_account, currency=None, expense_account=None,
+    salary_component=None, period=None
+):
+
+    currency = currency or frappe.get_cached_value("Company", company, "default_currency")
+
+    # Create Purchase Invoice
+    purchase_invoice = frappe.new_doc("Purchase Invoice")
+    purchase_invoice.update({
+        "supplier": supplier,
+        "company": company,
+        "currency": currency,
+        "cost_center": cost_center,
+        "bill_no": f"Salary-Run-{period or 'NA'}-{salary_component or item_name}",
+        "bill_date": nowdate(),
+        "due_date": nowdate(),
+        "items": []
+    })
+
+    item = {
+        "item_code": item_name,
+        "item_name": item_name,
+        "description": f"{salary_component or item_name} - {period or 'NA'}",
+        "qty": 1,
+        "rate": total,
+        "amount": total,
+        "cost_center": cost_center,
+        "expense_account": expense_account or salary_account
+    }
+    purchase_invoice.append("items", item)
+
+    # Auto-set missing values + calculate totals
+    purchase_invoice.run_method("set_missing_values")
+    purchase_invoice.run_method("calculate_taxes_and_totals")
+
+    # Save + submit
+    purchase_invoice.insert(ignore_permissions=True)
+    purchase_invoice.submit()
+    return purchase_invoice.name
 
 
 @frappe.whitelist()

@@ -435,7 +435,6 @@ def main(self):
     self.salary_structure = salary_structure.name
     self.total_tax_credits=tax_credits
 
-
 def payee_against_slab(amount):
     """
     Calculate PAYE based on given slabs.
