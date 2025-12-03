@@ -92,17 +92,19 @@ def run_payroll(month, year):
         a=update_employee_annual_leave(emp.name,payroll_period=f"{month} {year}")
         frappe.db.set_value("havano_employee", emp.name, "total_leave_allocated", a)
         frappe.db.commit()
+        bb=""
         if emp_doc.salary_currency == "USD" and emp_doc.payslip_type =="Base Currency":
             create_nssa_p4_report_store(surname=emp_doc.last_name,first_name=emp_doc.first_name,total_insuarable_earnings_zwg=0,total_insuarable_earnings_usd=emp_doc.total_taxable_income, current_contributions_usd=nssa_usd,current_contributions_zwg=0,total_payment_usd=nssa_usd,total_payment_zwg=0)
             create_zimra_p2form(employer_name="DPT",trade_name="DPT",tax_period=f"{month} {year}",total_renumeration=emp_doc.total_income,gross_paye=emp_doc.payee,aids_levy=emp_doc.aids_levy,total_tax_due = float(emp_doc.aids_levy or 0) + float(emp_doc.payee or 0),currency="USD")
-            a=create_zimra_itf16(surname=emp_doc.last_name,first_name=emp_doc.first_name,employee_id=emp_doc.name,gross_paye=emp_doc.total_income,payee=emp_doc.payee,aids_levy=emp_doc.aids_levy,currency="USD",dob=emp_doc.date_of_birth,start_date=emp_doc.final_confirmation_date,end_date=emp_doc.contract_end_date)
+            create_zimra_itf16(surname=emp_doc.last_name,first_name=emp_doc.first_name,employee_id=emp_doc.name,gross_paye=emp_doc.total_income,payee=emp_doc.payee,aids_levy=emp_doc.aids_levy,currency="USD",dob=emp_doc.date_of_birth,start_date=emp_doc.final_confirmation_date,end_date=emp_doc.contract_end_date)
+            bb=add_sdl_report(employee=emp_doc.name,date=f"{month} {year}",amount=emp_doc.total_income * 0.5)
         elif  emp_doc.salary_currency == "ZWL" and emp_doc.payslip_type =="Base Currency":
             create_nssa_p4_report_store(surname=emp_doc.last_name,first_name=emp_doc.first_name,total_insuarable_earnings_zwg=emp_doc.total_taxable_income,total_insuarable_earnings_usd=0, current_contributions_usd=0,current_contributions_zwg=nssa_zwg,total_payment_usd=nssa_usd,total_payment_zwg=nssa_zwg)
             create_zimra_p2form(employer_name="DPT",trade_name="DPT",tax_period=f"{month} {year}",total_renumeration=emp_doc.total_income,gross_paye=emp_doc.payee,aids_levy=emp_doc.aids_levy,total_tax_due = float(emp_doc.aids_levy or 0) + float(emp_doc.payee or 0),currency="ZWG")
-            a=create_zimra_itf16(surname=emp_doc.last_name,first_name=emp_doc.first_name,employee_id=emp_doc.name,gross_paye=emp_doc.total_income,payee=emp_doc.payee,aids_levy=emp_doc.aids_levy,currency="ZWG",dob=emp_doc.date_of_birth,start_date=emp_doc.final_confirmation_date,end_date=emp_doc.contract_end_date)
+            create_zimra_itf16(surname=emp_doc.last_name,first_name=emp_doc.first_name,employee_id=emp_doc.name,gross_paye=emp_doc.total_income,payee=emp_doc.payee,aids_levy=emp_doc.aids_levy,currency="ZWG",dob=emp_doc.date_of_birth,start_date=emp_doc.final_confirmation_date,end_date=emp_doc.contract_end_date)
+        print(bb)
 
     acc = get_basic_salary_component()[0]
-    print(acc)
     c = create_salary_purchase_invoice(
         item_name=acc["item"],
         supplier=acc["supplier"],
@@ -113,13 +115,47 @@ def run_payroll(month, year):
         currency=acc["currency"],
         expense_account=acc["account"]
     )
-    print(c)
+
     return f"Payroll created for {len(employees)} employees for {month} {year}."
 
 @frappe.whitelist()
 def get_basic_salary_component():
     doc = frappe.get_doc("havano_salary_component", "Basic Salary")
     return doc.as_dict().get("accounts")
+
+import frappe
+@frappe.whitelist()
+def add_sdl_report(employee=None,date=None, amount=None):
+    """
+    Adds an SDL Report record if one for the same employee and date doesn't exist.
+    
+    Args:
+        employee (str): Employee ID
+        employee_name (str): Employee full name
+        date (str): Month-Year format, e.g., "June 2026"
+        amount (float): SDL amount
+    Returns:
+        str: Name of the created SDL Report or a message if skipped
+    """
+    if not (employee and date and amount is not None):
+        frappe.throw("All fields (employee, employee_name, date, amount) are required.")
+
+    # Check if record already exists for this employee and date
+    existing = frappe.db.exists("SDL Report", {"employee": employee, "date": date})
+    if existing:
+        return f"SDL Report for {employee} on {date} already exists. Skipping creation."
+
+    # Create new SDL Report
+    doc = frappe.get_doc({
+        "doctype": "SDL Report",
+        "employee": employee,
+        "date": date,
+        "amount": amount
+    })
+    doc.insert(ignore_permissions=True)
+    frappe.db.commit()  # optional, forces immediate save
+
+    return f"SDL Report created: {doc.name}"
 
 @frappe.whitelist()
 def create_salary_purchase_invoice(
@@ -269,7 +305,6 @@ def update_havano_leave_balances(employee):
 
     return f"Leave balances updated for {emp.employee_name}"
 
-
 @frappe.whitelist()
 def create_zimra_itf16(*,
     surname=None,
@@ -284,7 +319,7 @@ def create_zimra_itf16(*,
     aids_levy=None,
     currency=None
 ):
-    """Create a new ZIMRA ITF16 document"""
+
     try:
         # Safely cast numeric values
         gross_paye = float(gross_paye or 0)
@@ -307,12 +342,9 @@ def create_zimra_itf16(*,
             "aids_levy": aids_levy,
             "currency":currency
         })
-
         doc.insert(ignore_permissions=True)
         frappe.db.commit()
-
         return {"status": "success", "name": doc.name}
-
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "ZIMRA ITF16 Creation Failed")
         return {"status": "error", "message": str(e)}
