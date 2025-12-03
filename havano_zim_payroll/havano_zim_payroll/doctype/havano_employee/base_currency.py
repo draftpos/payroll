@@ -410,13 +410,13 @@ def main(self):
                 else:
                     total_deduction += flt(d.amount_usd )
                     #----------------------------------------------------------------------------
-    salary_structure.append("deductions", {
-        "components": d.components,
-        "amount_zwg": d.amount_zwg,
-        "amount_usd": d.amount_usd,
-        "is_tax_applicable": bool(d.is_tax_applicable),
-        "amount_currency": "ZWG" if d.amount_zwg else "USD"
-    })
+        salary_structure.append("deductions", {
+            "components": d.components,
+            "amount_zwg": d.amount_zwg,
+            "amount_usd": d.amount_usd,
+            "is_tax_applicable": bool(d.is_tax_applicable),
+            "amount_currency": "ZWG" if d.amount_zwg else "USD"
+        })
 
     print(f"Total Deductions: {total_allowable_deductions}")
     self.allowable_deductions=total_allowable_deductions
