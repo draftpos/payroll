@@ -12,6 +12,7 @@
   "nssa_zwg_employer",
   "nssa_usd_employee",
   "nssa_usd_employer",
+  "column_break_ubtn",
   "payroll_period",
   "wcif_usd",
   "wcif_zwg",
@@ -77,12 +78,16 @@
    "fieldname": "ncf_zwg",
    "fieldtype": "Float",
    "label": "NCF ZWG"
+  },
+  {
+   "fieldname": "column_break_ubtn",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-10-31 14:45:32.478014",
+ "modified": "2025-12-05 14:06:35.564714",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "Reports Store NASSA",
