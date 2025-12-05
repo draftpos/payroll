@@ -113,6 +113,20 @@ def create_salary_components():
             ]
         },
         {
+            "name": "Overtime Double",
+            "type": "Earning",
+            "code": "OD",
+            "component_mode": "",
+            "is_tax_applicable": 0,
+            "accounts": [
+                {
+                    "account": "Salaries_Airtime & Data_Allowance",
+                    "item": "Expenses",
+                    "supplier": "Employees"
+                }
+            ]
+        },
+        {
             "name": "LAPF",
             "type": "Deduction",
             "code": "LF",

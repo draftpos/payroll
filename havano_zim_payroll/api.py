@@ -3,6 +3,26 @@ from frappe.utils import nowdate, flt
 
 
 @frappe.whitelist()
+def run_payroll_async(month, year):
+    """
+    Enqueue payroll in background and return job info.
+    """
+    job = frappe.enqueue(
+        "havano_zim_payroll.api.run_payroll",  # your payroll function path
+        month=month,
+        year=year,
+        queue="long",
+        timeout=15000
+    )
+
+    # Return only simple data — avoid returning the Job object itself
+    return {
+        "message": f"Payroll job queued for {month}/{year}",
+        "job_id": job.id
+    }
+
+
+@frappe.whitelist()
 def run_payroll(month, year):
     """Runs payroll for all employees immediately (synchronous)."""
     employees = frappe.get_all("havano_employee", fields=["name", "first_name", "last_name","net_income"])
