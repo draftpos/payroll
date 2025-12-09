@@ -5,24 +5,14 @@ def insert_suppliers():
     suppliers = [
         "Winfield 7",
         "ZIMRA",
-        "ZIMRA",
-        "Employees",
-        "Employees",
-        "Employees",
-        "Employees",
         "LAPF",
-        "Employees",
-        "Employees",
-        "Employees",
-        "Employees",
-        "Employees",
-        "Employees",
-        "Employees",
         "Fuel",
         "UFAWUZ",
         "Employees",
         "ZiBAWU",
-        "Employees"
+        "SDL",
+        "NECWEI",
+        "ZESCWU"
     ]
 
     # dedupe but keep order

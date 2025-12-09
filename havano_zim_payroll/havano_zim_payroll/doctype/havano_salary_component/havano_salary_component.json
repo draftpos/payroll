@@ -13,6 +13,7 @@
   "is_tax_applicable",
   "component_mode",
   "track_nassa",
+  "enabled",
   "section_break_mgmx",
   "employee_amount",
   "column_break_navt",
@@ -128,12 +129,18 @@
    "fieldname": "track_nassa",
    "fieldtype": "Check",
    "label": "Track Nassa"
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-27 10:20:27.687796",
+ "modified": "2025-12-08 15:43:33.052913",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_salary_component",

@@ -19,7 +19,7 @@ def create_salary_components():
         #     "accounts": [
         #         {
         #             "account": "Loan Intrest - ",
-        #             "item": "Expenses",
+        #             "item": "Payroll Expense",
         #             "supplier": "Winfiled 7"
         #         }
         #     ]
@@ -33,7 +33,7 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "Payee",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "ZIMRA"
                 }
             ]
@@ -47,7 +47,7 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "Aids Levy",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "ZIMRA"
                 }
             ]
@@ -61,7 +61,7 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "Salaries-Overtime-Finishing",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "Employees"
                 }
             ]
@@ -75,7 +75,7 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "Salaries & Wages",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "Employees"
                 }
             ]
@@ -93,7 +93,7 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "Nssa",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "Employees"
                 }
             ]
@@ -107,7 +107,7 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "Salaries_Airtime & Data_Allowance",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "Employees"
                 }
             ]
@@ -121,7 +121,7 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "Salaries_Airtime & Data_Allowance",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "Employees"
                 }
             ]
@@ -137,7 +137,7 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "LAPF",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "LAPF"
                 }
             ]
@@ -151,7 +151,7 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "Salaries_Airtime & Data_Allowance",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "Employees"
                 }
             ]
@@ -165,7 +165,7 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "Salaries_Airtime & Data_Allowance",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "Employees"
                 }
             ]
@@ -179,7 +179,7 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "Acting Allowance",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "Employees"
                 }
             ]
@@ -207,7 +207,7 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "Salaries_Airtime & Data_Allowance",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "Employees"
                 }
             ]
@@ -221,7 +221,7 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "Housing Allowance",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "Employees"
                 }
             ]
@@ -235,7 +235,7 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "Cash in Lieu of Leave",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "Employees"
                 }
             ]
@@ -263,7 +263,7 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "UFAWUZ",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "UFAWUZ"
                 }
             ]
@@ -279,7 +279,7 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "Salaries_Funeral",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "Employees"
                 }
             ]
@@ -293,7 +293,7 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "ZiBAWU",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "ZiBAWU"
                 }
             ]
@@ -307,11 +307,54 @@ def create_salary_components():
             "accounts": [
                 {
                     "account": "Salaries_Airtime & Data_Allowance",
-                    "item": "Expenses",
+                    "item": "Payroll Expense",
                     "supplier": "Employees"
                 }
             ]
-        }
+        },
+        {
+        "name": "SDL",
+        "type": "Deduction",
+        "code": "SDL",
+        "component_mode": "",
+        "is_tax_applicable": 0,
+        "accounts": [
+            {
+                "account": "",
+                "item": "Payroll Expense",
+                "supplier": "SDL"
+            }
+            ]
+        },
+        {
+        "name": "ZESCWU",
+        "type": "Deduction",
+        "code": "ZESCWU",
+        "component_mode": "allowable_deduction",
+        "is_tax_applicable": 0,
+        "accounts": [
+            {
+                "account": "",
+                "item": "Payroll Expense",
+                "supplier": "ZESCWU"
+            }
+            ]
+        },
+        {
+        "name": "NECWEI",
+        "type": "Deduction",
+        "code": "NECWEI",
+        "component_mode": "allowable_deduction",
+        "is_tax_applicable": 0,
+        "accounts": [
+            {
+                "account": "",
+                "item": "Payroll Expense",
+                "supplier": "NECWEI"
+            }
+            ]
+        },
+
     ]
     company = defaults.get_defaults().get("company")
     if not company:

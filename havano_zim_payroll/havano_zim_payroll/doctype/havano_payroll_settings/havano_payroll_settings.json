@@ -1,0 +1,74 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-12-08 16:33:46.676276",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "sdl_purchase_invoice_section",
+  "cost_center",
+  "column_break_rxep",
+  "supplier",
+  "section_break_qmwu",
+  "components_for_reporting"
+ ],
+ "fields": [
+  {
+   "fieldname": "sdl_purchase_invoice_section",
+   "fieldtype": "Section Break",
+   "label": "SDL Purchase Invoice"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "label": "Supplier",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "column_break_rxep",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_qmwu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "components_for_reporting",
+   "fieldtype": "Table",
+   "label": "Components for Reporting",
+   "options": "salary_components_in-settings"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-12-09 10:20:00.287617",
+ "modified_by": "Administrator",
+ "module": "Havano Zim Payroll",
+ "name": "Havano Payroll Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,7 +1,6 @@
 {
  "actions": [],
- "allow_rename": 1,
- "autoname": "field:employee_id",
+ "autoname": "autoincrement",
  "creation": "2025-11-01 09:46:23.813264",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -32,8 +31,7 @@
   {
    "fieldname": "employee_id",
    "fieldtype": "Data",
-   "label": "Employee ID",
-   "unique": 1
+   "label": "Employee ID"
   },
   {
    "fieldname": "dob",
@@ -79,11 +77,11 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-01 10:25:08.802501",
+ "modified": "2025-12-09 10:01:55.513020",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "ZIMRA ITF16",
- "naming_rule": "By fieldname",
+ "naming_rule": "Autoincrement",
  "owner": "Administrator",
  "permissions": [
   {

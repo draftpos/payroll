@@ -2,6 +2,7 @@
  {
   "allow_negative": 0,
   "applicable_after": 10,
+  "blue_field": null,
   "docstatus": 0,
   "doctype": "Havano Leave Type",
   "expire_carry_forwarded_leaves_after_days": 0,
@@ -19,6 +20,7 @@
  {
   "allow_negative": 0,
   "applicable_after": 10,
+  "blue_field": null,
   "docstatus": 0,
   "doctype": "Havano Leave Type",
   "expire_carry_forwarded_leaves_after_days": 0,
@@ -36,6 +38,7 @@
  {
   "allow_negative": 0,
   "applicable_after": 10,
+  "blue_field": null,
   "docstatus": 0,
   "doctype": "Havano Leave Type",
   "expire_carry_forwarded_leaves_after_days": 0,
@@ -53,6 +56,7 @@
  {
   "allow_negative": 0,
   "applicable_after": 4,
+  "blue_field": null,
   "docstatus": 0,
   "doctype": "Havano Leave Type",
   "expire_carry_forwarded_leaves_after_days": 0,
@@ -70,6 +74,7 @@
  {
   "allow_negative": 0,
   "applicable_after": 0,
+  "blue_field": null,
   "docstatus": 0,
   "doctype": "Havano Leave Type",
   "expire_carry_forwarded_leaves_after_days": 0,
@@ -87,6 +92,7 @@
  {
   "allow_negative": 0,
   "applicable_after": 10,
+  "blue_field": null,
   "docstatus": 0,
   "doctype": "Havano Leave Type",
   "expire_carry_forwarded_leaves_after_days": 0,

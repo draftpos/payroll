@@ -21,15 +21,17 @@ def run_payroll_async(month, year):
         "job_id": job.id
     }
 
-
 @frappe.whitelist()
 def run_payroll(month, year):
+    settin=get_payroll_settings()
+    setting_cost_center=settin["cost_center"]
+    setting_supplier=settin["supplier"]
     """Runs payroll for all employees immediately (synchronous)."""
     employees = frappe.get_all("havano_employee", fields=["name", "first_name", "last_name","net_income"])
-
     if not employees:
         return "No employees found."
     total_net_salary_now=0
+    total_sdl=0
     for emp in employees:
         emp_doc = frappe.get_doc("havano_employee", emp.name)
         # Create new Payroll Entry
@@ -41,10 +43,11 @@ def run_payroll(month, year):
         nssa_zwg=0
         try:
             emp_netpay = emp.net_income
-            total_net_salary_now += emp.net_income
+            total_net_salary_now += emp_doc.net_income
+            total_sdl +=emp_doc.total_income * 0.01
         except AttributeError as e:
             print(f"Net income not found for employee {emp.employee}: {e}")
-
+            frappe.log_error(f"{e}")
 
         # Copy Earnings
         if hasattr(emp_doc, "employee_earnings"):
@@ -52,8 +55,6 @@ def run_payroll(month, year):
 
                 if e.components == "Backpay":
                     emp_netpay -=e.amount_usd
-
-                    print("--------0000000000000000000000000000")
                 payroll.append("employee_earnings", {
                     "components": e.components,
                     "item_code": e.item_code,
@@ -112,12 +113,13 @@ def run_payroll(month, year):
         a=update_employee_annual_leave(emp.name,payroll_period=f"{month} {year}")
         frappe.db.set_value("havano_employee", emp.name, "total_leave_allocated", a)
         frappe.db.commit()
+        
         bb=""
         if emp_doc.salary_currency == "USD" and emp_doc.payslip_type =="Base Currency":
             create_nssa_p4_report_store(surname=emp_doc.last_name,first_name=emp_doc.first_name,total_insuarable_earnings_zwg=0,total_insuarable_earnings_usd=emp_doc.total_taxable_income, current_contributions_usd=nssa_usd,current_contributions_zwg=0,total_payment_usd=nssa_usd,total_payment_zwg=0)
             create_zimra_p2form(employer_name="DPT",trade_name="DPT",tax_period=f"{month} {year}",total_renumeration=emp_doc.total_income,gross_paye=emp_doc.payee,aids_levy=emp_doc.aids_levy,total_tax_due = float(emp_doc.aids_levy or 0) + float(emp_doc.payee or 0),currency="USD")
             create_zimra_itf16(surname=emp_doc.last_name,first_name=emp_doc.first_name,employee_id=emp_doc.name,gross_paye=emp_doc.total_income,payee=emp_doc.payee,aids_levy=emp_doc.aids_levy,currency="USD",dob=emp_doc.date_of_birth,start_date=emp_doc.final_confirmation_date,end_date=emp_doc.contract_end_date)
-            bb=add_sdl_report(employee=emp_doc.name,date=f"{month} {year}",amount=emp_doc.total_income * 0.5)
+            bb=add_sdl_report(employee=emp_doc.name,date=f"{month} {year}",amount=emp_doc.total_income * 0.1)
         elif  emp_doc.salary_currency == "ZWL" and emp_doc.payslip_type =="Base Currency":
             create_nssa_p4_report_store(surname=emp_doc.last_name,first_name=emp_doc.first_name,total_insuarable_earnings_zwg=emp_doc.total_taxable_income,total_insuarable_earnings_usd=0, current_contributions_usd=0,current_contributions_zwg=nssa_zwg,total_payment_usd=nssa_usd,total_payment_zwg=nssa_zwg)
             create_zimra_p2form(employer_name="DPT",trade_name="DPT",tax_period=f"{month} {year}",total_renumeration=emp_doc.total_income,gross_paye=emp_doc.payee,aids_levy=emp_doc.aids_levy,total_tax_due = float(emp_doc.aids_levy or 0) + float(emp_doc.payee or 0),currency="ZWG")
@@ -125,16 +127,38 @@ def run_payroll(month, year):
         print(bb)
 
     acc = get_basic_salary_component()[0]
-    c = create_salary_purchase_invoice(
-        item_name=acc["item"],
-        supplier=acc["supplier"],
-        company=acc["company"],
-        cost_center=acc["cost_center"],
-        total=total_net_salary_now,
-        salary_account=acc["account"],
-        currency=acc["currency"],
-        expense_account=acc["account"]
-    )
+    try:
+        # PURCHASE Invoice for all employees net salaries
+
+        c = create_salary_purchase_invoice(
+            item_name=acc["item"],
+            supplier=acc["supplier"],
+            company=acc["company"],
+            cost_center=acc["cost_center"],
+            total=total_net_salary_now,
+            salary_account=acc["account"],
+            currency=acc["currency"],
+            expense_account=acc["account"]
+        )
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "Salary Purchase Invoice Creation Failed")
+    
+    try:
+    # SDL Invoice for all employees net salaries
+        c = create_salary_purchase_invoice(
+            item_name="Payroll Expense",
+            supplier=setting_supplier,
+            company=acc["company"],
+            cost_center=setting_cost_center,
+            total=total_sdl,
+            salary_account=acc["account"],
+            currency=acc["currency"],
+            expense_account=acc["account"]
+        )
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "SDL Purchase Invoice Creation Failed")
+
+        return f"Error creating Salary Purchase Invoice: {str(e)}"
 
     return f"Payroll created for {len(employees)} employees for {month} {year}."
 
@@ -271,6 +295,19 @@ def update_employee_annual_leave(employee, days_to_add=2.5, payroll_period=None)
         return new_doc.total_days
 
 
+def get_payroll_settings():
+    try:
+        settings = frappe.get_single("Havano Payroll Settings")
+    except frappe.DoesNotExistError:
+        frappe.throw("Havano Payroll Settings NOT FOUND. Please create it first!", title="Missing Settings")
+
+    if not settings.supplier or not settings.cost_center:
+        frappe.throw("Supplier or Cost Center is missing in Havano Payroll Settings.", 
+                     title="Incomplete Settings")
+    return {
+        "supplier": settings.supplier,
+        "cost_center": settings.cost_center
+    }
 
 @frappe.whitelist()
 def update_havano_leave_balances(employee):

@@ -3,26 +3,7 @@ import frappe
 @frappe.whitelist()
 def insert_items():
     items = [
-        "Expenses",
-        "Expenses",
-        "Expenses",
-        "Expenses",
-        "Expenses",
-        "Expenses",
-        "Expenses",
-        "Expenses",
-        "Expenses",
-        "Expenses",
-        "Expenses",
-        "FUEL EXPENSE",
-        "Expenses",
-        "Expenses",
-        "Expenses",
-        "FUEL EXPENSE",
-        "Expenses",
-        "Expenses",
-        "Expenses",
-        "Expenses",
+        "Payroll Expense" 
     ]
 
     # dedupe but keep order
@@ -37,7 +18,7 @@ def insert_items():
                 "item_name": item_name,
                 "item_group": "All Item Groups",   # or whatever group you want
                 "stock_uom": "Nos",                # or your preferred UOM
-                "is_stock_item": 0
+                "is_stock_item": 1
             })
             item.insert(ignore_permissions=True)
             frappe.db.commit()
