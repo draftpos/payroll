@@ -11,10 +11,3 @@ class havano_salary_component(Document):
 
 		if self.type == "Deduction" and self.track_nassa:
 			frappe.throw("NASSA cannot be tracked on Deduction components.")
-
-		allowed_always_calculate = {"NSSA", "PAYEE", "AIDS LEVY"}
-
-		if component not in allowed_always_calculate and self.always_calculate:
-			frappe.throw(
-				"Only NSSA, PAYE and AIDS Levy components can be set to always calculate."
-			)
