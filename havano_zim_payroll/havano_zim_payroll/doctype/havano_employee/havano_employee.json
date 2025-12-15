@@ -2,7 +2,8 @@
  "actions": [],
  "allow_events_in_timeline": 1,
  "allow_import": 1,
- "autoname": "naming_series:",
+ "allow_rename": 1,
+ "autoname": "prompt",
  "creation": "2022-02-21 11:54:09.632218",
  "doctype": "DocType",
  "document_type": "Setup",
@@ -12,7 +13,6 @@
   "basic_details_tab",
   "basic_information",
   "employee",
-  "naming_series",
   "first_name",
   "middle_name",
   "last_name",
@@ -114,6 +114,12 @@
   "employee_earnings",
   "section_break_mase",
   "employee_deductions",
+  "tax_credit_details_if_any_section",
+  "blind",
+  "column_break_pddy",
+  "elderly",
+  "column_break_vtua",
+  "disabled",
   "hidden_calculations_section",
   "total_deductions",
   "payee",
@@ -223,16 +229,6 @@
    "unique": 1
   },
   {
-   "fieldname": "naming_series",
-   "fieldtype": "Select",
-   "label": "Series",
-   "no_copy": 1,
-   "oldfieldname": "naming_series",
-   "oldfieldtype": "Select",
-   "options": "HR-EMP-",
-   "set_only_once": 1
-  },
-  {
    "fieldname": "salutation",
    "fieldtype": "Link",
    "label": "Salutation",
@@ -244,7 +240,8 @@
    "fieldname": "first_name",
    "fieldtype": "Data",
    "label": "First Name",
-   "reqd": 1
+   "reqd": 1,
+   "unique": 1
   },
   {
    "allow_in_quick_entry": 1,
@@ -256,7 +253,8 @@
    "allow_in_quick_entry": 1,
    "fieldname": "last_name",
    "fieldtype": "Data",
-   "label": "Last Name"
+   "label": "Last Name",
+   "reqd": 1
   },
   {
    "fieldname": "employee_name",
@@ -988,8 +986,7 @@
    "fieldname": "salary_structure",
    "fieldtype": "Link",
    "label": "Salary Structure",
-   "options": "havano_salary_structure",
-   "read_only": 1
+   "options": "havano_salary_structure"
   },
   {
    "fieldname": "update_structure",
@@ -1366,6 +1363,34 @@
    "fieldname": "zescwu",
    "fieldtype": "Float",
    "label": "ZESCWU"
+  },
+  {
+   "fieldname": "tax_credit_details_if_any_section",
+   "fieldtype": "Section Break",
+   "label": "Tax Credit Details (if any)"
+  },
+  {
+   "fieldname": "blind",
+   "fieldtype": "Float",
+   "label": "Blind"
+  },
+  {
+   "fieldname": "column_break_pddy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_vtua",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "disabled",
+   "fieldtype": "Float",
+   "label": "Disabled"
+  },
+  {
+   "fieldname": "elderly",
+   "fieldtype": "Float",
+   "label": "Elderly"
   }
  ],
  "icon": "fa fa-user",
@@ -1373,11 +1398,11 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-12-01 17:17:23.855158",
+ "modified": "2025-12-15 14:08:11.038847",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_employee",
- "naming_rule": "By \"Naming Series\" field",
+ "naming_rule": "Set by user",
  "nsm_parent_field": "reports_to",
  "owner": "Administrator",
  "permissions": [

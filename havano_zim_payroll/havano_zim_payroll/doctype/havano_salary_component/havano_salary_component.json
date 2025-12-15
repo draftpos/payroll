@@ -21,6 +21,7 @@
   "nassa_cieling_section",
   "usd_ceiling",
   "usd_ceiling_amount",
+  "percentage",
   "column_break_vnxx",
   "zwg_ceiling",
   "zwg_ceiling_amount",
@@ -135,12 +136,18 @@
    "fieldname": "enabled",
    "fieldtype": "Check",
    "label": "Enabled"
+  },
+  {
+   "default": "0",
+   "fieldname": "percentage",
+   "fieldtype": "Float",
+   "label": "Percentage"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-08 15:43:33.052913",
+ "modified": "2025-12-15 14:18:22.025425",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_salary_component",

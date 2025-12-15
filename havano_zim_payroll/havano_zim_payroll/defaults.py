@@ -6,13 +6,14 @@ def install_defaults():
     from .create_default_supplier import insert_suppliers
     from .create_default_components_mode import create_salary_component_types
     from .create_default_leave_types import create_leave_types
-
+    from .create_default_slabs import set_default_tax_slabs
     insert_items()
     insert_suppliers()
     create_salary_component_types()
     insert_payroll_accounts()
     create_salary_components()
     create_leave_types()
+    set_default_tax_slabs()
 
 
     frappe.msgprint("Default payroll items, suppliers, accounts, and salary components have been installed.")

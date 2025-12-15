@@ -6,7 +6,15 @@ from frappe.model.document import Document
 
 
 class havano_salary_component(Document):
-		
 	def validate(self):
-			if self.type == "Deduction" and self.track_nassa == 1:  # make sure field name is correct
-				frappe.throw("NASSA cannot be tracked on Deduction components.")
+		component = (self.salary_component or "").strip().upper()
+
+		if self.type == "Deduction" and self.track_nassa:
+			frappe.throw("NASSA cannot be tracked on Deduction components.")
+
+		allowed_always_calculate = {"NSSA", "PAYEE", "AIDS LEVY"}
+
+		if component not in allowed_always_calculate and self.always_calculate:
+			frappe.throw(
+				"Only NSSA, PAYE and AIDS Levy components can be set to always calculate."
+			)

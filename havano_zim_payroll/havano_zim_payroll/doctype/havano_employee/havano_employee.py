@@ -3,12 +3,20 @@ from frappe.model.document import Document
 from frappe.utils import now_datetime
 from frappe.utils import flt
 from . import base_currency,split_currency
+from frappe.model.naming import make_autoname
+
 
 class havano_employee(Document):
+    def autoname(self):
+        # get prefix from field, fallback to "BRO"
+        prefix = (f"{self.first_name} {self.last_name}").strip().lower()
+        # generate the name with global counter
+        v=make_autoname(f"-.###")
+        self.name =f"{prefix}" + v
+
     def before_save(self):
         print(self.native_employee_id)
         company = self.company
-        
         # Set payslip type from company
         payslip_type = frappe.db.get_value("Company", company, "custom_payslip_type")
         self.payslip_type = payslip_type

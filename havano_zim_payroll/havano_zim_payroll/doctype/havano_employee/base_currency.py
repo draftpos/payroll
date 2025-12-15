@@ -4,12 +4,13 @@ from frappe.utils import now_datetime
 from frappe.utils import flt
 from frappe.utils import nowdate
 
-
-
 def main(self):
     calculate_payee=False
     self.payee=0
     self.aids_levy=0
+    self.disabled=0
+    self.blind=0
+    self.elderly=0
     # frappe.msgprint(self.payslip_type)
     if (self.cimas_employer_ + self.cimas_employee_)>100:
         frappe.throw("Please makesure the % for cimas employer and employee are not more than 100")
@@ -17,7 +18,6 @@ def main(self):
         frappe.throw("Please makesure the % for funeral policy employer and employee are not more than 100")
     default_currency = frappe.db.get_value("Company", self.company, "default_currency")
     self.salary_currency=default_currency
-
     # Initialize---------------tax credits
     tax_credits = 0
     exchange_rate = flt(frappe.db.get_value(
@@ -32,20 +32,23 @@ def main(self):
     if getattr(self, "is_elderly", 0):
         if self.salary_currency == "USD":
             tax_credits += 75
+            self.elderly=75
         else:
             tax_credits += 75 * exchange_rate
+            self.elderly=tax_credits
         # self.append("tax_credits", {
         #     "credit_name": "Elderly",
         #     "amount_usd": 75,
         #     "amount_zwg": 75 * exchange_rate
         # })
-
     # Blind
     if getattr(self, "is_blind", 0):
         if self.salary_currency == "USD":
             tax_credits += 75
+            self.blind=75
         else:
             tax_credits += 75 * exchange_rate
+            self.blind=tax_credits
         # self.append("tax_credits", {
         #     "credit_name": "Blind",
         #     "amount_usd": 75,
@@ -56,8 +59,10 @@ def main(self):
     if getattr(self, "is_disabled", 0):
         if self.salary_currency == "USD":
             tax_credits += 75
+            self.disabled=75
         else:
             tax_credits += 75 * exchange_rate
+            self.disabled=tax_credits
         # self.append("tax_credits", {
         #     "credit_name": "Disabled",
         #     "amount_usd": 75,
@@ -181,7 +186,6 @@ def main(self):
         overtime_doc.insert()
         frappe.db.commit()
             
-
     for e in self.employee_earnings:
         print(e.components)
         # Capture Basic Salary
@@ -289,7 +293,62 @@ def main(self):
     print(f"Ensurable Earnings USD: {ensurable_earnings}")
     # ---------------- Populate Deductions ----------------
     total_allowable_deductions= 0
+
+    def get_nssa_and_paye_always_calculate():
+        nssa_always_calculate = False
+        paye_always_calculate = False
+
+        components = frappe.get_all(
+            "havano_salary_component",
+            fields=["salary_component", "always_calculate"]
+        )
+
+        for comp in components:
+            name = (comp.salary_component or "").strip().upper()
+
+            if name == "NSSA":
+                nssa_always_calculate = comp.always_calculate
+
+            elif name == "PAYEE":
+                paye_always_calculate = comp.always_calculate
+
+        return {
+            "NSSA": nssa_always_calculate,
+            "PAYE": paye_always_calculate
+        }
+    def ensure_deductions(self, *components):
+        existing = {
+            (row.components or "").strip().upper()
+            for row in self.employee_deductions
+        }
+
+        for component in components:
+            component = component.strip().upper()
+
+            if component not in existing:
+                row = self.append("employee_deductions", {})
+                row.components = component
+                row.havano_salary_component = component
+                row.item_code = component
+                row.amount_usd = 0
+                row.amount_zwg = 0
+                row.exchange_rate = 1
+
+    print(f"nssa always:--{get_nssa_and_paye_always_calculate().get("NSSA")}")
+    # if get_nssa_and_paye_always_calculate().get("NSSA") :
+    #     ensure_deductions(self, "NSSA")
+    # if get_nssa_and_paye_always_calculate().get("NSSA") :
+    #     ensure_deductions(self, "NSSA")
+        
+    ensure_deductions(self, "NSSA")
+    ensure_deductions(self, "PAYEE")
+    ensure_deductions(self, "Aids Levy")
+         
+
     for d in self.employee_deductions:
+        
+
+
         # Get the related component document
         component_doc = frappe.get_doc("havano_salary_component", d.components)
         print(f"-----------------------component doc--------------{component_doc}")
@@ -301,7 +360,7 @@ def main(self):
                 if flt(nassa_tracking) >= nassa_component.usd_ceiling:
                     nssa= nassa_component.usd_ceiling_amount
                 else:
-                    nssa=flt(nassa_tracking) * 0.045
+                    nssa=flt(nassa_tracking) * nassa_component.percentage /100
                     print(f"fffffffffffffffff{nssa}fff{total_allowable_deductions}fffffffe{ensurable_earnings}")
             else:
                 if flt(nassa_tracking) >= nassa_component.zwg_ceiling:
@@ -443,30 +502,15 @@ def main(self):
     self.salary_structure = salary_structure.name
     self.total_tax_credits=tax_credits
 
-def payee_against_slab(amount):
-    """
-    Calculate PAYE based on given slabs.
-    :param amount: Taxable income (float)
-    :return: PAYE amount (float)
-    """
-    from frappe.utils import flt
+def payee_against_slab(amount, currency="USD"):
     payee = 0.0
-    slabs = [
-        (0.00, 100.00, 0.0, 0.00),
-        (100.01, 300.00, 0.20, 20.00),
-        (300.01, 1000.00, 0.25, 35.00),
-        (1000.01, 2000.00, 0.30, 85.00),
-        (2000.01, 3000.00, 0.35, 185.00),
-        (3000.01, 1000000.00, 0.40, 335.00),
-    ]
-    for lower, upper, percent, fixed in slabs:
-        if lower <= amount <= upper:
-            payee = ( amount * percent) - fixed
+    print(f"Calculating PAYE for amount: {amount} in currency: {currency}")
+    # Get the Havano Tax Slab for the given currency
+    slab_doc = frappe.get_doc("Havano Tax Slab", currency)
+    print(f"Retrieved Havano Tax Slab: {slab_doc.tax_brackets}")
+    for slab in slab_doc.tax_brackets:
+        print(f"Checking slab: { vars(slab)}")
+        if slab.lower_limit <= amount <= slab.upper_limit:
+            payee = (amount * (slab.percent / 100)) - slab.fixed_amount
             break
-
     return flt(payee)
-
-
-
-
-
