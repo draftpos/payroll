@@ -334,7 +334,7 @@ def main(self):
                 row.amount_zwg = 0
                 row.exchange_rate = 1
 
-    print(f"nssa always:--{get_nssa_and_paye_always_calculate().get("NSSA")}")
+  
     # if get_nssa_and_paye_always_calculate().get("NSSA") :
     #     ensure_deductions(self, "NSSA")
     # if get_nssa_and_paye_always_calculate().get("NSSA") :
