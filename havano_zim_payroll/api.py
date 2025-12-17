@@ -138,7 +138,9 @@ def run_payroll(month, year):
             total=total_net_salary_now,
             salary_account=acc["account"],
             currency=acc["currency"],
-            expense_account=acc["account"]
+            expense_account=acc["account"],
+            custom_from_payroll = 1,
+            custom_payroll_period = f"{month} {year}"
         )
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "Salary Purchase Invoice Creation Failed")
@@ -153,7 +155,9 @@ def run_payroll(month, year):
             total=total_sdl,
             salary_account=acc["account"],
             currency=acc["currency"],
-            expense_account=acc["account"]
+            expense_account=acc["account"],
+            custom_payroll_period = f"{month} {year}",
+            custom_from_payroll = 1
         )
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "SDL Purchase Invoice Creation Failed")
@@ -205,7 +209,7 @@ def add_sdl_report(employee=None,date=None, amount=None):
 def create_salary_purchase_invoice(
     item_name, supplier, company, cost_center, total,
     salary_account, currency=None, expense_account=None,
-    salary_component=None, period=None
+    salary_component=None, period=None, custom_from_payroll = None,custom_payroll_period =None
 ):
 
     currency = currency or frappe.get_cached_value("Company", company, "default_currency")
@@ -220,7 +224,9 @@ def create_salary_purchase_invoice(
         "bill_no": f"Salary-Run-{period or 'NA'}-{salary_component or item_name}",
         "bill_date": nowdate(),
         "due_date": nowdate(),
-        "items": []
+        "items": [],
+        "custom_from_payroll": 1,
+        "custom_payroll_period": custom_payroll_period
     })
 
     item = {
@@ -583,3 +589,237 @@ def generate_salary_slips_bulk(month, year):
     file_doc.save()
 
     return file_doc.file_url
+
+
+@frappe.whitelist()
+def cancel_payroll(month, year, reason):
+    """
+    Print payroll entries for a given month and year along with the reason.
+    """
+    if not month or not year:
+        frappe.throw("Month and Year are required.")
+    print(f"{month},{int(year)}")
+
+    payroll_entries = frappe.get_all(
+        "Havano Payroll Entry",
+        filters={"payroll_period": f"{month} {int(year)}"}, 
+        fields=["name","first_name"]
+    )
+
+    if not payroll_entries:
+        return f"No submitted payroll found for {month} {year}."
+
+    # Print entries to the server log
+    for entry in payroll_entries:
+        print(f"Payroll: {entry['name']}, Employee: {entry['first_name']},Reason: {reason}")
+        cancel_payroll_purchase_invoices(f"{month} {int(year)}")
+        delete_sdl_for_period(f"{month} {int(year)}")
+        delete_nassa_reports_for_period(f"{month} {int(year)}")
+        delete_salary_summary_for_period(f"{month} {int(year)}")
+        delete_havano_payroll_entries(f"{month} {int(year)}")
+
+    return f"{len(payroll_entries)} payroll entries for {month} {year} with reason: {reason}."
+
+def cancel_payroll_purchase_invoices(payroll_period):
+
+    invoices = frappe.get_all(
+        "Purchase Invoice",
+        filters={
+            "custom_from_payroll": 1,
+            "custom_payroll_period": payroll_period,
+            "docstatus": 1  # Submitted only (uncancelled)
+        },
+        pluck="name"
+    )
+
+    if not invoices:
+        frappe.log_error(
+            title="Payroll PI Cancel",
+            message=f"No Purchase Invoices found for payroll period: {payroll_period}"
+        )
+        return
+
+    for pi_name in invoices:
+        try:
+            pi = frappe.get_doc("Purchase Invoice", pi_name)
+            pi.cancel()
+
+            frappe.log_error(
+                title="Payroll PI Cancelled",
+                message=f"Purchase Invoice {pi_name} cancelled for payroll period {payroll_period}"
+            )
+
+        except Exception:
+            frappe.log_error(
+                title="Payroll PI Cancel Failed",
+                message=frappe.get_traceback()
+            )
+
+def delete_sdl_for_period(period_str):
+    """
+    Deletes SDL entries where payroll period is stored as string
+    e.g. 'January 2025'
+    """
+
+    sdl_entries = frappe.get_all(
+        "SDL Report", 
+        filters={
+            "date": period_str
+        },
+        pluck="name"
+    )
+
+    if not sdl_entries:
+        frappe.log_error(
+            title="SDL Delete",
+            message=f"No SDL entries found for payroll period: {period_str}"
+        )
+        return
+
+    deleted = 0
+
+    for name in sdl_entries:
+        try:
+            frappe.delete_doc(
+                "SDL Report",
+                name,
+                force=1
+            )
+            deleted += 1
+        except Exception:
+            frappe.log_error(
+                title="SDL Delete Failed",
+                message=frappe.get_traceback()
+            )
+
+    frappe.log_error(
+        title="SDL Delete Success",
+        message=f"Deleted {deleted} SDL entries for payroll period {period_str}"
+    )
+
+def delete_nassa_reports_for_period(period_str):
+    """
+    Deletes Reports Store NASSA entries for a given payroll period string
+    e.g. 'January 2025'
+    """
+
+    reports = frappe.get_all(
+        "Reports Store NASSA",
+        filters={
+            "payroll_period": period_str
+        },
+        pluck="name"
+    )
+
+    if not reports:
+        frappe.log_error(
+            title="NASSA Reports Delete",
+            message=f"No NASSA reports found for payroll period: {period_str}"
+        )
+        return
+
+    deleted = 0
+
+    for name in reports:
+        try:
+            frappe.delete_doc(
+                "Reports Store NASSA",
+                name,
+                force=1
+            )
+            deleted += 1
+        except Exception:
+            frappe.log_error(
+                title="NASSA Reports Delete Failed",
+                message=frappe.get_traceback()
+            )
+
+    frappe.log_error(
+        title="NASSA Reports Delete Success",
+        message=f"Deleted {deleted} NASSA report entries for payroll period {period_str}"
+    )
+
+
+def delete_salary_summary_for_period(period_str):
+    """
+    Deletes Salary Summary On Payroll Run entries
+    for a given period string e.g. 'January 2025'
+    """
+
+    summaries = frappe.get_all(
+        "Salary Summary On Payroll Run",
+        filters={
+            "period": period_str
+        },
+        pluck="name"
+    )
+
+    if not summaries:
+        frappe.log_error(
+            title="Salary Summary Delete",
+            message=f"No Salary Summary entries found for period: {period_str}"
+        )
+        return
+
+    deleted = 0
+
+    for name in summaries:
+        try:
+            frappe.delete_doc(
+                "Salary Summary On Payroll Run",
+                name,
+                force=1
+            )
+            deleted += 1
+        except Exception:
+            frappe.log_error(
+                title="Salary Summary Delete Failed",
+                message=frappe.get_traceback()
+            )
+
+    frappe.log_error(
+        title="Salary Summary Delete Success",
+        message=f"Deleted {deleted} Salary Summary entries for period {period_str}"
+    )
+
+def delete_havano_payroll_entries(period_str):
+    """
+    Deletes Havano Payroll Entry records
+    for a given period string e.g. 'January 2025'
+    """
+
+    entries = frappe.get_all(
+        "Havano Payroll Entry",
+        filters={
+            "payroll_period": period_str
+        },
+        pluck="name"
+    )
+
+    if not entries:
+        frappe.log_error(
+            title="Havano Payroll Delete",
+            message=f"No Havano Payroll Entry found for period: {period_str}"
+        )
+        return
+
+    deleted = 0
+
+    for name in entries:
+        try:
+            frappe.delete_doc(
+                "Havano Payroll Entry",
+                name,
+                force=1
+            )
+            deleted += 1
+        except Exception:
+            frappe.log_error(
+                title="Havano Payroll Delete Failed",
+                message=frappe.get_traceback()
+            )
+
+    frappe.log_error(
+        title="Havano Payroll Delete Success",
+        message=f"Deleted {deleted} Havano Payroll Entry records for period {period_str}"
+    )

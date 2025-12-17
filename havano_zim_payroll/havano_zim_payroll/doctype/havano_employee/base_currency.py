@@ -361,7 +361,6 @@ def main(self):
                     nssa= nassa_component.usd_ceiling_amount
                 else:
                     nssa=flt(nassa_tracking) * nassa_component.percentage /100
-                    print(f"fffffffffffffffff{nssa}fff{total_allowable_deductions}fffffffe{ensurable_earnings}")
             else:
                 if flt(nassa_tracking) >= nassa_component.zwg_ceiling:
                     nssa=  nassa_component.zwg_ceiling_amount

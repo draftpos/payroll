@@ -248,25 +248,51 @@ after_install = "havano_zim_payroll.havano_zim_payroll.defaults.install_defaults
 
 # havano_zim_payroll/hooks.py
 fixtures = [
-    # Client Scripts for your module
+    # Client Scripts
     {
         "doctype": "Client Script",
         "filters": [
             ["module", "=", "Havano Zim Payroll"]
         ]
     },
-    # Print Formats for your module
+
+    # Print Formats
     {
         "doctype": "Print Format",
         "filters": [
             ["module", "=", "Havano Zim Payroll"]
         ]
     },
-    # Custom Field for Company
-   {
-    "doctype": "Custom Field",
-    "filters": [["name", "in", ["Company-custom_payslip_type"]]]
+
+    # Purchase Invoice Custom Fields
+    {
+        "doctype": "Custom Field",
+        "filters": [
+            [
+                "name",
+                "in",
+                [
+                    "Purchase Invoice-custom_from_payroll",
+                    "Purchase Invoice-custom_payroll_period"
+                ]
+            ]
+        ]
     },
+
+    # Company Custom Fields (existing)
+    {
+        "doctype": "Custom Field",
+        "filters": [
+            [
+                "name",
+                "in",
+                [
+                    "Company-custom_payslip_type"
+                ]
+            ]
+        ]
+    },
+
     # Havano Leave Types
     {
         "doctype": "Havano Leave Type",
