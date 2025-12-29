@@ -98,6 +98,7 @@
   "bank_ac_no",
   "iban",
   "total_days_worked",
+  "hourly_rate",
   "salary_structures_section",
   "payment_account",
   "mode_of_payment",
@@ -1225,7 +1226,7 @@
   {
    "fieldname": "hours",
    "fieldtype": "Float",
-   "label": "Hours"
+   "label": "Overtime Hours"
   },
   {
    "fieldname": "overtime_amount",
@@ -1233,9 +1234,9 @@
    "label": "Overtime Amount"
   },
   {
-   "default": "sadfgfdfd",
    "fieldname": "formula_display",
    "fieldtype": "HTML",
+   "hidden": 1,
    "label": "Formular",
    "options": "his is my default text"
   },
@@ -1262,8 +1263,7 @@
   },
   {
    "fieldname": "pungwe_column",
-   "fieldtype": "Column Break",
-   "label": "Pungwe"
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "cimas_employee",
@@ -1391,6 +1391,11 @@
    "fieldname": "elderly",
    "fieldtype": "Float",
    "label": "Elderly"
+  },
+  {
+   "fieldname": "hourly_rate",
+   "fieldtype": "Float",
+   "label": "Hourly Rate"
   }
  ],
  "icon": "fa fa-user",
@@ -1398,7 +1403,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-12-15 14:08:11.038847",
+ "modified": "2025-12-29 09:21:11.839145",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_employee",

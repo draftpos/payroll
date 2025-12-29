@@ -264,21 +264,12 @@ fixtures = [
         ]
     },
 
-    # Purchase Invoice Custom Fields
     {
         "doctype": "Custom Field",
         "filters": [
-            [
-                "name",
-                "in",
-                [
-                    "Purchase Invoice-custom_from_payroll",
-                    "Purchase Invoice-custom_payroll_period"
-                ]
-            ]
+            ["dt", "=", "Purchase Invoice"]
         ]
     },
-
     # Company Custom Fields (existing)
     {
         "doctype": "Custom Field",

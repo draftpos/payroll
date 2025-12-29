@@ -1,5 +1,7 @@
 import frappe
 from frappe.utils import nowdate, flt
+from datetime import date
+import calendar
 
 
 @frappe.whitelist()
@@ -21,6 +23,72 @@ def run_payroll_async(month, year):
         "job_id": job.id
     }
 
+
+def normalize_year_month(year, month):
+    # year comes as "2025" → 2025
+    year = int(year)
+
+    # month can be "December" or "12"
+    if isinstance(month, str):
+        if month.isdigit():
+            month = int(month)
+        else:
+            month = list(calendar.month_name).index(month)
+
+    return year, month
+def get_month_range(year, month):
+    year, month = normalize_year_month(year, month)
+
+    start_date = date(year, month, 1)
+    last_day = calendar.monthrange(year, month)[1]
+    end_date = date(year, month, last_day)
+    return start_date, end_date
+
+def get_employee_hours(employee, year, month):
+    start_date, end_date = get_month_range(year, month)
+
+    total_hours = frappe.db.sql("""
+        SELECT SUM(hours)
+        FROM `tabhours worked`
+        WHERE employee = %s
+        AND date BETWEEN %s AND %s
+    """, (employee, start_date, end_date))[0][0]
+
+    return total_hours or 0
+
+
+def add_basic_hourly(employee_id, amount):
+    # fetch employee doc
+    emp_doc = frappe.get_doc("havano_employee", employee_id)
+
+    component = "Basic Salary"
+
+    # check existing earnings
+    existing = {
+        (row.components or ""): row
+        for row in emp_doc.employee_earnings
+    }
+
+    if component in existing:
+        # update amount if it exists
+        row = existing[component]
+        row.amount_usd = amount
+        row.amount_zwg = 0
+        row.exchange_rate = 1
+    else:
+        # append new Basic Salary
+        row = emp_doc.append("employee_earnings", {})
+        row.components = component
+        row.havano_salary_component = component
+        row.item_code = component
+        row.amount_usd = amount
+        row.amount_zwg = 0
+        row.exchange_rate = 1
+
+    # save employee doc
+    emp_doc.save(ignore_permissions=True)
+    return f"Basic Salary updated for {employee_id}"
+
 @frappe.whitelist()
 def run_payroll(month, year):
     settin=get_payroll_settings()
@@ -34,6 +102,10 @@ def run_payroll(month, year):
     total_sdl=0
     for emp in employees:
         emp_doc = frappe.get_doc("havano_employee", emp.name)
+        total_hours=get_employee_hours(emp.name, year, month)
+        caculated_basic =emp_doc.hourly_rate* total_hours
+        add_basic_hourly(emp.name,caculated_basic)
+        frappe.log_error(f"Employee: {emp.name}, Hours Worked: {total_hours}", "Payroll Hours Worked Log")
         # Create new Payroll Entry
         payroll = frappe.new_doc("Havano Payroll Entry")
         payroll.first_name = emp_doc.first_name
