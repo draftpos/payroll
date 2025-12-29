@@ -15,16 +15,16 @@ def add_payroll_fields_to_purchase_invoice():
     # Define new fields
     new_fields = [
         {
-            "fieldname": "custom_payroll_period",
-            "label": "Payroll Period",
+            "fieldname": "custom_from_payroll",
+            "label": "From Payroll",
             "fieldtype": "Check",
             "insert_after": "posting_date",  # adjust where you want it
             "hidden": 0,
             "reqd": 0
         },
         {
-            "fieldname": "custom_from_payroll",
-            "label": "From Payroll",
+            "fieldname": "custom_payroll_period",
+            "label": "Payroll Period",
             "fieldtype": "Data",
             "insert_after": "company",
             "hidden": 0,
