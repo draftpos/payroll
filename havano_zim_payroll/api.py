@@ -950,3 +950,4 @@ def add_payroll_fields_to_purchase_invoice():
         return "Payroll Period and From Payroll fields added successfully"
 
     return "Fields already exist"
+

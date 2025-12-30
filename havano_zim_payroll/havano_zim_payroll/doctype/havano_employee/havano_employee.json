@@ -99,6 +99,7 @@
   "iban",
   "total_days_worked",
   "hourly_rate",
+  "bank_account",
   "salary_structures_section",
   "payment_account",
   "mode_of_payment",
@@ -1396,6 +1397,11 @@
    "fieldname": "hourly_rate",
    "fieldtype": "Float",
    "label": "Hourly Rate"
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Data",
+   "label": "Bank Account"
   }
  ],
  "icon": "fa fa-user",
@@ -1403,7 +1409,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-12-29 09:21:11.839145",
+ "modified": "2025-12-30 11:11:07.143841",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_employee",
