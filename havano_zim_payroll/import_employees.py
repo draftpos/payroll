@@ -1,19 +1,38 @@
 import frappe
 import csv
 from frappe.utils import getdate,flt
+
+
 @frappe.whitelist()
 def import_employees(file_url):
+    """
+    Enqueue payroll in background and return job info.
+    """
+    job = frappe.enqueue(
+        "havano_zim_payroll.import_employees.employees_import",
+        file_url=file_url,
+        queue="long",
+        timeout=15000
+    )
+
+    # Return only simple data — avoid returning the Job object itself
+    return {
+        "message": f"Employee import job queued",
+        "job_id": job.id
+    }
+@frappe.whitelist()
+def employees_import(file_url):
     """
     Import employees with salary components.
     CSV columns:
         ID, First Name, Last Name, Gender, Date of Birth, Date of Joining, Status, Company,
         Salary Mode, Employee Number, Mobile, Offer Date, Confirmation Date, Bank Name,
-        Payment Account, Payroll Frequency, Salary Currency, Bank A/C No.,
+        Payment Account, Payroll Frequency, Salary Currency, BankAccountNo.,
         <Salary Components starting from Basic Salary>
     """
 
     file_doc = frappe.get_doc("File", {"file_url": file_url})
-    file_path = file_doc.get_full_path()
+    file_path = file_doc.get_full_path() 
 
     imported = 0
     errors = []
@@ -38,10 +57,6 @@ def import_employees(file_url):
                 first_name = row.get(header_map.get("firstname")) or row.get(header_map.get("first"))
                 last_name = row.get(header_map.get("lastname")) or row.get(header_map.get("last"))
 
-                print(first_name)
-                print(last_name)
-                
-                
                 if not first_name:
                     raise ValueError("Missing First Name or Employee ID")
                 
@@ -67,7 +82,7 @@ def import_employees(file_url):
                     "payment_account": row.get("Payment Account"),
                     "payroll_frequency": row.get("Payroll Frequency"),
                     "salary_currency": row.get("Salary Currency"),
-                    "bank_account_no": row.get("Bank A/C No"),
+                    "bank_account_no": row.get("BankAccountNo"),
                     "total_days_worked":26
                 })
 
@@ -81,7 +96,7 @@ def import_employees(file_url):
                     "Salary Mode", "Employee Number", "Mobile",
                     "Offer Date", "Confirmation Date",
                     "Bank Name", "Payment Account",
-                    "Payroll Frequency", "Salary Currency", "Bank A/C No"
+                    "Payroll Frequency", "Salary Currency", "BankAccountNo","Employee"
                 }
 
                 for column, value in row.items():
@@ -104,7 +119,6 @@ def import_employees(file_url):
                             "Employee CSV Import"
                         )
                         continue
-
                     amount = flt(value)
 
                     # Route to correct child table
@@ -122,13 +136,15 @@ def import_employees(file_url):
                         })
 
                 emp_doc.insert(ignore_permissions=True)
+                frappe.log_error(
+                    f"Employee {first_name} {last_name} imported successfully.",
+                    "Employee CSV Import"
+                )
                 imported += 1
-
             except Exception as e:
                 errors.append(f"Row {idx}: {str(e)}")
 
     msg = f"{imported} employees imported successfully."
     if errors:
         msg += "\n\nErrors:\n" + "\n".join(errors)
-
     return msg
