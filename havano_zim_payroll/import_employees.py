@@ -82,7 +82,7 @@ def employees_import(file_url):
                     "payment_account": row.get("Payment Account"),
                     "payroll_frequency": row.get("Payroll Frequency"),
                     "salary_currency": row.get("Salary Currency"),
-                    "bank_account_no": row.get("BankAccountNo"),
+                    "bank_ac_no": row.get("BankAccountNo"),
                     "total_days_worked":26
                 })
 
