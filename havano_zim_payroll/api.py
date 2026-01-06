@@ -680,7 +680,7 @@ def cancel_payroll(month, year, reason):
 
     # Return only simple data — avoid returning the Job object itself
     return {
-        "message": f"Payroll job queued for {month}/{year}",
+        "message": f"Payroll cancell job queued for {month}/{year}",
         "job_id": job.id
     }
 
