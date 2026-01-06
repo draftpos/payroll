@@ -663,8 +663,30 @@ def generate_salary_slips_bulk(month, year):
     return file_doc.file_url
 
 
+
 @frappe.whitelist()
 def cancel_payroll(month, year, reason):
+    """
+    Enqueue payroll in background and return job info.
+    """
+    job = frappe.enqueue(
+        "havano_zim_payroll.api.cancel_payroll_func",  # your payroll function path
+        month=month,
+        year=year,
+        reason=reason,
+        queue="long",
+        timeout=15000
+    )
+
+    # Return only simple data — avoid returning the Job object itself
+    return {
+        "message": f"Payroll job queued for {month}/{year}",
+        "job_id": job.id
+    }
+
+
+@frappe.whitelist()
+def cancel_payroll_func(month, year, reason):
     """
     Print payroll entries for a given month and year along with the reason.
     """

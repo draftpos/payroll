@@ -57,15 +57,24 @@ def employees_import(file_url):
                 first_name = row.get(header_map.get("firstname")) or row.get(header_map.get("first"))
                 last_name = row.get(header_map.get("lastname")) or row.get(header_map.get("last"))
 
+
+                company_name = row.get("Company")
+                if not frappe.db.exists("Company", company_name):
+                    frappe.log_error(f"Could not find Company: {company_name}", "Employee CSV Import")
+                    continue  # skip this employee
+
+                payment_account = row.get("Payment Account")
+                if not frappe.db.exists("Account", payment_account):
+                    frappe.log_error(f"Could not find Payment Account: {payment_account}", "Employee CSV Import")
+                    continue
+
                 if not first_name:
                     raise ValueError("Missing First Name or Employee ID")
-                
-
+            
                 # Skip if employee exists
                 emp_exists = frappe.db.exists("havano_employee", {"first_name": first_name, "last_name": last_name})
                 if emp_exists:
                     continue
-
                 # Create employee
                 emp_doc = frappe.get_doc({
                     "doctype": "havano_employee",
@@ -88,10 +97,8 @@ def employees_import(file_url):
 
                                 # # Add salary components to child tables-----------------------------
 
-              
-                                # Columns that are NOT salary components
                 NON_COMPONENT_COLUMNS = {
-                    "ID", "First Name", "Last Name", "Gender",
+                    "ID", "First Name", "Last Name", "Bank A/C No","Gender",
                     "Date of Birth", "Date of Joining", "Status", "Company",
                     "Salary Mode", "Employee Number", "Mobile",
                     "Offer Date", "Confirmation Date",
@@ -106,8 +113,8 @@ def employees_import(file_url):
                         continue
 
                     # Skip empty values
-                    if not value or not str(value).strip():
-                        continue
+                    # if not value or not str(value).strip():
+                    #     continue
 
                     component_name = column.strip()
                     component_type = type_map.get(component_name)
