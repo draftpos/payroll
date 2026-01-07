@@ -1,24 +1,27 @@
 {
  "actions": [],
- "allow_rename": 1,
+ "autoname": "autoincrement",
  "creation": "2026-01-06 11:21:42.304429",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "employee",
-  "current_loan_balance",
   "current_payroll_period",
   "current_bank_interest_rate",
-  "total_interest_deduction_amount",
+  "current_loan_balance",
   "total_amount_to_be_paid",
   "currency",
+  "total_interest_deduction_amount",
+  "payment_type",
   "column_break_kbwb",
   "employee_name",
-  "loan_principal_amount",
-  "loan_paid",
+  "payment_span",
   "company_interest_rate",
+  "loan_principal_amount",
+  "monthly_amount_to_be_paid",
+  "loan_paid",
   "total_interest_earning_amount",
-  "monthly_amount_to_be_paid"
+  "employee_debtor"
  ],
  "fields": [
   {
@@ -92,15 +95,33 @@
    "fieldname": "monthly_amount_to_be_paid",
    "fieldtype": "Float",
    "label": "Monthly Amount To Be Paid"
+  },
+  {
+   "fieldname": "payment_span",
+   "fieldtype": "Float",
+   "label": "Payment Span (Years)"
+  },
+  {
+   "default": "Cash",
+   "fieldname": "payment_type",
+   "fieldtype": "Select",
+   "label": "Payment Type",
+   "options": "Cash\nBank"
+  },
+  {
+   "fieldname": "employee_debtor",
+   "fieldtype": "Data",
+   "label": "Employee Debtor"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-06 11:35:36.792287",
+ "modified": "2026-01-07 09:09:55.063424",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "Employee Loan",
+ "naming_rule": "Autoincrement",
  "owner": "Administrator",
  "permissions": [
   {

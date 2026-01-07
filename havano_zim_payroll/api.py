@@ -2,6 +2,8 @@ import frappe
 from frappe.utils import nowdate, flt
 from datetime import date
 import calendar
+from frappe import error_log
+frappe.error_log = error_log
 
 
 @frappe.whitelist()
@@ -100,12 +102,35 @@ def run_payroll(month, year):
         return "No employees found."
     total_net_salary_now=0
     total_sdl=0
+    total_loan = 0
     for emp in employees:
         emp_doc = frappe.get_doc("havano_employee", emp.name)
+        # dealing with employee basic salary based on hours worked
         total_hours=get_employee_hours(emp.name, year, month)
         caculated_basic =emp_doc.hourly_rate* total_hours
         add_basic_hourly(emp.name,caculated_basic)
         frappe.log_error(f"Employee: {emp.name}, Hours Worked: {total_hours}", "Payroll Hours Worked Log")
+        # Dealing with employee loan and deduction
+        employee_loan_record = get_employee_loan(emp['name'])
+
+        if employee_loan_record:
+            # Get monthly deduction safely
+            monthly_amount_to_be_paid = getattr(employee_loan_record, "monthly_amount_to_be_paid", 0)
+            
+            # Update loan fields
+            employee_loan_record.loan_paid = (getattr(employee_loan_record, "loan_paid", 0) or 0) + monthly_amount_to_be_paid
+            employee_loan_record.current_loan_balance = (getattr(employee_loan_record, "current_loan_balance", 0) or 0) - monthly_amount_to_be_paid
+            
+            # Save changes
+            employee_loan_record.save(ignore_permissions=True)
+            
+            # Log the deduction
+            frappe.log_error(
+                message=f"Employee: {emp['name']}, Monthly Loan Deduction: {monthly_amount_to_be_paid}, Loan Paid: {employee_loan_record.loan_paid}, Current Balance: {employee_loan_record.current_loan_balance}",
+                title="Payroll Monthly Loan Update"
+            )
+
+
         # Create new Payroll Entry
         payroll = frappe.new_doc("Havano Payroll Entry")
         payroll.first_name = emp_doc.first_name
@@ -114,8 +139,10 @@ def run_payroll(month, year):
         nssa_usd=0
         nssa_zwg=0
         try:
+            loan_deduction_add_back = get_loan_deduction_amounts(emp.name)
             emp_netpay = emp.net_income
-            total_net_salary_now += emp_doc.net_income
+            total_net_salary_now += emp_doc.net_income + loan_deduction_add_back["amount_usd"]
+            total_loan += loan_deduction_add_back["amount_usd"]
             total_sdl +=emp_doc.total_income * 0.01
         except AttributeError as e:
             print(f"Net income not found for employee {emp.employee}: {e}")
@@ -198,7 +225,32 @@ def run_payroll(month, year):
             create_zimra_itf16(surname=emp_doc.last_name,first_name=emp_doc.first_name,employee_id=emp_doc.name,gross_paye=emp_doc.total_income,payee=emp_doc.payee,aids_levy=emp_doc.aids_levy,currency="ZWG",dob=emp_doc.date_of_birth,start_date=emp_doc.final_confirmation_date,end_date=emp_doc.contract_end_date)
         print(bb)
 
-    acc = get_basic_salary_component()[0]
+        acc = get_basic_salary_component()[0]
+
+
+    try:
+        # Get the account (assuming get_basic_salary_component returns a list)
+        
+
+        entries = [
+        {"account": "Administrative Expenses - AA a@a6326", "debit": 70.0, "credit": "70.0", "cost_center": "Aa Fridays - AA a@a6326"},
+        {"account": "Cash - AA a@a6326", "debit": 70.0, "credit": 70.0, "cost_center": "Aa Fridays - AA a@a6326"}
+            ]
+
+        je_doc = create_journal_entry_safe(
+            company="Aa Fridays",
+            posting_date="2026-01-07",
+            entries=entries,
+            voucher_type="Cash Entry"
+        )
+
+
+    except Exception as e:
+        # Log the error in Frappe Error Log
+        frappe.log_error(message=str(e), title="Journal Entry Creation Error")
+
+
+
     try:
         # PURCHASE Invoice for all employees net salaries
 
@@ -238,12 +290,87 @@ def run_payroll(month, year):
 
     return f"Payroll created for {len(employees)} employees for {month} {year}."
 
+
+
+def create_journal_entry_safe(company, posting_date, entries, voucher_type="Cash Entry"):
+    """
+    Create a Journal Entry in ERPNext safely.
+    'entries' must be a list of dicts with keys: account, debit, credit, cost_center (optional)
+    """
+    import frappe
+    from frappe.utils import flt
+
+    try:
+        # Prepare rows
+        accounts = []
+        for e in entries:
+            accounts.append({
+                "account": e.get("account"),
+                "debit": flt(e.get("debit", 0)),
+                "credit": flt(e.get("credit", 0)),
+                "cost_center": e.get("cost_center")  # optional
+            })
+
+        je = frappe.get_doc({
+            "doctype": "Journal Entry",
+            "voucher_type": voucher_type,
+            "company": company,
+            "posting_date": posting_date,
+            "accounts": accounts
+        })
+        je.insert()
+        je.submit()
+
+        frappe.msgprint(f"Journal Entry Created: {je.name}")
+        return je
+
+    except Exception:
+        import traceback
+        tb = traceback.format_exc()
+        frappe.log_error(message=tb, title="Journal Entry Creation Error")
+        frappe.msgprint("Failed to create Journal Entry. Check Error Log.")
+        return None
+
+def get_loan_deduction_amounts(employee_id):
+    """
+    Check if the employee has a 'Loan Repayment' deduction.
+    Returns a dict with amount_usd and amount_zwg, 0 if not found.
+    """
+    try:
+        emp_doc = frappe.get_doc("havano_employee", employee_id)
+        for ded in emp_doc.employee_deductions:
+            if ded.components == "Loan Repayment":
+                return {
+                    "amount_usd": ded.amount_usd or 0,
+                    "amount_zwg": ded.amount_zwg or 0
+                }
+        # If not found
+        return {"amount_usd": 0, "amount_zwg": 0}
+    except frappe.DoesNotExistError:
+        return {"amount_usd": 0, "amount_zwg": 0}
+
 @frappe.whitelist()
 def get_basic_salary_component():
     doc = frappe.get_doc("havano_salary_component", "Basic Salary")
     return doc.as_dict().get("accounts")
 
-import frappe
+
+def get_employee_loan(employee_id):
+    # Check if the employee has any Employee Loan record
+    loans = frappe.get_all(
+        "Employee Loan",
+        filters={"employee": employee_id},
+        fields=["name", "monthly_amount_to_be_paid", "loan_paid", "current_loan_balance"]
+    )
+
+    if not loans:
+        return None  # No loan found
+
+    # If multiple loans, you can pick the latest one or return all
+    latest_loan = loans[-1]  # or loans[0] depending on ordering
+    loan_doc = frappe.get_doc("Employee Loan", latest_loan["name"])
+    return loan_doc
+
 @frappe.whitelist()
 def add_sdl_report(employee=None,date=None, amount=None):
     """
