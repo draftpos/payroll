@@ -107,9 +107,11 @@ def run_payroll(month, year):
         emp_doc = frappe.get_doc("havano_employee", emp.name)
         # dealing with employee basic salary based on hours worked
         total_hours=get_employee_hours(emp.name, year, month)
-        caculated_basic =emp_doc.hourly_rate* total_hours
-        add_basic_hourly(emp.name,caculated_basic)
-        frappe.log_error(f"Employee: {emp.name}, Hours Worked: {total_hours}", "Payroll Hours Worked Log")
+        if total_hours > 0:
+            caculated_basic = emp_doc.hourly_rate* total_hours
+            add_basic_hourly(emp.name,caculated_basic)
+            emp_doc.reload()
+            frappe.log_error(f"Employee: {emp.name}, Hours Worked: {total_hours}", "Payroll Hours Worked Log")
         # Dealing with employee loan and deduction
         employee_loan_record = get_employee_loan(emp['name'])
 

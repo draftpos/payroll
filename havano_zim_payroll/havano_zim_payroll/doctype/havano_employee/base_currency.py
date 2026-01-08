@@ -406,7 +406,7 @@ def main(self):
                     self.cimas_employer=cimas_employer
                 #----------------------------------------------------------------------------
                 if d.components.upper() == "FUNERAL POLICY":
-                    print(f"Employer Percentage: {flt(component_doc.employe_amount)}")
+                    print(f"Employer Percentage: {flt(component_doc.employer_amount)}")
                     funeral_employee= d.amount_usd  * flt(self.funeral_policy_employee_) /100
                     funeral_employer= d.amount_usd  * flt(self.funeral_policy_employer_) /100
                     # total_allowable_deductions += flt(cimas_employee)
