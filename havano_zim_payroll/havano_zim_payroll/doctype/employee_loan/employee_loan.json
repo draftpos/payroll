@@ -21,6 +21,7 @@
   "monthly_amount_to_be_paid",
   "loan_paid",
   "total_interest_earning_amount",
+  "montly_loan_interest",
   "employee_debtor"
  ],
  "fields": [
@@ -73,6 +74,7 @@
   {
    "fieldname": "total_interest_deduction_amount",
    "fieldtype": "Float",
+   "hidden": 1,
    "label": "Total Interest Deduction Amount"
   },
   {
@@ -111,13 +113,19 @@
   {
    "fieldname": "employee_debtor",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Employee Debtor"
+  },
+  {
+   "fieldname": "montly_loan_interest",
+   "fieldtype": "Float",
+   "label": "Montly Loan Interest"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-07 09:09:55.063424",
+ "modified": "2026-01-08 10:11:24.692718",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "Employee Loan",

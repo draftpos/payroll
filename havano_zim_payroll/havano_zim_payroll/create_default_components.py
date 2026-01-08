@@ -354,6 +354,34 @@ def create_salary_components():
             }
             ]
         },
+         {
+        "name": "Loan Repayment",
+        "type": "Deduction",
+        "code": "LR",
+        "component_mode": "",
+        "is_tax_applicable": 0,
+        "accounts": [
+            {
+                "account": "",
+                "item": "Payroll Expense",
+                "supplier": "Employees"
+            }
+            ]
+        },
+        {
+        "name": "Loan Interest",
+        "type": "Earning",
+        "code": "LI",
+        "component_mode": "",
+        "is_tax_applicable": 0,
+        "accounts": [
+            {
+                "account": "",
+                "item": "Payroll Expense",
+                "supplier": "Employees"
+            }
+            ]
+        }
 
     ]
     company = defaults.get_defaults().get("company")

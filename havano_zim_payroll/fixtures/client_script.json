@@ -2,6 +2,28 @@
  {
   "docstatus": 0,
   "doctype": "Client Script",
+  "dt": "havano_employee",
+  "enabled": 1,
+  "modified": "2025-12-30 11:21:10.614848",
+  "module": "Havano Zim Payroll",
+  "name": "imort employees for payroll",
+  "script": "frappe.listview_settings['havano_employee'] = {\n    onload: function(listview) {\n\n        // Add a standalone header button\n        listview.page.add_button(__('Import Employees'), function() {\n\n            // Open dialog\n            let d = new frappe.ui.Dialog({\n                title: 'Import Employees',\n                fields: [\n                    {\n                        fieldtype: 'Attach',\n                        fieldname: 'file',\n                        label: 'CSV File',\n                        reqd: 1\n                    }\n                ],\n                primary_action_label: 'Import',\n                primary_action(values) {\n                    if (!values.file) {\n                        frappe.throw('Please attach a CSV file');\n                        return;\n                    }\n\n                    // Call backend method\n                    frappe.call({\n                        method: 'havano_zim_payroll.import_employees.import_employees',\n                        args: { file_url: values.file },\n                        callback: function(r) {\n                            if (r.message) {\n                                frappe.msgprint(r.message);\n                                d.hide();\n                                listview.refresh();\n                            }\n                        }\n                    });\n                }\n            });\n\n            d.show();\n\n        });\n    }\n};\n",
+  "view": "List"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Employee Loan",
+  "enabled": 1,
+  "modified": "2026-01-06 11:43:44.067189",
+  "module": "Havano Zim Payroll",
+  "name": "employee loan period",
+  "script": "frappe.ui.form.on('Employee Loan', {\n    refresh(frm) {\n        frm.fields_dict.current_payroll_period.$wrapper\n            .on('click', function () {\n\n                frappe.prompt([\n                    {\n                        fieldname: 'month',\n                        fieldtype: 'Select',\n                        label: 'Month',\n                        options: [\n                            'January','February','March','April','May','June',\n                            'July','August','September','October','November','December'\n                        ],\n                        reqd: 1\n                    },\n                    {\n                        fieldname: 'year',\n                        fieldtype: 'Int',\n                        label: 'Year',\n                        default: new Date().getFullYear(),\n                        reqd: 1\n                    }\n                ],\n                function (values) {\n                    frm.set_value(\n                        'current_payroll_period',\n                        `${values.month} ${values.year}`\n                    );\n                },\n                'Select Payroll Period',\n                'Set'\n                );\n            });\n    }\n});\n",
+  "view": "Form"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
   "dt": "havano_salary_component",
   "enabled": 1,
   "modified": "2025-11-14 16:38:55.754857",
