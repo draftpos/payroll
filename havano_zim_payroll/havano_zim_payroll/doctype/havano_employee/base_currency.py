@@ -112,7 +112,7 @@ def main(self):
                 self.remove(e)
              # remove existing "Overtime Short" rows properly
         basic_now=0
-        for e in self.employee_earncomponent_docings:
+        for e in self.employee_earnings:
             if e.components == "Basic Salary":
            
                 if self.salary_currency == "USD":
@@ -406,14 +406,15 @@ def main(self):
                     self.cimas_employer=cimas_employer
                 #----------------------------------------------------------------------------
                 if d.components.upper() == "FUNERAL POLICY":
-                    funeral_employee= d.amount_usd  * flt(self.funeral_policy_employee_) /100
-                    funeral_employer= d.amount_usd  * flt(self.funeral_policy_employer_) /100
-                    # total_allowable_deductions += flt(cimas_employee)
-                    total_deduction += flt(funeral_employee)
-                    # tax_credits += funeral_employee
-                    print(f"total funeral---------------------{funeral_employee}")
-                    self.funeral_employee=funeral_employee
-                    self.funeral_employer=funeral_employer
+                    if d.amount_usd:
+                        funeral_employee= d.amount_usd  * flt(self.funeral_policy_employee_) /100
+                        funeral_employer= d.amount_usd  * flt(self.funeral_policy_employer_) /100
+                        # total_allowable_deductions += flt(cimas_employee)
+                        total_deduction += flt(funeral_employee)
+                        # tax_credits += funeral_employee
+                        print(f"total funeral---------------------{funeral_employee}")
+                        self.funeral_employee=funeral_employee
+                        self.funeral_employer=funeral_employer
                 #-----------------------------------------------
                 if d.components.upper() == "NECWEI":
                     print(f"Employer Percentage: {flt(component_doc.employee_amount)}")
