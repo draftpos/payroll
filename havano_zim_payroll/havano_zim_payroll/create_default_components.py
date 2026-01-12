@@ -381,6 +381,20 @@ def create_salary_components():
                 "supplier": "Employees"
             }
             ]
+        },
+        {
+        "name": "CIMAS",
+        "type": "Deduction",
+        "code": "CIMAS",
+        "component_mode": "",
+        "is_tax_applicable": 0,
+        "accounts": [
+            {
+                "account": "",
+                "item": "Payroll Expense",
+                "supplier": "Employees"
+            }
+            ]
         }
 
     ]
