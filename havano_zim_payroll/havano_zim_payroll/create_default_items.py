@@ -16,7 +16,7 @@ def insert_items():
                 "doctype": "Item",
                 "item_code": item_name,
                 "item_name": item_name,
-                "item_group": "Service",   # or whatever group you want
+                "item_group": "Services",   # or whatever group you want
                 "stock_uom": "Nos",                # or your preferred UOM
                 "is_stock_item": 0
             })
