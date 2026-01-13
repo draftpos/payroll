@@ -130,7 +130,7 @@ def create_salary_components():
             "name": "LAPF",
             "type": "Deduction",
             "code": "LF",
-            "component_mode": "",
+            "component_mode": "allowable_deduction",
             "is_tax_applicable": 0,
             "employee_percentage": 6,
             "employer_percentage": 17.3,
@@ -258,13 +258,28 @@ def create_salary_components():
             "name": "UFAWUZ",
             "type": "Deduction",
             "code": "UFAWUZ",
-            "component_mode": "",
+            "component_mode": "allowable_deduction",
             "is_tax_applicable": 0,
             "accounts": [
                 {
                     "account": "UFAWUZ",
                     "item": "Payroll Expense",
                     "supplier": "UFAWUZ"
+                }
+            ]
+        },
+        ,
+        {
+            "name": "ZIBAWU",
+            "type": "Deduction",
+            "code": "ZIBAWU",
+            "component_mode": "allowable_deduction",
+            "is_tax_applicable": 0,
+            "accounts": [
+                {
+                    "account": "ZIBAWU",
+                    "item": "Payroll Expense",
+                    "supplier": "ZIBAWU"
                 }
             ]
         },
@@ -281,20 +296,6 @@ def create_salary_components():
                     "account": "Salaries_Funeral",
                     "item": "Payroll Expense",
                     "supplier": "Employees"
-                }
-            ]
-        },
-        {
-            "name": "ZiBAWU",
-            "type": "Deduction",
-            "code": "ZB",
-            "component_mode": "",
-            "is_tax_applicable": 0,
-            "accounts": [
-                {
-                    "account": "ZiBAWU",
-                    "item": "Payroll Expense",
-                    "supplier": "ZiBAWU"
                 }
             ]
         },
@@ -316,7 +317,7 @@ def create_salary_components():
         "name": "SDL",
         "type": "Deduction",
         "code": "SDL",
-        "component_mode": "",
+        "component_mode": "allowable_deduction",
         "is_tax_applicable": 0,
         "accounts": [
             {

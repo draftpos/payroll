@@ -230,26 +230,26 @@ def run_payroll(month, year):
         acc = get_basic_salary_component()[0]
 
 
-    try:
-        # Get the account (assuming get_basic_salary_component returns a list)
+    # try:
+    #     # Get the account (assuming get_basic_salary_component returns a list)
         
 
-        entries = [
-        {"account": "Administrative Expenses - AA a@a6326", "debit": 70.0, "credit": "70.0", "cost_center": "Aa Fridays - AA a@a6326"},
-        {"account": "Cash - AA a@a6326", "debit": 70.0, "credit": 70.0, "cost_center": "Aa Fridays - AA a@a6326"}
-            ]
+    #     entries = [
+    #     {"account": "Administrative Expenses - AA a@a6326", "debit": 70.0, "credit": "70.0", "cost_center": "Aa Fridays - AA a@a6326"},
+    #     {"account": "Cash - AA a@a6326", "debit": 70.0, "credit": 70.0, "cost_center": "Aa Fridays - AA a@a6326"}
+    #         ]
 
-        je_doc = create_journal_entry_safe(
-            company="Aa Fridays",
-            posting_date="2026-01-07",
-            entries=entries,
-            voucher_type="Cash Entry"
-        )
+    #     je_doc = create_journal_entry_safe(
+    #         company="Aa Fridays",
+    #         posting_date="2026-01-07",
+    #         entries=entries,
+    #         voucher_type="Cash Entry"
+    #     )
 
 
-    except Exception as e:
-        # Log the error in Frappe Error Log
-        frappe.log_error(message=str(e), title="Journal Entry Creation Error")
+    # except Exception as e:
+    #     # Log the error in Frappe Error Log
+    #     frappe.log_error(message=str(e), title="Journal Entry Creation Error")
 
 
 

@@ -395,7 +395,6 @@ def main(self):
                         d.amount_zwg = self.nec
                 #----------------------------------------------------------------------------
                 if d.components.upper() == "CIMAS":
-                    print(f"Employer Percentage: {flt(component_doc.employer_amount)}")
                     cimas_employee= d.amount_usd  * flt(self.cimas_employee_) /100
                     cimas_employer= d.amount_usd  * flt(self.cimas_employer_ ) /100
                     # total_allowable_deductions += flt(cimas_employee)
@@ -438,7 +437,7 @@ def main(self):
                     d.amount_usd = zescwu
                     d.amount_zwg = 0
                 #-----------------------------------------------
-            else:
+            # else:
                 if d.components.upper() == "UFAWUZ":
                     ufawuz=0.03 * basic_salary
                     total_deduction += flt(ufawuz)
@@ -447,15 +446,15 @@ def main(self):
                     d.amount_usd = ufawuz
                     d.amount_zwg = 0
 
-                elif d.components.upper() == "ZIBAWU":
+                if d.components.upper() == "ZIBAWU":
                     zibawu=0.02 * basic_salary
                     total_deduction += flt(zibawu)
                     total_allowable_deductions += flt(zibawu)
-                    print(f"total ufawuz---------------------{zibawu}")
+                    print(f"total zibawu---------------------{zibawu}")
                     d.amount_usd = zibawu
                     d.amount_zwg = 0
 
-                elif d.components.upper() == "LAPF":
+                if d.components.upper() == "LAPF":
                     lapf_employee=0.06 * basic_salary
                     lapf_employer=0.173 * basic_salary
                     total_deduction += flt(lapf_employee)
