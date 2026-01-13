@@ -738,16 +738,18 @@ def create_payroll_report(
 
 from frappe.utils.pdf import get_pdf
 
+import frappe
+from frappe.utils.pdf import get_pdf
+
 @frappe.whitelist()
 def generate_salary_slips_bulk(month, year):
     """
-    Generate a single PDF of salary slips for all employees.
-    Each employee gets a page.
+    Generate a single PDF of salary slips for all employees (one page per employee).
+    Fixed horizontal cut issue by forcing A4, margins, and safe HTML wrapper.
     """
 
     # 1️⃣ Fetch all employees
     employees = frappe.get_all("havano_employee", fields=["name", "employee_name"])
-
     html_list = []
 
     # 2️⃣ Loop through employees
@@ -755,32 +757,49 @@ def generate_salary_slips_bulk(month, year):
         # Load the full employee document
         employee_doc = frappe.get_doc("havano_employee", emp.name)
 
-        # 3️⃣ Render the print format for this employee
+        # 3️⃣ Render the print format
         html = frappe.get_print(
             doctype="havano_employee",
             name=emp.name,
-            print_format="havano payslip single currency",  # your print format
+            print_format="havano payslip single currency",
             no_letterhead=0,
             doc=employee_doc
         )
 
-        # 4️⃣ Add optional header
+        # 4️⃣ Add employee header
         html = f"<h2>{emp.employee_name} — {month} {year}</h2>" + html
 
-        # 5️⃣ Append to the list
+        # 5️⃣ Wrap in width-safe container
+        html = f"""
+        <div style="
+            page-break-after: always;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        ">
+            {html}
+        </div>
+        """
         html_list.append(html)
 
-    # 6️⃣ Combine all HTMLs with page breaks
-        all_html = "".join([
-            f'<div style="page-break-after: {"always" if i < len(html_list)-1 else "auto"}">{html}</div>'
-            for i, html in enumerate(html_list)
-        ])
+    # 6️⃣ Combine all HTML pages
+    all_html = "".join(html_list)
 
+    # 7️⃣ Force PDF page size, margins, scaling
+    pdf = get_pdf(
+        all_html,
+        options={
+            "page-size": "A4",
+            "margin-top": "10mm",
+            "margin-bottom": "10mm",
+            "margin-left": "10mm",
+            "margin-right": "10mm",
+            "enable-local-file-access": True,
+            "dpi": 96
+        }
+    )
 
-    # 7️⃣ Generate PDF once
-    pdf = get_pdf(all_html, options={"enable-local-file-access": True})
-
-    # 8️⃣ Save as Frappe File
+    # 8️⃣ Save PDF in Frappe
     file_doc = frappe.get_doc({
         "doctype": "File",
         "file_name": f"Salary_Slips_{month}_{year}.pdf",
@@ -790,9 +809,6 @@ def generate_salary_slips_bulk(month, year):
     file_doc.save()
 
     return file_doc.file_url
-
-
-
 @frappe.whitelist()
 def cancel_payroll(month, year, reason):
     """
