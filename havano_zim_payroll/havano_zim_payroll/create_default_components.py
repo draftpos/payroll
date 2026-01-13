@@ -267,7 +267,7 @@ def create_salary_components():
                     "supplier": "UFAWUZ"
                 }
             ]
-        },
+        }
         ,
         {
             "name": "ZIBAWU",
