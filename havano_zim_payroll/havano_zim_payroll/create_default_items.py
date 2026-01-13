@@ -16,9 +16,9 @@ def insert_items():
                 "doctype": "Item",
                 "item_code": item_name,
                 "item_name": item_name,
-                "item_group": "All Item Groups",   # or whatever group you want
+                "item_group": "Service",   # or whatever group you want
                 "stock_uom": "Nos",                # or your preferred UOM
-                "is_stock_item": 1
+                "is_stock_item": 0
             })
             item.insert(ignore_permissions=True)
             frappe.db.commit()
