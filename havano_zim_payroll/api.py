@@ -735,29 +735,55 @@ def create_payroll_report(
     except Exception as e:
         frappe.log_error(message=frappe.get_traceback(), title="Payroll Summary Creation Failed")
         return {"status": "error", "message": str(e)}
-
 from frappe.utils.pdf import get_pdf
-
 import frappe
-from frappe.utils.pdf import get_pdf
+import os
+import frappe
+from frappe.utils.background_jobs import enqueue
+from weasyprint import HTML, CSS
+import os
 
 @frappe.whitelist()
 def generate_salary_slips_bulk(month, year):
     """
-    Generate a single PDF of salary slips for all employees (one page per employee).
-    Fixed horizontal cut issue by forcing A4, margins, and safe HTML wrapper.
+    Enqueue payroll PDF generation in the background.
+    """
+    job = enqueue(
+        "havano_zim_payroll.api.generate_salary_slips",
+        month=month,
+        year=year,
+        queue="long",
+        timeout=15000
+    )
+
+    return {
+        "message": f"Salary Slips job queued for {month}/{year}",
+        "job_id": job.id
+    }
+
+
+@frappe.whitelist()
+def generate_salary_slips(month, year):
+    """
+    Generate a single PDF of salary slips for all employees using WeasyPrint.
     """
 
-    # 1️⃣ Fetch all employees
+    # 1️⃣ Get all employees
     employees = frappe.get_all("havano_employee", fields=["name", "employee_name"])
     html_list = []
 
-    # 2️⃣ Loop through employees
+    # 2️⃣ Load print CSS locally
+    css_file = frappe.get_app_path("frappe", "public", "dist", "css", "print.bundle.css")
+    if os.path.exists(css_file):
+        with open(css_file, "r") as f:
+            inline_css = f.read()
+    else:
+        inline_css = ""
+
+    # 3️⃣ Loop through employees and generate HTML
     for emp in employees:
-        # Load the full employee document
         employee_doc = frappe.get_doc("havano_employee", emp.name)
 
-        # 3️⃣ Render the print format
         html = frappe.get_print(
             doctype="havano_employee",
             name=emp.name,
@@ -766,40 +792,30 @@ def generate_salary_slips_bulk(month, year):
             doc=employee_doc
         )
 
-        # 4️⃣ Add employee header
-        html = f"<h2>{emp.employee_name} — {month} {year}</h2>" + html
-
-        # 5️⃣ Wrap in width-safe container
         html = f"""
-        <div style="
-            page-break-after: always;
-            width: 100%;
-            box-sizing: border-box;
-            overflow: hidden;
-        ">
-            {html}
-        </div>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <style>{inline_css}</style>
+        </head>
+        <body>
+            <div style="page-break-after: always; width: 100%; box-sizing: border-box; overflow: hidden;">
+                <h2>{emp.employee_name or emp.name} — {month} {year}</h2>
+                {html}
+            </div>
+        </body>
+        </html>
         """
+
         html_list.append(html)
 
-    # 6️⃣ Combine all HTML pages
+    # 4️⃣ Combine all HTML
     all_html = "".join(html_list)
 
-    # 7️⃣ Force PDF page size, margins, scaling
-    pdf = get_pdf(
-        all_html,
-        options={
-            "page-size": "A4",
-            "margin-top": "10mm",
-            "margin-bottom": "10mm",
-            "margin-left": "10mm",
-            "margin-right": "10mm",
-            "enable-local-file-access": True,
-            "dpi": 96
-        }
-    )
+    # 5️⃣ Generate PDF using WeasyPrint
+    pdf = HTML(string=all_html).write_pdf()
 
-    # 8️⃣ Save PDF in Frappe
+    # 6️⃣ Save PDF in Frappe
     file_doc = frappe.get_doc({
         "doctype": "File",
         "file_name": f"Salary_Slips_{month}_{year}.pdf",
@@ -808,7 +824,18 @@ def generate_salary_slips_bulk(month, year):
     })
     file_doc.save()
 
+    # 7️⃣ Update Payroll Settings with link
+    try:
+        settings = frappe.get_single("Havano Payroll Settings")
+        settings.payroll_salary_slip_location = file_doc.file_url
+        settings.save()
+        frappe.db.commit()
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "Failed to update Payroll Settings with Salary Slip URL")
+
     return file_doc.file_url
+
+
 @frappe.whitelist()
 def cancel_payroll(month, year, reason):
     """

@@ -7,6 +7,7 @@
  "field_order": [
   "sdl_purchase_invoice_section",
   "cost_center",
+  "payroll_salary_slip_location",
   "column_break_rxep",
   "supplier",
   "section_break_qmwu",
@@ -43,13 +44,18 @@
    "fieldtype": "Table",
    "label": "Components for Reporting",
    "options": "salary_components_in-settings"
+  },
+  {
+   "fieldname": "payroll_salary_slip_location",
+   "fieldtype": "Data",
+   "label": "Payroll Salary Slip Location"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-12-09 10:20:00.287617",
+ "modified": "2026-01-14 14:51:48.303519",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "Havano Payroll Settings",
