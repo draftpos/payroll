@@ -72,6 +72,7 @@ def create_salary_components():
             "code": "BS",
             "component_mode": "daily rate",
             "is_tax_applicable": 1,
+            "track_nassa": 1,
             "accounts": [
                 {
                     "account": "Salaries & Wages",
@@ -80,16 +81,19 @@ def create_salary_components():
                 }
             ]
         },
-              {
+        {
             "name": "NSSA",
             "type": "Deduction",
             "code": "NS",
-            "component_mode": "",
+            "component_mode": "NSSA",
             "is_tax_applicable": 0,
             "employee_percentage": 0,
             "employer_percentage": 0,
-            "usd_ceiling": 700,
-            "zwg_ceiling_amount": 225.49,
+            "usd_ceiling": 750,
+            "usd_ceiling_amount": 31,
+            "zwg_ceiling": 5010.830,
+            "zwg_ceiling_amount": 225.490,
+            "percentage": 4.5,
             "accounts": [
                 {
                     "account": "Nssa",
@@ -411,11 +415,15 @@ def create_salary_components():
             doc.salary_component = comp["name"]
             doc.type = comp["type"]
             doc.code = comp["code"]
+            doc.track_nassa = comp.get("track_nassa", 0)
             doc.component_mode = comp.get("component_mode", "")
             doc.is_tax_applicable = comp.get("is_tax_applicable", 0)
             doc.employee_percentage = comp.get("employee_percentage", 0)
             doc.employer_percentage = comp.get("employer_percentage", 0)
             doc.usd_ceiling = comp.get("usd_ceiling", 0)
+            doc.usd_ceiling_amount = comp.get("usd_ceiling_amount", 0)
+            doc.percentage = comp.get("percentage", 0)
+            doc.zwg_ceiling = comp.get("zwg_ceiling", 0)
             doc.zwg_ceiling_amount = comp.get("zwg_ceiling_amount", 0)
 
             # Add ONE child row (this is correct)

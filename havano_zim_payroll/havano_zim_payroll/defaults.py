@@ -8,6 +8,7 @@ def install_defaults():
     from .create_default_leave_types import create_leave_types
     from .create_default_slabs import set_default_tax_slabs
     from .install_purchase_invoice_fields import add_payroll_fields_to_purchase_invoice
+    from .create_default_settings import set_havano_payroll_defaults
     insert_items()
     insert_suppliers()
     create_salary_component_types()
@@ -16,6 +17,7 @@ def install_defaults():
     create_leave_types()
     set_default_tax_slabs()
     add_payroll_fields_to_purchase_invoice()
+    set_havano_payroll_defaults()
 
 
     frappe.msgprint("Default payroll items, suppliers, accounts, and salary components have been installed.")
