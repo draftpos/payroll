@@ -788,7 +788,7 @@ def generate_salary_slips(month, year):
             doctype="havano_employee",
             name=emp.name,
             print_format="havano payslip single currency",
-            no_letterhead=0,
+            no_letterhead=1,
             doc=employee_doc
         )
 

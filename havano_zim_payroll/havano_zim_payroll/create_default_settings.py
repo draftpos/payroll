@@ -22,7 +22,7 @@ def set_havano_payroll_defaults():
     payroll_settings = frappe.get_single("Havano Payroll Settings")
     
     # set main fields
-    payroll_settings.supplier = "Employees"
+    payroll_settings.supplier = "SDL"
     payroll_settings.cost_center = cost_center[0].name
     
     # clear existing child table rows

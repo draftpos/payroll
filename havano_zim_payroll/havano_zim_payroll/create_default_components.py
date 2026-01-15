@@ -62,7 +62,7 @@ def create_salary_components():
                 {
                     "account": "Salaries-Overtime-Finishing",
                     "item": "Payroll Expense",
-                    "supplier": "Employees"
+                    "supplier": "Salary"
                 }
             ]
         },
@@ -98,7 +98,7 @@ def create_salary_components():
                 {
                     "account": "Nssa",
                     "item": "Payroll Expense",
-                    "supplier": "Employees"
+                    "supplier": "Salary"
                 }
             ]
         },
@@ -112,7 +112,7 @@ def create_salary_components():
                 {
                     "account": "Salaries_Airtime & Data_Allowance",
                     "item": "Payroll Expense",
-                    "supplier": "Employees"
+                    "supplier": "Salary"
                 }
             ]
         },
@@ -126,7 +126,7 @@ def create_salary_components():
                 {
                     "account": "Salaries_Airtime & Data_Allowance",
                     "item": "Payroll Expense",
-                    "supplier": "Employees"
+                    "supplier": "Salary"
                 }
             ]
         },
@@ -156,7 +156,7 @@ def create_salary_components():
                 {
                     "account": "Salaries_Airtime & Data_Allowance",
                     "item": "Payroll Expense",
-                    "supplier": "Employees"
+                    "supplier": "Salary"
                 }
             ]
         },
@@ -170,7 +170,7 @@ def create_salary_components():
                 {
                     "account": "Salaries_Airtime & Data_Allowance",
                     "item": "Payroll Expense",
-                    "supplier": "Employees"
+                    "supplier": "Salary"
                 }
             ]
         },
@@ -184,7 +184,7 @@ def create_salary_components():
                 {
                     "account": "Acting Allowance",
                     "item": "Payroll Expense",
-                    "supplier": "Employees"
+                    "supplier": "Salary"
                 }
             ]
         },
@@ -198,7 +198,7 @@ def create_salary_components():
                 {
                     "account": "Salaries_Fuel & Mileage_Allowance",
                     "item": "FUEL EXPENSE",
-                    "supplier": "Employees"
+                    "supplier": "Salary"
                 }
             ]
         },
@@ -212,7 +212,7 @@ def create_salary_components():
                 {
                     "account": "Salaries_Airtime & Data_Allowance",
                     "item": "Payroll Expense",
-                    "supplier": "Employees"
+                    "supplier": "Salary"
                 }
             ]
         },
@@ -226,7 +226,7 @@ def create_salary_components():
                 {
                     "account": "Housing Allowance",
                     "item": "Payroll Expense",
-                    "supplier": "Employees"
+                    "supplier": "Salary"
                 }
             ]
         },
@@ -240,7 +240,7 @@ def create_salary_components():
                 {
                     "account": "Cash in Lieu of Leave",
                     "item": "Payroll Expense",
-                    "supplier": "Employees"
+                    "supplier": "Salary"
                 }
             ]
         },
@@ -299,7 +299,7 @@ def create_salary_components():
                 {
                     "account": "Salaries_Funeral",
                     "item": "Payroll Expense",
-                    "supplier": "Employees"
+                    "supplier": "Salary"
                 }
             ]
         },
@@ -313,7 +313,7 @@ def create_salary_components():
                 {
                     "account": "Salaries_Airtime & Data_Allowance",
                     "item": "Payroll Expense",
-                    "supplier": "Employees"
+                    "supplier": "Salary"
                 }
             ]
         },
@@ -337,6 +337,8 @@ def create_salary_components():
         "code": "ZESCWU",
         "component_mode": "allowable_deduction",
         "is_tax_applicable": 0,
+        "employee_percentage": 1,
+        "employer_percentage": 1,
         "accounts": [
             {
                 "account": "",
@@ -369,7 +371,7 @@ def create_salary_components():
             {
                 "account": "",
                 "item": "Payroll Expense",
-                "supplier": "Employees"
+                "supplier": "Salary"
             }
             ]
         },
@@ -383,7 +385,7 @@ def create_salary_components():
             {
                 "account": "",
                 "item": "Payroll Expense",
-                "supplier": "Employees"
+                "supplier": "Salary"
             }
             ]
         },
@@ -397,7 +399,7 @@ def create_salary_components():
             {
                 "account": "",
                 "item": "Payroll Expense",
-                "supplier": "Employees"
+                "supplier": "Salary"
             }
             ]
         }

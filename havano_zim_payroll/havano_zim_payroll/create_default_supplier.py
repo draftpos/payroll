@@ -9,10 +9,11 @@ def insert_suppliers():
         "Fuel",
         "UFAWUZ",
         "Employees",
-        "ZiBAWU",
+        "ZIBAWU",
         "SDL",
         "NECWEI",
-        "ZESCWU"
+        "ZESCWU",
+        "Salary"
     ]
 
     # dedupe but keep order
@@ -23,7 +24,7 @@ def insert_suppliers():
             supplier = frappe.get_doc({
                 "doctype": "Supplier",
                 "supplier_name": supplier_name,
-                "supplier_type": "Company",  # or "Individual" if appropriate
+                "supplier_type": "Company", 
             })
             supplier.insert(ignore_permissions=True)
             frappe.db.commit()
