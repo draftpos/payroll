@@ -735,6 +735,8 @@ def create_payroll_report(
     except Exception as e:
         frappe.log_error(message=frappe.get_traceback(), title="Payroll Summary Creation Failed")
         return {"status": "error", "message": str(e)}
+
+
 from frappe.utils.pdf import get_pdf
 import frappe
 import os
@@ -764,77 +766,82 @@ def generate_salary_slips_bulk(month, year):
 
 @frappe.whitelist()
 def generate_salary_slips(month, year):
-    """
-    Generate a single PDF of salary slips for all employees using WeasyPrint.
-    """
+    import os
+    from weasyprint import HTML
 
-    # 1️⃣ Get all employees
-    employees = frappe.get_all("havano_employee", fields=["name", "employee_name"])
-    html_list = []
+    # 1️⃣ Get employees (only what you need)
+    employees = frappe.get_all(
+        "havano_employee",
+        fields=["name", "employee_name"]
+    )
 
-    # 2️⃣ Load print CSS locally
-    css_file = frappe.get_app_path("frappe", "public", "dist", "css", "print.bundle.css")
+    # 2️⃣ Load CSS once
+    css_file = frappe.get_app_path(
+        "frappe", "public", "dist", "css", "print.bundle.css"
+    )
+
+    inline_css = ""
     if os.path.exists(css_file):
-        with open(css_file, "r") as f:
+        with open(css_file) as f:
             inline_css = f.read()
-    else:
-        inline_css = ""
 
-    # 3️⃣ Loop through employees and generate HTML
+    # 3️⃣ Start ONE HTML document
+    body_html = []
+
     for emp in employees:
-        employee_doc = frappe.get_doc("havano_employee", emp.name)
-
-        html = frappe.get_print(
+        slip_html = frappe.get_print(
             doctype="havano_employee",
             name=emp.name,
             print_format="havano payslip single currency",
-            no_letterhead=1,
-            doc=employee_doc
+            no_letterhead=1
         )
 
-        html = f"""
-        <html>
-        <head>
-            <meta charset="utf-8">
-            <style>{inline_css}</style>
-        </head>
-        <body>
-            <div style="page-break-after: always; width: 100%; box-sizing: border-box; overflow: hidden;">
-                <h2>{emp.employee_name or emp.name} — {month} {year}</h2>
-                {html}
-            </div>
-        </body>
-        </html>
-        """
+        body_html.append(f"""
+        <div class="page">
+            <h2>{emp.employee_name or emp.name} — {month} {year}</h2>
+            {slip_html}
+        </div>
+        """)
 
-        html_list.append(html)
+    # 4️⃣ Final HTML
+    final_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            {inline_css}
+            .page {{
+                page-break-after: always;
+                width: 100%;
+                box-sizing: border-box;
+            }}
+        </style>
+    </head>
+    <body>
+        {''.join(body_html)}
+    </body>
+    </html>
+    """
 
-    # 4️⃣ Combine all HTML
-    all_html = "".join(html_list)
+    # 5️⃣ Generate PDF ONCE
+    pdf = HTML(string=final_html).write_pdf()
 
-    # 5️⃣ Generate PDF using WeasyPrint
-    pdf = HTML(string=all_html).write_pdf()
-
-    # 6️⃣ Save PDF in Frappe
+    # 6️⃣ Save file
     file_doc = frappe.get_doc({
         "doctype": "File",
         "file_name": f"Salary_Slips_{month}_{year}.pdf",
         "is_private": 0,
         "content": pdf
     })
-    file_doc.save()
+    file_doc.insert(ignore_permissions=True)
 
-    # 7️⃣ Update Payroll Settings with link
-    try:
-        settings = frappe.get_single("Havano Payroll Settings")
-        settings.payroll_salary_slip_location = file_doc.file_url
-        settings.save()
-        frappe.db.commit()
-    except Exception:
-        frappe.log_error(frappe.get_traceback(), "Failed to update Payroll Settings with Salary Slip URL")
+    # 7️⃣ Update settings
+    settings = frappe.get_single("Havano Payroll Settings")
+    settings.payroll_salary_slip_location = file_doc.file_url
+    settings.save(ignore_permissions=True)
 
     return file_doc.file_url
-
 
 @frappe.whitelist()
 def cancel_payroll(month, year, reason):
