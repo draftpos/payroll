@@ -122,7 +122,7 @@ def main(self):
             # frappe.msgprint(f"{total_deduction}")
 
         # If Medical Aid, apply employer percentage
-        elif component_doc.component_mode == "Medical Aid":
+        elif component_doc.salary_component.lower() == "medical aid":
             #frappe.msgprint("✅ Medical Aid Deduction Found")
             print(f"Employer Percentage: {flt(component_doc.employer_amount)}")
      
@@ -132,18 +132,21 @@ def main(self):
 
             #----------------------------------------------------------------------------
             
-            tax_credits_usd += (medical_usd * (flt(component_doc.employer_amount) / 100))
-            tax_credits_zwg += (medical_zwg * (flt(component_doc.employer_amount) / 100))
-            self.total_deduction_usd += flt(medical_usd)
-            self.total_deduction_zwg += flt(medical_zwg)
+            # tax_credits_usd += (medical_usd * (flt(component_doc.employer_amount) / 100))
+            # tax_credits_zwg += (medical_zwg * (flt(component_doc.employer_amount) / 100))
+            self.total_deduction_usd += flt(5)
+            # self.total_deduction_zwg += flt(medical_zwg)
+            d.amount_usd = 5
+            d.amount_zwg = 0
+
             #----------------------------------------------------------------------------
             # self.append("tax_credits", {
             #     "credit_name": d.components,
             #     "amount_usd": usd_medical,
             #     "amount_zwg": zwg_medical
             # })
-            self.total_tax_credits_usd = tax_credits_usd
-            self.total_tax_credits_zwg = tax_credits_zwg
+            # self.total_tax_credits_usd = tax_credits_usd
+            # self.total_tax_credits_zwg = tax_credits_zwg
             # total_allowable_deductions += flt(medical)
 
         elif component_doc.component_mode == "NEC":

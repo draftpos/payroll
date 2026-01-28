@@ -70,7 +70,7 @@ def add_basic_hourly(employee_id, amount):
         (row.components or ""): row
         for row in emp_doc.employee_earnings
     }
-
+Addson
     if component in existing:
         # update amount if it exists
         row = existing[component]
@@ -1129,7 +1129,6 @@ def add_payroll_fields_to_purchase_invoice():
             "reqd": 0
         }
     ]
-
     # Add fields if they don't exist
     existing_fieldnames = [f["fieldname"] for f in data.get("fields", [])]
     added = False

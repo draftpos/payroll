@@ -282,24 +282,5 @@ fixtures = [
                 ]
             ]
         ]
-    },
-
-    # Havano Leave Types
-    {
-        "doctype": "Havano Leave Type",
-        "filters": [
-            [
-                "name",
-                "in",
-                [
-                    "Maternity Leave",
-                    "Annual Leave",
-                    "Sick Leave",
-                    "Bereavement Leave",
-                    "Special Leave",
-                    "Study Leave"
-                ]
-            ]
-        ]
     }
 ]
