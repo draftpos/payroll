@@ -70,7 +70,6 @@ def add_basic_hourly(employee_id, amount):
         (row.components or ""): row
         for row in emp_doc.employee_earnings
     }
-Addson
     if component in existing:
         # update amount if it exists
         row = existing[component]
