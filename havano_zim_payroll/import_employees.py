@@ -93,7 +93,7 @@ def employees_import(file_url):
                     "salary_currency": row.get("Salary Currency"),
                     "bank_ac_no": row.get("BankAccountNo"),
                     "total_days_worked":26,
-                    "cimas_employer_":row.get("Cimas employer %"),
+                    "cimas_employer_":row.get("Cimas Employer %"),
                     "cimas_employee_":row.get("Cimas Employee %"),
                     "funeral_policy_employer_":row.get("Funeral Policy Employer %"),
                     "funeral_policy_employee_":row.get("Funeral Policy Employee %"),
