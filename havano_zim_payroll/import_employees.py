@@ -4,7 +4,7 @@ from frappe.utils import getdate,flt
 
 
 @frappe.whitelist()
-def import_employees(file_url):
+def import_employeesW(file_url):
     """
     Enqueue payroll in background and return job info.
     """
@@ -20,8 +20,14 @@ def import_employees(file_url):
         "message": f"Employee import job queued",
         "job_id": job.id
     }
+def safe_float(val):
+    try:
+        return float(str(val).strip())
+    except:
+        return 0.0
+
 @frappe.whitelist()
-def employees_import(file_url):
+def import_employees(file_url):
     """
     Import employees with salary components.
     CSV columns:
@@ -93,10 +99,10 @@ def employees_import(file_url):
                     "salary_currency": row.get("Salary Currency"),
                     "bank_ac_no": row.get("BankAccountNo"),
                     "total_days_worked":26,
-                    "cimas_employer_":row.get("Cimas Employer %"),
-                    "cimas_employee_":row.get("Cimas Employee %"),
-                    "funeral_policy_employer_":row.get("Funeral Policy Employer %"),
-                    "funeral_policy_employee_":row.get("Funeral Policy Employee %"),
+                    "cimas_employer_": safe_float(row.get("Cimas Employer %")),
+                    "cimas_employee_": safe_float(row.get("Cimas Employee %")),
+                    "funeral_policy_employer_": safe_float(row.get("Funeral Policy Employer %")),
+                    "funeral_policy_employee_": safe_float(row.get("Funeral Policy Employee %")),
                 })
 
                                 # # Add salary components to child tables-----------------------------
@@ -130,7 +136,13 @@ def employees_import(file_url):
                             "Employee CSV Import"
                         )
                         continue
-                    amount = flt(value)
+                    if not value or not str(value).strip():
+                        continue  # skip empty values
+
+                    try:
+                        amount = float(value)
+                    except:
+                        amount = 0
 
                     # Route to correct child table
                     if component_type.lower() == "earning":
