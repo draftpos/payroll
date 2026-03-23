@@ -107,7 +107,7 @@ def employees_import(file_url):
                     "Salary Mode", "Employee Number", "Mobile",
                     "Offer Date", "Confirmation Date",
                     "Bank Name", "Payment Account",
-                    "Payroll Frequency", "Salary Currency", "BankAccountNo","Employee","Funeral Policy Employer_","Funeral Policy Employee_","Cimas Employer_","Cimas Employee_"
+                    "Payroll Frequency", "Salary Currency", "BankAccountNo","Employee","Funeral Policy Employer %","Funeral Policy Employee %","Cimas Employer %","Cimas Employee %"
                 }
 
                 for column, value in row.items():
