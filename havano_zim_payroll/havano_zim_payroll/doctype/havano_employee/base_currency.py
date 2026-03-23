@@ -335,12 +335,10 @@ def main(self):
                 row.exchange_rate = 1
 
   
-    # if get_nssa_and_paye_always_calculate().get("NSSA") :
-    #     ensure_deductions(self, "NSSA")
-    # if get_nssa_and_paye_always_calculate().get("NSSA") :
-    #     ensure_deductions(self, "NSSA")
+    if get_nssa_and_paye_always_calculate().get("NSSA") :
+        ensure_deductions(self, "NSSA")
         
-    ensure_deductions(self, "NSSA")
+    # ensure_deductions(self, "NSSA")
     ensure_deductions(self, "PAYEE")
     ensure_deductions(self, "Aids Levy")
          
