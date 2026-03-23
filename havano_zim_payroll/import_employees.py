@@ -92,7 +92,11 @@ def employees_import(file_url):
                     "payroll_frequency": row.get("Payroll Frequency"),
                     "salary_currency": row.get("Salary Currency"),
                     "bank_ac_no": row.get("BankAccountNo"),
-                    "total_days_worked":26
+                    "total_days_worked":26,
+                    "cimas_employer_":row.get("Cimas employer %"),
+                    "cimas_employee_":row.get("Cimas Employee %"),
+                    "funeral_policy_employer_":row.get("Funeral Policy Employer %"),
+                    "funeral_policy_employee_":row.get("Funeral Policy Employee %"),
                 })
 
                                 # # Add salary components to child tables-----------------------------
@@ -103,7 +107,7 @@ def employees_import(file_url):
                     "Salary Mode", "Employee Number", "Mobile",
                     "Offer Date", "Confirmation Date",
                     "Bank Name", "Payment Account",
-                    "Payroll Frequency", "Salary Currency", "BankAccountNo","Employee"
+                    "Payroll Frequency", "Salary Currency", "BankAccountNo","Employee","funeral_policy_employer_","funeral_policy_employee_","cimas_employer_","cimas_employee_"
                 }
 
                 for column, value in row.items():
