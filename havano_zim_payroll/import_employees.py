@@ -4,7 +4,7 @@ from frappe.utils import getdate,flt
 
 
 @frappe.whitelist()
-def import_employees(file_url):
+def import_emplwoyees(file_url):
     """
     Enqueue payroll in background and return job info.
     """
@@ -27,7 +27,7 @@ def safe_float(val):
         return 0.0
 
 @frappe.whitelist()
-def employees_import(file_url):
+def import_employees(file_url):
     """
     Import employees with salary components.
     CSV columns:
@@ -118,6 +118,7 @@ def employees_import(file_url):
 
                 for column, value in row.items():
                     print(f"Processing column: {column} with value: {value}")
+                    frappe.logger().info(f"{column} => {value}")
                     # Skip non-component columns
                     if column in NON_COMPONENT_COLUMNS:
                         continue
