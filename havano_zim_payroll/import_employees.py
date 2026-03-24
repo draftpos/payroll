@@ -27,7 +27,7 @@ def safe_float(val):
         return 0.0
 
 @frappe.whitelist()
-def import_employees(file_url):
+def employees_import(file_url):
     """
     Import employees with salary components.
     CSV columns:
