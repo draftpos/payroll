@@ -335,14 +335,15 @@ def main(self):
                 row.exchange_rate = 1
 
   
-    if get_nssa_and_paye_always_calculate().get("NSSA") :
+    if get_nssa_and_paye_always_calculate().get("NSSA") and self.payroll_frequency != 'Daily':
         ensure_deductions(self, "NSSA")
+    
+    if get_nssa_and_paye_always_calculate().get("PAYE"):
+        ensure_deductions(self, "PAYEE")
+        ensure_deductions(self, "Aids Levy")
         
-    # ensure_deductions(self, "NSSA")
-    ensure_deductions(self, "PAYEE")
-    ensure_deductions(self, "Aids Levy")
-         
 
+         
     for d in self.employee_deductions:
         
 
@@ -483,7 +484,7 @@ def main(self):
         self.wcif_zwg=self.total_taxable_income * self.wcif_percentage/100
         self.wcif_usd=0
     print(self.ensuarable_earnings)
-    payee = round(max(payee_against_slab(self.ensuarable_earnings) - tax_credits, 0), 2)
+    payee = round(max(payee_against_slab(self.ensuarable_earnings, self.payroll_frequency) - tax_credits, 0), 2)
     ads_levy = round(0.03 * payee, 2)
     if calculate_payee:
         total_deduction += payee
@@ -498,11 +499,13 @@ def main(self):
     self.salary_structure = salary_structure.name
     self.total_tax_credits=tax_credits
 
-def payee_against_slab(amount, currency="USD"):
+def payee_against_slab(amount, mode="Monthly"):
+    if mode not in ['Monthly', "Daily"]:
+        mode = "Monthly"
     payee = 0.0
-    print(f"Calculating PAYE for amount: {amount} in currency: {currency}")
+    print(f"Calculating PAYE for amount: {amount} in mode: USD-{mode}")
     # Get the Havano Tax Slab for the given currency
-    slab_doc = frappe.get_doc("Havano Tax Slab", currency)
+    slab_doc = frappe.get_doc("Havano Tax Slab", f"USD-{mode}")
     print(f"Retrieved Havano Tax Slab: {slab_doc.tax_brackets}")
     for slab in slab_doc.tax_brackets:
         print(f"Checking slab: { vars(slab)}")

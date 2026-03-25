@@ -12,7 +12,7 @@
  "fields": [
   {
    "fieldname": "currency",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "label": "Currency",
    "options": "Currency",
    "unique": 1
@@ -27,7 +27,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-15 13:03:49.308041",
+ "modified": "2026-03-25 09:43:05.954784",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "Havano Tax Slab",

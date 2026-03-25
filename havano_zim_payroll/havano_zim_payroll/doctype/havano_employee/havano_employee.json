@@ -104,7 +104,7 @@
   "payment_account",
   "mode_of_payment",
   "column_break_fhzq",
-  "payrol_frequency",
+  "payroll_frequency",
   "wcif_percentage",
   "funeral_and_cimas_section",
   "cimas_employer_",
@@ -925,12 +925,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "payrol_frequency",
-   "fieldtype": "Select",
-   "label": "Payroll Frequency",
-   "options": "\nMonthly\nFortnightly\nBimonthly\nWeekly\nDaily"
-  },
-  {
    "fieldname": "mode_of_payment",
    "fieldtype": "Link",
    "label": "Mode of Payment",
@@ -1402,6 +1396,12 @@
    "fieldname": "bank_account",
    "fieldtype": "Data",
    "label": "Bank Account"
+  },
+  {
+   "fieldname": "payroll_frequency",
+   "fieldtype": "Select",
+   "label": "Payroll Frequency",
+   "options": "\nMonthly\nFortnightly\nBimonthly\nWeekly\nDaily"
   }
  ],
  "icon": "fa fa-user",
@@ -1409,7 +1409,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2025-12-30 11:11:07.143841",
+ "modified": "2026-03-25 08:51:10.401527",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_employee",
