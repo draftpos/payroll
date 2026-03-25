@@ -98,7 +98,7 @@ def run_payroll(month, year, work_date, daily):
     setting_cost_center=settin["cost_center"]
     setting_supplier=settin["supplier"]
     """Runs payroll for all employees immediately (synchronous)."""
-    employees = frappe.get_all("havano_employee", fields=["name", "first_name", "last_name","net_income"])
+    employees = frappe.get_all("havano_employee", fields=["name", "first_name", "last_name","net_income","payroll_frequency"])
     if not employees:
         return "No employees found."
     total_net_salary_now=0
@@ -132,7 +132,6 @@ def run_payroll(month, year, work_date, daily):
                 message=f"Employee: {emp['name']}, Monthly Loan Deduction: {monthly_amount_to_be_paid}, Loan Paid: {employee_loan_record.loan_paid}, Current Balance: {employee_loan_record.current_loan_balance}",
                 title="Payroll Monthly Loan Update"
             )
-
 
         # Create new Payroll Entry
         payroll = frappe.new_doc("Havano Payroll Entry")
