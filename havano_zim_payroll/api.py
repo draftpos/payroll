@@ -7,7 +7,7 @@ frappe.error_log = error_log
 
 
 @frappe.whitelist()
-def run_payroll_async(month, year):
+def run_payroll_async(month, year, work_date=None, daily=None):
     """
     Enqueue payroll in background and return job info.
     """
@@ -15,6 +15,8 @@ def run_payroll_async(month, year):
         "havano_zim_payroll.api.run_payroll",  # your payroll function path
         month=month,
         year=year,
+        work_date=work_date,
+        daily=daily,
         queue="long",
         timeout=15000
     )
@@ -91,7 +93,7 @@ def add_basic_hourly(employee_id, amount):
     return f"Basic Salary updated for {employee_id}"
 
 @frappe.whitelist()
-def run_payroll(month, year):
+def run_payroll(month, year, work_date, daily):
     settin=get_payroll_settings()
     setting_cost_center=settin["cost_center"]
     setting_supplier=settin["supplier"]
@@ -137,6 +139,8 @@ def run_payroll(month, year):
         payroll.first_name = emp_doc.first_name
         payroll.surname = emp_doc.last_name
         payroll.payroll_period = f"{month} {year}"
+        payroll.date = work_date,
+        payroll.payroll_frequency=emp_doc.payroll_frequency
         nssa_usd=0
         nssa_zwg=0
         try:
@@ -209,7 +213,7 @@ def run_payroll(month, year):
 
         # Extract child table row (accounts)
        
-        update_havano_leave_balances(emp.name)
+        # update_havano_leave_balances(emp.name)
         a=update_employee_annual_leave(emp.name,payroll_period=f"{month} {year}")
         frappe.db.set_value("havano_employee", emp.name, "total_leave_allocated", a)
         frappe.db.commit()

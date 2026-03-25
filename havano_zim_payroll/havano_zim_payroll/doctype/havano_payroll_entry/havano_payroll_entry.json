@@ -5,9 +5,12 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "payroll_period",
   "first_name",
   "surname",
+  "column_break_psrt",
+  "payroll_period",
+  "date",
+  "payroll_frequency",
   "section_break_mwio",
   "employee_earnings",
   "section_break_fait",
@@ -52,12 +55,28 @@
    "in_list_view": 1,
    "label": "Period",
    "reqd": 1
+  },
+  {
+   "fieldname": "column_break_psrt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "payroll_frequency",
+   "fieldtype": "Data",
+   "label": "Payroll Frequency"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-04 15:29:35.410387",
+ "modified": "2026-03-25 10:22:30.968422",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "Havano Payroll Entry",
