@@ -4,7 +4,7 @@ from frappe.utils import getdate,flt
 
 
 @frappe.whitelist()
-def import_emplwoyees(file_url):
+def import_employees(file_url):
     """
     Enqueue payroll in background and return job info.
     """
