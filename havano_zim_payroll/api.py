@@ -98,7 +98,17 @@ def run_payroll(month, year, work_date, daily):
     setting_cost_center=settin["cost_center"]
     setting_supplier=settin["supplier"]
     """Runs payroll for all employees immediately (synchronous)."""
-    employees = frappe.get_all("havano_employee", fields=["name", "first_name", "last_name","net_income","payroll_frequency"])
+    if daily:
+        employees = frappe.get_all(
+            "havano_employee",
+            filters={"payroll_frequency": "Daily"},
+            fields=["name", "first_name", "last_name", "net_income", "payroll_frequency"]
+        )
+    else:
+        employees = frappe.get_all(
+            "havano_employee",
+            fields=["name", "first_name", "last_name", "net_income", "payroll_frequency"]
+        )
     if not employees:
         return "No employees found."
     total_net_salary_now=0
