@@ -152,8 +152,8 @@ def main(self):
         elif component_doc.component_mode == "NEC":
             #frappe.msgprint("✅ Medical Aid Deduction Found")
             print(f"Employer Percentage: {flt(component_doc.employer_amount)}")
-            self.nec_usd=self.total_ensuarable_earnings_usd * 0.01
-            self.nec_zwg=self.total_ensuarable_earnings_zwg * 0.01
+            self.nec_usd = basic_salary_usd * 0.015
+            self.nec_zwg = basic_salary_zwg * 0.015
 
             d.amount_usd = self.nec_usd
             d.amount_zwg = self.nec_zwg
@@ -180,8 +180,8 @@ def main(self):
     self.total_allowable_deductions_zwg=total_allowable_deductions_zwg
     self.total_earnings_usd=total_amount_basic_and_bonus_and_allowances_usd
     self.total_earnings_zwg=total_amount_basic_and_bonus_and_allowances_zwg
-    self.total_taxable_income_usd=self.total_ensuarable_earnings_usd-self.total_allowable_deductions_usd
-    self.total_taxable_income_zwg=self.total_ensuarable_earnings_zwg-self.total_allowable_deductions_zwg
+    self.total_taxable_income_usd=self.total_earnings_usd-self.total_allowable_deductions_usd
+    self.total_taxable_income_zwg=self.total_earnings_zwg-self.total_allowable_deductions_zwg
     payee_usd=max(payee_against_slab_usd(self.total_taxable_income_usd)-tax_credits_usd,0)
     payee_zwg=max(payee_against_slab_zwg(self.total_taxable_income_zwg)-tax_credits_zwg,0)
     self.total_deduction_usd += payee_usd

@@ -379,8 +379,8 @@ def main(self):
             if component_doc.component_mode == "allowable_deduction":
                 if d.components.upper() == "NEC":
                     print(f"Employer Percentage: {flt(component_doc.employer_amount)}")
-                    nec_employee= self.total_taxable_income * flt(component_doc.employee_amount) /100
-                    nec_employer= self.total_taxable_income * flt(component_doc.employer_amount) /100
+                    nec_employee= basic_salary * 0.015
+                    nec_employer= basic_salary * 0.015
                     total_allowable_deductions += flt(nec_employee)
                     total_deduction += flt(nec_employee)
                     print(f"total nec---------------------{nec_employee}")
@@ -391,15 +391,17 @@ def main(self):
                         d.amount_zwg = 0
                     else: 
                         d.amount_usd = 0
-                        d.amount_zwg = self.nec
+                        d.amount_zwg = nec_employee
                 #----------------------------------------------------------------------------
                 if d.components.upper() == "CIMAS":
                     cimas_employee= d.amount_usd  * flt(self.cimas_employee_) /100
                     cimas_employer= d.amount_usd  * flt(self.cimas_employer_ ) /100
                     # total_allowable_deductions += flt(cimas_employee)
                     total_deduction += flt(cimas_employee)
-                    tax_credits += cimas_employee
+                    medical_aid_tax_credit = cimas_employee * 0.5
+                    tax_credits += medical_aid_tax_credit
                     print(f"total cimas---------------------{cimas_employee}")
+                    self.medical_aid_tax_credit = medical_aid_tax_credit
                     self.cimas_employee=cimas_employee
                     self.cimas_employer=cimas_employer
                 #----------------------------------------------------------------------------
@@ -476,7 +478,7 @@ def main(self):
 
     print(f"Total Deductions: {total_allowable_deductions}")
     self.allowable_deductions=total_allowable_deductions
-    self.ensuarable_earnings=self.total_taxable_income-self.allowable_deductions
+    self.ensuarable_earnings=self.total_income-self.allowable_deductions
     if default_currency == "USD":
         self.wcif_usd=self.total_taxable_income * self.wcif_percentage/100
         self.wcif_zwg=0

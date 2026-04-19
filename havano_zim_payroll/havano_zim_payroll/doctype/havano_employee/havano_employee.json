@@ -42,6 +42,7 @@
   "column_break_25",
   "designation",
   "reports_to",
+  "leave_approver",
   "column_break_18",
   "branch",
   "employment_details",
@@ -122,6 +123,7 @@
   "elderly",
   "column_break_vtua",
   "disabled",
+  "medical_aid_tax_credit",
   "hidden_calculations_section",
   "total_deductions",
   "payee",
@@ -212,7 +214,32 @@
   "lft",
   "rgt",
   "old_parent",
-  "connections_tab"
+  "connections_tab",
+  "documents_tab",
+  "contracts_section",
+  "work_contract_table",
+  "hr_policy_table",
+  "jds_table",
+  "reports_section",
+  "reports_table",
+  "warning_letters_section",
+  "warning_letters_table",
+  "debt_section",
+  "debt_table",
+  "sops_section",
+  "sops_table",
+  "vehicle_use_agreement_section",
+  "vehicle_use_agreement_table",
+  "offer_letter_section",
+  "offer_letter_table",
+  "conflict_of_interest_section",
+  "conflict_of_interest_table",
+  "declaration_of_confidentiality_section",
+  "declaration_of_confidentiality_table",
+  "addendums_section",
+  "addendums_table",
+  "appraisals_section",
+  "appraisals_table"
  ],
  "fields": [
   {
@@ -462,6 +489,12 @@
    "oldfieldname": "reports_to",
    "oldfieldtype": "Link",
    "options": "Employee"
+  },
+  {
+   "fieldname": "leave_approver",
+   "fieldtype": "Link",
+   "label": "Leave Approver",
+   "options": "havano_employee"
   },
   {
    "fieldname": "branch",
@@ -872,6 +905,144 @@
    "fieldtype": "Tab Break",
    "label": "Connections",
    "show_dashboard": 1
+  },
+  {
+   "fieldname": "documents_tab",
+   "fieldtype": "Tab Break",
+   "label": "Documents"
+  },
+  {
+   "fieldname": "contracts_section",
+   "fieldtype": "Section Break",
+   "label": "Contracts"
+  },
+  {
+   "fieldname": "work_contract_table",
+   "fieldtype": "Table",
+   "label": "Work Contract",
+   "options": "Havano Employee Document"
+  },
+  {
+   "fieldname": "hr_policy_table",
+   "fieldtype": "Table",
+   "label": "HR Policy",
+   "options": "Havano Employee Document"
+  },
+  {
+   "fieldname": "jds_table",
+   "fieldtype": "Table",
+   "label": "JDs",
+   "options": "Havano Employee Document"
+  },
+  {
+   "fieldname": "reports_section",
+   "fieldtype": "Section Break",
+   "label": "Reports"
+  },
+  {
+   "fieldname": "reports_table",
+   "fieldtype": "Table",
+   "label": "Report",
+   "options": "Havano Employee Document"
+  },
+  {
+   "fieldname": "warning_letters_section",
+   "fieldtype": "Section Break",
+   "label": "Warning Letters"
+  },
+  {
+   "fieldname": "warning_letters_table",
+   "fieldtype": "Table",
+   "label": "Letter",
+   "options": "Havano Employee Document"
+  },
+  {
+   "fieldname": "debt_section",
+   "fieldtype": "Section Break",
+   "label": "Debt"
+  },
+  {
+   "fieldname": "debt_table",
+   "fieldtype": "Table",
+   "label": "Acknowledgement of debt",
+   "options": "Havano Employee Document"
+  },
+  {
+   "fieldname": "sops_section",
+   "fieldtype": "Section Break",
+   "label": "SOPs"
+  },
+  {
+   "fieldname": "sops_table",
+   "fieldtype": "Table",
+   "label": "Acknowledgement of SOPs",
+   "options": "Havano Employee Document"
+  },
+  {
+   "fieldname": "vehicle_use_agreement_section",
+   "fieldtype": "Section Break",
+   "label": "Vehicle Use Agreement"
+  },
+  {
+   "fieldname": "vehicle_use_agreement_table",
+   "fieldtype": "Table",
+   "label": "Acknowledgement of Vehicle Use Agreement",
+   "options": "Havano Employee Document"
+  },
+  {
+   "fieldname": "offer_letter_section",
+   "fieldtype": "Section Break",
+   "label": "Offer Letter"
+  },
+  {
+   "fieldname": "offer_letter_table",
+   "fieldtype": "Table",
+   "label": "Offer Letter",
+   "options": "Havano Employee Document"
+  },
+  {
+   "fieldname": "conflict_of_interest_section",
+   "fieldtype": "Section Break",
+   "label": "Conflict of Interest"
+  },
+  {
+   "fieldname": "conflict_of_interest_table",
+   "fieldtype": "Table",
+   "label": "Conflict of Interest",
+   "options": "Havano Employee Document"
+  },
+  {
+   "fieldname": "declaration_of_confidentiality_section",
+   "fieldtype": "Section Break",
+   "label": "Declaration of Confidentiality"
+  },
+  {
+   "fieldname": "declaration_of_confidentiality_table",
+   "fieldtype": "Table",
+   "label": "Declaration of Confidentiality",
+   "options": "Havano Employee Document"
+  },
+  {
+   "fieldname": "addendums_section",
+   "fieldtype": "Section Break",
+   "label": "Addendums"
+  },
+  {
+   "fieldname": "addendums_table",
+   "fieldtype": "Table",
+   "label": "Adendum",
+   "options": "Havano Employee Document"
+  },
+  {
+   "fieldname": "appraisals_section",
+   "fieldtype": "Section Break",
+   "label": "Appraisals"
+  },
+  {
+   "fieldname": "appraisals_table",
+   "fieldtype": "Table",
+   "label": "Appraisal",
+   "options": "Havano Employee Document"
   },
   {
    "fieldname": "column_break_32",
@@ -1381,6 +1552,12 @@
    "fieldname": "disabled",
    "fieldtype": "Float",
    "label": "Disabled"
+  },
+  {
+   "fieldname": "medical_aid_tax_credit",
+   "fieldtype": "Float",
+   "label": "Medical Aid Tax Credit",
+   "read_only": 1
   },
   {
    "fieldname": "elderly",

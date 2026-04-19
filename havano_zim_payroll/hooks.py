@@ -137,13 +137,15 @@ after_install = "havano_zim_payroll.havano_zim_payroll.defaults.install_defaults
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Leave Application": {
+		"before_insert": "havano_zim_payroll.leave_application_fix.before_insert",
+		"on_submit": "havano_zim_payroll.leave_application_fix.on_submit"
+	},
+	"Havano Leave Balances": {
+		"validate": "havano_zim_payroll.leave_application_fix.validate_leave_balance"
+	}
+}
 
 # Scheduled Tasks
 # ---------------

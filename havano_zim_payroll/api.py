@@ -560,10 +560,13 @@ def update_havano_leave_balances(employee):
             # If it already exists, only modify Annual Leave
             if leave_type == "Annual Leave":
                 leave_doc = frappe.get_doc("Havano Leave Balances", existing_record)
-                leave_doc.leave_balance = (leave_doc.leave_balance or 0) + 2.5
+                new_balance = (leave_doc.leave_balance or 0) + 2.5
+                if new_balance > 90:
+                    new_balance = 90
+                leave_doc.leave_balance = new_balance
                 leave_doc.save(ignore_permissions=True)
                 frappe.db.commit()
-                frappe.logger().info(f"Added 2.5 days to Annual Leave for {emp.name}")
+                frappe.logger().info(f"Updated Annual Leave for {emp.name} to {new_balance} (capped at 90)")
             else:
                 frappe.logger().info(f"{leave_type} already exists for {emp.name}, skipped.")
         else:
