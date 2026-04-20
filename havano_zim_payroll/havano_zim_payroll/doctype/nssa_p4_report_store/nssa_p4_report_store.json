@@ -26,11 +26,13 @@
   {
    "fieldname": "surname",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Surname"
   },
   {
    "fieldname": "first_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "First Name"
   },
   {

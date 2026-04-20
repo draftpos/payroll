@@ -20,12 +20,14 @@
   {
    "fieldname": "first_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "First Name",
    "reqd": 1
   },
   {
    "fieldname": "surname",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Surname",
    "reqd": 1
   },
