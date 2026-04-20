@@ -1,459 +1,275 @@
 import frappe
 from frappe.model.document import Document
-from frappe.utils import now_datetime
-from frappe.utils import flt
-from frappe.utils import nowdate
+from frappe.utils import now_datetime, flt, nowdate
+
 
 def main(self):
-    calculate_payee=False
-    self.payee=0
-    self.aids_levy=0
-    self.disabled=0
-    self.blind=0
-    self.elderly=0
-    # frappe.msgprint(self.payslip_type)
-    if (self.cimas_employer_ + self.cimas_employee_)>100:
-        frappe.throw("Please makesure the % for cimas employer and employee are not more than 100")
-    if (self.funeral_policy_employer_ + self.funeral_policy_employee_)>100:
-        frappe.throw("Please makesure the % for funeral policy employer and employee are not more than 100")
     default_currency = frappe.db.get_value("Company", self.company, "default_currency")
-    self.salary_currency=default_currency
-    # Initialize---------------tax credits
-    tax_credits = 0
-    exchange_rate = flt(frappe.db.get_value(
-        "Currency Exchange", 
-        {"from_currency": 'USD', "to_currency":"ZWL"},
-        "exchange_rate"
-    ) or 1)
-    # frappe.msgprint(str(exchange_rate))
-    self.tax_credits=[]
-    total_deduction = 0
-    total_allowable_deductions = 0
+    self.salary_currency = default_currency
 
-    # Elderly
+    # ── Tax credits ──────────────────────────────────────────────────────────
+    tax_credits = 0.0
+
+    exchange_rate = flt(
+        frappe.db.get_value(
+            "Currency Exchange",
+            {"from_currency": "USD", "to_currency": "ZWL"},
+            "exchange_rate",
+        )
+        or 1
+    )
+
     if getattr(self, "is_elderly", 0):
-        val = 75 if self.salary_currency == "USD" else 75 * exchange_rate
-        tax_credits += val
-        self.elderly = val
+        tax_credits += 75
+        self.elderly = 75
     else:
         self.elderly = 0
-        # self.append("tax_credits", {
-        #     "credit_name": "Elderly",
-        #     "amount_usd": 75,
-        #     "amount_zwg": 75 * exchange_rate
-        # })
-    # Blind
+
     if getattr(self, "is_blind", 0):
-        val = 75 if self.salary_currency == "USD" else 75 * exchange_rate
-        tax_credits += val
-        self.blind = val
+        tax_credits += 75
+        self.blind = 75
     else:
         self.blind = 0
-        # self.append("tax_credits", {
-        #     "credit_name": "Blind",
-        #     "amount_usd": 75,
-        #     "amount_zwg": 75 * exchange_rate
-        # })
 
-    # Disabled
     if getattr(self, "is_disabled", 0):
-        val = 75 if self.salary_currency == "USD" else 75 * exchange_rate
-        tax_credits += val
-        self.disabled = val
+        tax_credits += 75
+        self.disabled = 75
     else:
         self.disabled = 0
-        # self.append("tax_credits", {
-        #     "credit_name": "Disabled",
-        #     "amount_usd": 75,
-        #     "amount_zwg": 75 * exchange_rate
-        # })
 
-    # Set total
+    # Read any extra tax credits from the employee's tax_credits child table
+    for tc in getattr(self, "tax_credits", []):
+        if default_currency == "USD":
+            tax_credits += flt(tc.amount_usd)
+        else:
+            tax_credits += flt(tc.amount_zwg)
 
-
-    # --- Create or Update havano_salary_structure ---
+    # ── Salary Structure: create or update ───────────────────────────────────
     if self.salary_structure:
-        # Try to load existing
         try:
             salary_structure = frappe.get_doc("havano_salary_structure", self.salary_structure)
-            print(f"Updating existing havano_salary_structure: {self.salary_structure}")
         except frappe.DoesNotExistError:
             salary_structure = frappe.new_doc("havano_salary_structure")
-            # Assign a name since it may be Prompt autoname
             salary_structure.name = f"HSS-{self.name}-{now_datetime().strftime('%Y%m%d%H%M%S')}"
     else:
-        # Create new
         salary_structure = frappe.new_doc("havano_salary_structure")
         salary_structure.name = f"HSS-{self.name}-{now_datetime().strftime('%Y%m%d%H%M%S')}"
 
-    # --- Fill in fields ---
     salary_structure.company = self.company
-    salary_structure.payroll_frequency = getattr(self, 'payroll_frequency', "Monthly")
-
-    # Clear existing child tables
+    salary_structure.payroll_frequency = getattr(self, "payroll_frequency", "Monthly")
     salary_structure.earnings = []
     salary_structure.deductions = []
 
-    # Populate earnings
-# ---------------- Populate Earnings ----------------
-    total_amount_basic_and_bonus_and_allowances=0
-    ensurable_earnings= 0
-    basic_salary= 0
-    overtime=self.overtime
-    nassa_tracking=0
+    # ── Earnings ─────────────────────────────────────────────────────────────
+    total_income = 0.0
+    basic_salary = 0.0
+    nassa_tracking = 0.0
 
-    # Remove any existing "Basic Salary" rows first
-    if self.overtime == "Time & Half":
-        print("overt time-----------------")
-        # remove existing "Overtime Short" rows properly
+    # ── Overtime Logic ───────────────────────────────────────────────────────
+    if self.overtime in ["Time & Half", "Double Time"]:
+        # remove existing overtime rows
         for e in self.employee_earnings:
-            if e.components == "Overtime Short":
+            if e.components in ["Overtime Short", "Overtime Double"]:
                 self.remove(e)
-             # remove existing "Overtime Short" rows properly
-        basic_now=0
+        
+        # Calculate basic_now based on currency
+        basic_now = 0
         for e in self.employee_earnings:
             if e.components == "Basic Salary":
-           
                 if self.salary_currency == "USD":
                     basic_now += flt(e.amount_zwg) / exchange_rate
                     basic_now += flt(e.amount_usd)
-                else: 
+                else:
                     basic_now += flt(e.amount_usd) * exchange_rate
                     basic_now += flt(e.amount_zwg)
         
         hourly_rate = flt(basic_now / 26 / 7.5)
-        overtime_amount = flt(hourly_rate * self.hours * (2 if self.overtime == "Double Time" else 1.5 if self.overtime == "Time & Half" else 0))
-       
-        self.overtime_amount = overtime_amount
-        print(f"-----------------overrr-------{basic_now} and amount is {overtime_amount}")
-        # total_amount_basic_and_bonus_and_allowances += overtime_amount
-        # append new row
-        new_row = self.append("employee_earnings", {})
-        new_row.components = "Overtime Short"
-        new_row.amount_zwg = 0
-        new_row.amount_usd = overtime_amount
-        new_row.is_tax_applicable = True
-        # Create a new Havano Employee Overtime document
-        overtime_doc = frappe.get_doc({
-            "doctype": "Havano Employee Overtime",
-            "employee": self.name,
-            "overtime_type": self.overtime,
-            "amount": overtime_amount
-        })
-
-        overtime_doc.insert()
-        frappe.db.commit()
-        self.overtime=""
-        self.hours=0
-            
-    elif self.overtime == "Double Time":
-        print("overt time-----------------")
-        # remove existing "Overtime Short" rows properly
-        for e in self.employee_earnings:
-            if e.components == "Overtime Double":
-                self.remove(e)
-             # remove existing "Overtime Short" rows properly
-        basic_now=0
-        for e in self.employee_earnings:
-            if e.components == "Basic Salary":
-                if self.salary_currency == "USD":
-                    basic_now += flt(e.amount_zwg) / exchange_rate
-                    basic_now += flt(e.amount_usd)
-                else: 
-                    basic_now += flt(e.amount_usd) * exchange_rate
-                    basic_now += flt(e.amount_zwg)
+        multiplier = 1.5 if self.overtime == "Time & Half" else 2.0
+        overtime_amount = flt(hourly_rate * self.hours * multiplier)
         
-
-        hourly_rate = flt(basic_now / 26 / 7.5, 2)
-        overtime_amount = flt(hourly_rate * self.hours * (2 if self.overtime == "Double Time" else 1 if self.overtime == "Short Time" else 0))
-        self.overtime_amount = overtime_amount
-        # total_amount_basic_and_bonus_and_allowances += overtime_amount
-        # append new row
+        comp_name = "Overtime Short" if self.overtime == "Time & Half" else "Overtime Double"
         new_row = self.append("employee_earnings", {})
-        new_row.components = "Overtime Double"
-        new_row.amount_zwg = 0
-        new_row.amount_usd = overtime_amount
+        new_row.components = comp_name
+        new_row.amount_usd = overtime_amount if self.salary_currency == "USD" else 0
+        new_row.amount_zwg = overtime_amount if self.salary_currency != "USD" else 0
         new_row.is_tax_applicable = True
-        # Create a new Havano Employee Overtime document
+        
         overtime_doc = frappe.get_doc({
             "doctype": "Havano Employee Overtime",
             "employee": self.name,
             "overtime_type": self.overtime,
             "amount": overtime_amount
         })
-
         overtime_doc.insert()
         frappe.db.commit()
-            
-    for e in self.employee_earnings:
-        print(e.components)
-        # Capture Basic Salary
-        if e.components == "Basic Salary":
-            component_doc = frappe.get_doc("havano_salary_component", e.components)
-            if component_doc.component_mode == "daily rate":
-                print("BASIC IS DAILY")
-                if self.salary_currency == "USD":
-                    basic_salary += flt(e.amount_zwg) / 26 / exchange_rate * self.total_days_worked
-                    basic_salary += flt(e.amount_usd) / 26 * self.total_days_worked
-                else: 
-                    basic_salary += flt(e.amount_usd) * exchange_rate  / 26 * self.total_days_worked
-                    basic_salary += flt(e.amount_zwg)  / 26 * self.total_days_worked
-            else:
-                if self.salary_currency == "USD":
-                    basic_salary += flt(e.amount_zwg) / exchange_rate
-                    basic_salary += flt(e.amount_usd)
-                else: 
-                    basic_salary += flt(e.amount_usd) * exchange_rate
-                    basic_salary += flt(e.amount_zwg)
-            self.basic_salary_calculated=basic_salary
-        # -----------------------------------------------------START LONG SERVICE-----------------------------------------------------
-        elif e.components.upper() == "LONG SERVICE ALLOWANCE":
-            long_service=self.basic_salary_calculated * 0.01
-            if self.salary_currency == "USD":
-                e.amount_usd = long_service
-                e.amount_zwg = 0
-            else: 
-                e.amount_usd = long_service
-                e.amount_zwg = 0
-        # -----------------------------------------------------START BACKPAY-----------------------------------------------------
-        elif e.components == "Backpay":
-            print("----------------------------------back pay")
-            backpay=0
-            if self.salary_currency == "USD":
-                backpay += flt(e.amount_zwg) / exchange_rate
-                backpay += e.amount_usd
-            else:
-                backpay += flt(e.amount_zwg)
-                backpay += flt(e.amount_usd) * exchange_rate
+        
+        self.overtime = ""
+        self.hours = 0
 
-            # if self.backpay < backpay:
-            #     frappe.throw(f"Back pay should not exceed amount owed in component: {self.backpay}")    
+    for e in self.employee_earnings:
+        if default_currency == "USD":
+            amount = flt(e.amount_usd)
+        else:
+            amount = flt(e.amount_zwg)
+
+        if e.components == "Basic Salary":
+            comp_master = frappe.get_doc("havano_salary_component", e.components)
+            if comp_master.component_mode == "daily rate":
+                amount = (amount / 26) * self.total_days_worked
             
-            # tax_credits += (medical * (flt(component_doc.employee_amount) / 100))
-            # self.medical=medical
-            # total_deduction += flt(medical)
-            # self.total_tax_credits = tax_credits
-# -----------------------------------------------------END BACKPAY-----------------------------------------------------
+            basic_salary = amount
+            self.basic_salary_calculated = basic_salary
+
+        # Long Service Allowance
+        elif e.components.upper() == "LONG SERVICE ALLOWANCE":
+            amount = self.basic_salary_calculated * 0.01
+            if default_currency == "USD":
+                e.amount_usd = amount
+                e.amount_zwg = 0
+            else:
+                e.amount_usd = 0
+                e.amount_zwg = amount
+
+        total_income += amount
+
+        try:
+            ecomp = frappe.get_doc("havano_salary_component", e.components)
+            if ecomp.track_nassa:
+                nassa_tracking += amount
+        except Exception:
+            pass
+
         salary_structure.append("earnings", {
             "components": e.components,
             "amount_zwg": e.amount_zwg,
             "amount_usd": e.amount_usd,
             "is_tax_applicable": bool(e.is_tax_applicable),
-            "amount_currency": "ZWG" if e.amount_zwg else "USD"
+            "amount_currency": default_currency,
         })
-        if self.salary_currency == "USD":
-            if e.components == "Basic Salary":
-                component_doc = frappe.get_doc("havano_salary_component", e.components)
-                if component_doc.component_mode == "daily rate":
-                    total_amount_basic_and_bonus_and_allowances += flt(e.amount_zwg) / exchange_rate /26 *  self.total_days_worked
-                    total_amount_basic_and_bonus_and_allowances += flt(e.amount_usd) /26 *  self.total_days_worked
-                else:
-                    total_amount_basic_and_bonus_and_allowances += flt(e.amount_zwg) / exchange_rate
-                    total_amount_basic_and_bonus_and_allowances += flt(e.amount_usd)
-            else:
-                total_amount_basic_and_bonus_and_allowances += flt(e.amount_zwg) / exchange_rate
-                total_amount_basic_and_bonus_and_allowances += flt(e.amount_usd)
-        else: 
-            total_amount_basic_and_bonus_and_allowances += flt(e.amount_zwg) 
-            total_amount_basic_and_bonus_and_allowances += flt(e.amount_usd) * exchange_rate
 
-        if bool(e.is_tax_applicable):
-            if self.salary_currency == "USD":
-                if e.components == "Basic Salary":
-                    component_doc = frappe.get_doc("havano_salary_component", e.components)
-                    if component_doc.component_mode == "daily rate":
-                        ensurable_earnings += flt(e.amount_zwg) / exchange_rate  /26 *  self.total_days_worked
-                        ensurable_earnings += flt(e.amount_usd)  /26 *  self.total_days_worked
-                    else:
-                        ensurable_earnings += flt(e.amount_zwg) / exchange_rate
-                        ensurable_earnings += flt(e.amount_usd)
-                else:
-                    ensurable_earnings += flt(e.amount_zwg) / exchange_rate
-                    ensurable_earnings += flt(e.amount_usd)
-            else: 
-                ensurable_earnings += flt(e.amount_zwg)
-                ensurable_earnings += flt(e.amount_usd) * exchange_rate
-        component=component_doc = frappe.get_doc("havano_salary_component", e.components)
-        if bool(component.track_nassa):
-            if self.salary_currency == "USD":
-                # if e.components != "Basic Salary":
-                nassa_tracking += flt(e.amount_zwg) / exchange_rate
-                nassa_tracking += flt(e.amount_usd)
-            else: 
-                nassa_tracking += flt(e.amount_zwg)
-                nassa_tracking += flt(e.amount_usd) * exchange_rate
+    self.total_income = total_income
+    if default_currency == "USD":
+        self.total_income_usd = total_income
+        self.total_income_zwg = 0
+    else:
+        self.total_income_usd = 0
+        self.total_income_zwg = total_income
 
-    # frappe.msgprint(str(total_amount_basic_and_bonus_and_allowances))
-    self.total_income=total_amount_basic_and_bonus_and_allowances
-    self.total_taxable_income=ensurable_earnings
-    total_deduction=0
+    # ── Ensure PAYEE / Aids Levy rows exist ──────────────────────────────────
+    _ensure_deductions(self)
 
-    print(f"Total Earnings USD: {total_amount_basic_and_bonus_and_allowances}")
-    print(f"Ensurable Earnings USD: {ensurable_earnings}")
-    # ---------------- Populate Deductions ----------------
-    total_allowable_deductions= 0
+    # ── Deductions ───────────────────────────────────────────────────────────
+    total_deduction = 0.0
+    total_allowable_deductions = 0.0
 
-    def get_nssa_and_paye_always_calculate():
-        nssa_always_calculate = False
-        paye_always_calculate = False
-
-        components = frappe.get_all(
-            "havano_salary_component",
-            fields=["salary_component", "always_calculate"]
-        )
-
-        for comp in components:
-            name = (comp.salary_component or "").strip().upper()
-
-            if name == "NSSA":
-                nssa_always_calculate = comp.always_calculate
-
-            elif name == "PAYEE":
-                paye_always_calculate = comp.always_calculate
-
-        return {
-            "NSSA": nssa_always_calculate,
-            "PAYE": paye_always_calculate
-        }
-    def ensure_deductions(self, *components):
-        existing = {
-            (row.components or "").strip().upper()
-            for row in self.employee_deductions
-        }
-
-        for component in components:
-            component = component.strip().upper()
-
-            if component not in existing:
-                row = self.append("employee_deductions", {})
-                row.components = component
-                row.havano_salary_component = component
-                row.item_code = component
-                row.amount_usd = 0
-                row.amount_zwg = 0
-                row.exchange_rate = 1
-
-  
-    if get_nssa_and_paye_always_calculate().get("NSSA") and self.payroll_frequency != 'Daily':
-        ensure_deductions(self, "NSSA")
-    
-    if get_nssa_and_paye_always_calculate().get("PAYE"):
-        ensure_deductions(self, "PAYEE")
-        ensure_deductions(self, "Aids Levy")
-        
-
-         
     for d in self.employee_deductions:
-        # Get the related component document
-        component_doc = frappe.get_doc("havano_salary_component", d.components)
-        
-        # If NSSA, calculate 4.5% of Basic Salary
-        if d.components == "NSSA":
-            nssa=0
-            if self.salary_currency == "USD":
-                if flt(nassa_tracking) >= component_doc.usd_ceiling:
-                    nssa= component_doc.usd_ceiling_amount
+        try:
+            component_doc = frappe.get_doc("havano_salary_component", d.components)
+        except frappe.DoesNotExistError:
+            frappe.log_error(f"Salary component not found: {d.components}", "Payroll Config Error")
+            continue
+
+        comp_upper = d.components.strip().upper()
+
+        if comp_upper == "NSSA":
+            if default_currency == "USD":
+                if flt(nassa_tracking) >= flt(component_doc.usd_ceiling):
+                    nssa = flt(component_doc.usd_ceiling_amount)
                 else:
-                    nssa=flt(nassa_tracking) * component_doc.percentage /100
-            else:
-                if flt(nassa_tracking) >= component_doc.zwg_ceiling:
-                    nssa=  component_doc.zwg_ceiling_amount
-                else:
-                    nssa=flt(nassa_tracking) * 0.045
-            
-            if self.salary_currency == "USD":
+                    nssa = flt(nassa_tracking) * flt(component_doc.percentage or 4.5) / 100
                 d.amount_usd = nssa
                 d.amount_zwg = 0
-            else: 
+            else:
+                if flt(nassa_tracking) >= flt(component_doc.zwg_ceiling):
+                    nssa = flt(component_doc.zwg_ceiling_amount)
+                else:
+                    nssa = flt(nassa_tracking) * 0.045
                 d.amount_usd = 0
                 d.amount_zwg = nssa
-            
             total_deduction += flt(nssa)
-        
-        elif d.components.upper() == "PAYEE":
-            calculate_payee=True
-            d.amount_usd = 0
-            d.amount_zwg = 0
-            
-        elif d.components.upper() == "AIDS LEVY":
-            d.amount_usd = 0
-            d.amount_zwg = 0
-            
-        else:
-            if d.components.upper() == "NEC":
-                nec_employee= basic_salary * 0.015
-                nec_employer= basic_salary * 0.015
-                total_deduction += flt(nec_employee)
-                self.nec_employee=nec_employee
-                self.nec_employer=nec_employer
-                if self.salary_currency == "USD":
-                    d.amount_usd = nec_employee
-                    d.amount_zwg = 0
-                else: 
-                    d.amount_usd = 0
-                    d.amount_zwg = nec_employee
-            
-            elif d.components.upper() in ["CIMAS", "MEDICAL AID"]:
-                cimas_employee= d.amount_usd  * flt(self.cimas_employee_) /100
-                cimas_employer= d.amount_usd  * flt(self.cimas_employer_ ) /100
-                total_deduction += flt(cimas_employee)
-                medical_aid_tax_credit = cimas_employee * 0.5
-                tax_credits += medical_aid_tax_credit
-                self.medical_aid_tax_credit = medical_aid_tax_credit
-                self.cimas_employee=cimas_employee
-                self.cimas_employer=cimas_employer
-            
-            elif d.components.upper() == "FUNERAL POLICY":
-                if d.amount_usd:
-                    funeral_employee= d.amount_usd  * flt(self.funeral_policy_employee_) /100
-                    funeral_employer= d.amount_usd  * flt(self.funeral_policy_employer_) /100
-                    total_deduction += flt(funeral_employee)
-                    self.funeral_employee=funeral_employee
-                    self.funeral_employer=funeral_employer
-            
-            elif d.components.upper() == "NECWEI":
-                necwei= basic_salary * flt(component_doc.employee_amount) /100
-                total_deduction += flt(necwei)
-                self.necwei=necwei
-                d.amount_usd = necwei
-                d.amount_zwg = 0
-            
-            elif d.components.upper() == "ZESCWU":
-                zescwu= basic_salary * flt(component_doc.employee_amount) /100
-                total_deduction += flt(zescwu)
-                self.zescwu=zescwu
-                d.amount_usd = zescwu
-                d.amount_zwg = 0
-            
-            elif d.components.upper() == "UFAWUZ":
-                ufawuz=0.03 * basic_salary
-                total_deduction += flt(ufawuz)
-                d.amount_usd = ufawuz
-                d.amount_zwg = 0
-            
-            elif d.components.upper() == "ZIBAWU":
-                zibawu=0.02 * basic_salary
-                total_deduction += flt(zibawu)
-                d.amount_usd = zibawu
-                d.amount_zwg = 0
-            
-            elif d.components.upper() == "LAPF":
-                lapf_employee=0.06 * basic_salary
-                lapf_employer=0.173 * basic_salary
-                total_deduction += flt(lapf_employee)
-                d.amount_usd = lapf_employee
-                d.amount_zwg = 0
-                self.lapf_employee=lapf_employee
-                self.lapf_employer=lapf_employer
-            else:
-                if self.salary_currency == "USD":
-                    total_deduction += flt(d.amount_usd)
-                else:
-                    total_deduction += flt(d.amount_zwg)
 
-        # Check if it is an allowable deduction (deductible for tax)
+        elif comp_upper == "PAYEE":
+            d.amount_usd = 0
+            d.amount_zwg = 0
+
+        elif comp_upper == "AIDS LEVY":
+            d.amount_usd = 0
+            d.amount_zwg = 0
+
+        elif comp_upper == "NEC":
+            nec_employee = basic_salary * 0.015
+            nec_employer = basic_salary * 0.015
+            total_deduction += flt(nec_employee)
+            self.nec_employee = nec_employee
+            self.nec_employer = nec_employer
+            if default_currency == "USD":
+                d.amount_usd = nec_employee
+                d.amount_zwg = 0
+            else:
+                d.amount_usd = 0
+                d.amount_zwg = nec_employee
+
+        elif comp_upper in ["CIMAS", "MEDICAL AID"]:
+            cimas_employee = flt(d.amount_usd) * flt(self.cimas_employee_) / 100
+            cimas_employer = flt(d.amount_usd) * flt(self.cimas_employer_) / 100
+            total_deduction += flt(cimas_employee)
+            medical_aid_tax_credit = cimas_employee * 0.5
+            tax_credits += medical_aid_tax_credit
+            self.medical_aid_tax_credit = medical_aid_tax_credit
+            self.cimas_employee = cimas_employee
+            self.cimas_employer = cimas_employer
+
+        elif comp_upper == "FUNERAL POLICY":
+            if d.amount_usd:
+                funeral_employee = flt(d.amount_usd) * flt(self.funeral_policy_employee_) / 100
+                funeral_employer = flt(d.amount_usd) * flt(self.funeral_policy_employer_) / 100
+                total_deduction += flt(funeral_employee)
+                self.funeral_employee = funeral_employee
+                self.funeral_employer = funeral_employer
+
+        elif comp_upper == "NECWEI":
+            necwei = basic_salary * flt(component_doc.employee_amount) / 100
+            total_deduction += flt(necwei)
+            self.necwei = necwei
+            d.amount_usd = necwei
+            d.amount_zwg = 0
+
+        elif comp_upper == "ZESCWU":
+            zescwu = basic_salary * flt(component_doc.employee_amount) / 100
+            total_deduction += flt(zescwu)
+            self.zescwu = zescwu
+            d.amount_usd = zescwu
+            d.amount_zwg = 0
+
+        elif comp_upper == "UFAWUZ":
+            ufawuz = 0.03 * basic_salary
+            total_deduction += flt(ufawuz)
+            d.amount_usd = ufawuz
+            d.amount_zwg = 0
+
+        elif comp_upper == "ZIBAWU":
+            zibawu = 0.02 * basic_salary
+            total_deduction += flt(zibawu)
+            d.amount_usd = zibawu
+            d.amount_zwg = 0
+
+        elif comp_upper == "LAPF":
+            lapf_employee = 0.06 * basic_salary
+            lapf_employer = 0.173 * basic_salary
+            total_deduction += flt(lapf_employee)
+            d.amount_usd = lapf_employee
+            d.amount_zwg = 0
+            self.lapf_employee = lapf_employee
+            self.lapf_employer = lapf_employer
+
+        else:
+            if default_currency == "USD":
+                total_deduction += flt(d.amount_usd)
+            else:
+                total_deduction += flt(d.amount_zwg)
+
         if component_doc.is_tax_applicable:
-            if self.salary_currency == "USD":
+            if default_currency == "USD":
                 total_allowable_deductions += flt(d.amount_usd)
             else:
                 total_allowable_deductions += flt(d.amount_zwg)
@@ -463,46 +279,72 @@ def main(self):
             "amount_zwg": d.amount_zwg,
             "amount_usd": d.amount_usd,
             "is_tax_applicable": bool(d.is_tax_applicable),
-            "amount_currency": "ZWG" if d.amount_zwg else "USD"
+            "amount_currency": "ZWG" if d.amount_zwg else "USD",
         })
 
-    print(f"Total Deductions: {total_allowable_deductions}")
-    self.allowable_deductions=total_allowable_deductions
-    self.ensuarable_earnings=self.total_income-self.allowable_deductions
-    if default_currency == "USD":
-        self.wcif_usd=self.total_taxable_income * self.wcif_percentage/100
-        self.wcif_zwg=0
-    else:
-        self.wcif_zwg=self.total_taxable_income * self.wcif_percentage/100
-        self.wcif_usd=0
-    print(self.ensuarable_earnings)
-    payee = round(max(payee_against_slab(self.ensuarable_earnings, self.payroll_frequency, self.salary_currency) - tax_credits, 0), 2)
-    ads_levy = round(0.03 * payee, 2)
-    sdl_amount = round(self.total_income * 0.05, 2)
+    self.allowable_deductions = total_allowable_deductions
+    taxable_income = total_income - total_allowable_deductions
+    self.ensuarable_earnings = taxable_income
 
-    # Debug info for user
-    frappe.msgprint(f"<b>Payroll Calc (Base):</b><br>Gross: {self.total_income}<br>Taxable: {self.ensuarable_earnings}<br>Currency: {self.salary_currency}<br>Payee: {payee}<br>SDL: {sdl_amount}")
+    payee = round(
+        max(
+            payee_against_slab(taxable_income, self.payroll_frequency, default_currency)
+            - tax_credits,
+            0,
+        ),
+        2,
+    )
+    aids_levy = round(0.03 * payee, 2)
+    sdl_amount = round(total_income * 0.05, 2)
 
-    total_deduction += payee
-    total_deduction += ads_levy
-    self.payee=payee
-    self.aids_levy=ads_levy
-    
-    # Update child table rows for PAYEE, AIDS LEVY, and SDL
+    frappe.msgprint(
+        f"<b>Payroll Calc (Base):</b><br>"
+        f"Gross: {total_income}<br>"
+        f"Allowable Deductions: {total_allowable_deductions}<br>"
+        f"Taxable Income: {taxable_income}<br>"
+        f"Tax Credits: {tax_credits}<br>"
+        f"Currency: {default_currency}<br>"
+        f"PAYEE: {payee}<br>"
+        f"AIDS Levy: {aids_levy}<br>"
+        f"SDL: {sdl_amount}"
+    )
+
+    total_deduction += payee + aids_levy
+
+    self.payee = payee
+    self.aids_levy = aids_levy
+    self.sdl = sdl_amount
+    self.total_tax_credits = tax_credits
+
     for d in self.employee_deductions:
-        if d.components.upper() == "PAYEE":
-            d.amount_usd = self.payee
-        elif d.components.upper() == "AIDS LEVY":
-            d.amount_usd = self.aids_levy
-        elif d.components.upper() == "SDL":
-            d.amount_usd = sdl_amount
+        comp_upper = d.components.strip().upper()
+        if comp_upper == "PAYEE":
+            if default_currency == "USD":
+                d.amount_usd = payee
+                d.amount_zwg = 0
+            else:
+                d.amount_usd = 0
+                d.amount_zwg = payee
+        elif comp_upper == "AIDS LEVY":
+            if default_currency == "USD":
+                d.amount_usd = aids_levy
+                d.amount_zwg = 0
+            else:
+                d.amount_usd = 0
+                d.amount_zwg = aids_levy
+        elif comp_upper == "SDL":
+            if default_currency == "USD":
+                d.amount_usd = sdl_amount
+                d.amount_zwg = 0
+            else:
+                d.amount_usd = 0
+                d.amount_zwg = sdl_amount
 
     self.total_deductions = round(total_deduction, 2)
-    # Net Pay = Total Earnings - Total Deductions
-    self.net_income = self.total_income - self.total_deductions
-    # Populate split-currency display fields for base currency mode
+    self.net_income = total_income - self.total_deductions
+
     if default_currency == "USD":
-        self.total_earnings_usd = self.total_income
+        self.total_earnings_usd = total_income
         self.total_earnings_zwg = 0
         self.total_deduction_usd = self.total_deductions
         self.total_deduction_zwg = 0
@@ -510,30 +352,43 @@ def main(self):
         self.total_net_income_zwg = 0
     else:
         self.total_earnings_usd = 0
-        self.total_earnings_zwg = self.total_income
+        self.total_earnings_zwg = total_income
         self.total_deduction_usd = 0
         self.total_deduction_zwg = self.total_deductions
         self.total_net_income_usd = 0
         self.total_net_income_zwg = self.net_income
-    # Save it
+
     salary_structure.save()
-    print(f"havano_salary_structure saved: {salary_structure.name}")
     self.salary_structure = salary_structure.name
-    self.total_tax_credits=tax_credits
+
 
 def payee_against_slab(amount, mode="Monthly", currency="USD"):
-    # Standardize currency
-    if currency == "ZWL": currency = "ZWG"
-    
+    if currency == "ZWL":
+        currency = "ZWG"
+
     payee = 0.0
     try:
-        # Fetch the slab doc named by currency (e.g., 'USD' or 'ZWG')
         slab_doc = frappe.get_doc("Havano Tax Slab", currency)
         for slab in slab_doc.tax_brackets:
-            if flt(slab.lower_limit) <= amount <= flt(slab.upper_limit):
+            lower = flt(slab.lower_limit)
+            upper = flt(slab.upper_limit)
+            if lower <= amount <= upper:
                 payee = (amount * (flt(slab.percent) / 100)) - flt(slab.fixed_amount)
                 break
     except Exception as e:
-        frappe.log_error(f"PAYE Calculation Error for {currency}: {e}")
-            
-    return payee
+        frappe.log_error(f"PAYE Slab Error [{currency}]: {e}", "PAYE Calculation")
+
+    return max(payee, 0.0)
+
+
+def _ensure_deductions(self):
+    existing = {(r.components or "").strip().upper() for r in self.employee_deductions}
+    for component in ["PAYEE", "AIDS LEVY", "SDL"]:
+        if component not in existing:
+            row = self.append("employee_deductions", {})
+            row.components = component
+            row.havano_salary_component = component
+            row.item_code = component
+            row.amount_usd = 0
+            row.amount_zwg = 0
+            row.exchange_rate = 1
