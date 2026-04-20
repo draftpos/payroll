@@ -33,6 +33,21 @@ def before_insert(doc, method=None):
         # If the user's system was overwriting, it might be due to a custom autoname logic.
         pass
 
+def on_cancel(doc, method=None):
+    """Restore leave days to Havano Leave Balances on cancellation."""
+    if doc.doctype == "Leave Application":
+        total_days = getattr(doc, "total_leave_days", 0)
+        leave_type = getattr(doc, "leave_type", "Annual Leave")
+        
+        balance = frappe.db.get_value("Havano Leave Balances", 
+            {"employee": doc.employee, "havano_leave_type": leave_type}, 
+            ["name", "leave_balance"], as_dict=True)
+        
+        if balance:
+            new_balance = (balance.leave_balance or 0) + total_days
+            frappe.db.set_value("Havano Leave Balances", balance.name, "leave_balance", new_balance)
+            frappe.msgprint(_("Havano Leave Balance restored. New balance: {0}").format(new_balance))
+
 def validate_leave_balance(doc, method=None):
     """Refuse to save if Annual Leave balance exceeds 90 days."""
     if doc.doctype == "Havano Leave Balances" and doc.havano_leave_type == "Annual Leave":

@@ -43,7 +43,7 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {"Leave Application" : "havano_zim_payroll/public/js/leave_application.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -140,7 +140,8 @@ after_install = "havano_zim_payroll.havano_zim_payroll.defaults.install_defaults
 doc_events = {
 	"Leave Application": {
 		"before_insert": "havano_zim_payroll.leave_application_fix.before_insert",
-		"on_submit": "havano_zim_payroll.leave_application_fix.on_submit"
+		"on_submit": "havano_zim_payroll.leave_application_fix.on_submit",
+		"on_cancel": "havano_zim_payroll.leave_application_fix.on_cancel"
 	},
 	"Havano Leave Balances": {
 		"validate": "havano_zim_payroll.leave_application_fix.validate_leave_balance"

@@ -345,129 +345,120 @@ def main(self):
 
          
     for d in self.employee_deductions:
-        
-
-
         # Get the related component document
         component_doc = frappe.get_doc("havano_salary_component", d.components)
-        print(f"-----------------------component doc--------------{component_doc}")
+        
         # If NSSA, calculate 4.5% of Basic Salary
         if d.components == "NSSA":
-            nassa_component = frappe.get_doc("havano_salary_component", "NSSA")
             nssa=0
             if self.salary_currency == "USD":
-                if flt(nassa_tracking) >= nassa_component.usd_ceiling:
-                    nssa= nassa_component.usd_ceiling_amount
+                if flt(nassa_tracking) >= component_doc.usd_ceiling:
+                    nssa= component_doc.usd_ceiling_amount
                 else:
-                    nssa=flt(nassa_tracking) * nassa_component.percentage /100
+                    nssa=flt(nassa_tracking) * component_doc.percentage /100
             else:
-                if flt(nassa_tracking) >= nassa_component.zwg_ceiling:
-                    nssa=  nassa_component.zwg_ceiling_amount
+                if flt(nassa_tracking) >= component_doc.zwg_ceiling:
+                    nssa=  component_doc.zwg_ceiling_amount
                 else:
                     nssa=flt(nassa_tracking) * 0.045
+            
             if self.salary_currency == "USD":
                 d.amount_usd = nssa
                 d.amount_zwg = 0
             else: 
                 d.amount_usd = 0
                 d.amount_zwg = nssa
-            total_allowable_deductions += flt(nssa)
+            
             total_deduction += flt(nssa)
+        
         elif d.components.upper() == "PAYEE":
             calculate_payee=True
+            d.amount_usd = 0
+            d.amount_zwg = 0
+            
+        elif d.components.upper() == "AIDS LEVY":
+            d.amount_usd = 0
+            d.amount_zwg = 0
+            
         else:
-            if component_doc.component_mode == "allowable_deduction":
-                if d.components.upper() == "NEC":
-                    print(f"Employer Percentage: {flt(component_doc.employer_amount)}")
-                    nec_employee= basic_salary * 0.015
-                    nec_employer= basic_salary * 0.015
-                    total_allowable_deductions += flt(nec_employee)
-                    total_deduction += flt(nec_employee)
-                    print(f"total nec---------------------{nec_employee}")
-                    self.nec_employee=nec_employee
-                    self.nec_employer=nec_employer
-                    if self.salary_currency == "USD":
-                        d.amount_usd = nec_employee
-                        d.amount_zwg = 0
-                    else: 
-                        d.amount_usd = 0
-                        d.amount_zwg = nec_employee
-                #----------------------------------------------------------------------------
-                if d.components.upper() == "CIMAS":
-                    cimas_employee= d.amount_usd  * flt(self.cimas_employee_) /100
-                    cimas_employer= d.amount_usd  * flt(self.cimas_employer_ ) /100
-                    # total_allowable_deductions += flt(cimas_employee)
-                    total_deduction += flt(cimas_employee)
-                    medical_aid_tax_credit = cimas_employee * 0.5
-                    tax_credits += medical_aid_tax_credit
-                    print(f"total cimas---------------------{cimas_employee}")
-                    self.medical_aid_tax_credit = medical_aid_tax_credit
-                    self.cimas_employee=cimas_employee
-                    self.cimas_employer=cimas_employer
-                #----------------------------------------------------------------------------
-                if d.components.upper() == "FUNERAL POLICY":
-                    if d.amount_usd:
-                        funeral_employee= d.amount_usd  * flt(self.funeral_policy_employee_) /100
-                        funeral_employer= d.amount_usd  * flt(self.funeral_policy_employer_) /100
-                        # total_allowable_deductions += flt(cimas_employee)
-                        total_deduction += flt(funeral_employee)
-                        # tax_credits += funeral_employee
-                        print(f"total funeral---------------------{funeral_employee}")
-                        self.funeral_employee=funeral_employee
-                        self.funeral_employer=funeral_employer
-                #-----------------------------------------------
-                if d.components.upper() == "NECWEI":
-                    print(f"Employer Percentage: {flt(component_doc.employee_amount)}")
-                    necwei= basic_salary * flt(component_doc.employee_amount) /100
-                    # total_allowable_deductions += flt(cimas_employee)
-                    total_deduction += flt(necwei)
-                    # tax_credits += funeral_employee
-                    print(f"total necwei---------------------{necwei}")
-                    self.necwei=necwei
-                    d.amount_usd = necwei
+            if d.components.upper() == "NEC":
+                nec_employee= basic_salary * 0.015
+                nec_employer= basic_salary * 0.015
+                total_deduction += flt(nec_employee)
+                self.nec_employee=nec_employee
+                self.nec_employer=nec_employer
+                if self.salary_currency == "USD":
+                    d.amount_usd = nec_employee
                     d.amount_zwg = 0
-                #-----------------------------------------------
-                if d.components.upper() == "ZESCWU":
-                    print(f"Employer Percentage: {flt(component_doc.employee_amount)}")
-                    zescwu= basic_salary * flt(component_doc.employee_amount) /100
-                    # total_allowable_deductions += flt(cimas_employee)
-                    total_deduction += flt(zescwu)
-                    # tax_credits += funeral_employee
-                    print(f"total necwei---------------------{zescwu}")
-                    self.zescwu=zescwu
-                    d.amount_usd = zescwu
-                    d.amount_zwg = 0
-                #-----------------------------------------------
-            # else:
-                if d.components.upper() == "UFAWUZ":
-                    ufawuz=0.03 * basic_salary
-                    total_deduction += flt(ufawuz)
-                    total_allowable_deductions += flt(ufawuz)
-                    print(f"total ufawuz---------------------{ufawuz}")
-                    d.amount_usd = ufawuz
-                    d.amount_zwg = 0
-
-                if d.components.upper() == "ZIBAWU":
-                    zibawu=0.02 * basic_salary
-                    total_deduction += flt(zibawu)
-                    total_allowable_deductions += flt(zibawu)
-                    print(f"total zibawu---------------------{zibawu}")
-                    d.amount_usd = zibawu
-                    d.amount_zwg = 0
-
-                if d.components.upper() == "LAPF":
-                    lapf_employee=0.06 * basic_salary
-                    lapf_employer=0.173 * basic_salary
-                    total_deduction += flt(lapf_employee)
-                    print(f"total lapf_employee---------------------{lapf_employee}")
-                    total_allowable_deductions += flt(lapf_employee)
-                    d.amount_usd = lapf_employee
-                    d.amount_zwg = 0
-                    self.lapf_employee=lapf_employee
-                    self.lapf_employer=lapf_employer
+                else: 
+                    d.amount_usd = 0
+                    d.amount_zwg = nec_employee
+            
+            elif d.components.upper() == "CIMAS":
+                cimas_employee= d.amount_usd  * flt(self.cimas_employee_) /100
+                cimas_employer= d.amount_usd  * flt(self.cimas_employer_ ) /100
+                total_deduction += flt(cimas_employee)
+                medical_aid_tax_credit = cimas_employee * 0.5
+                tax_credits += medical_aid_tax_credit
+                self.medical_aid_tax_credit = medical_aid_tax_credit
+                self.cimas_employee=cimas_employee
+                self.cimas_employer=cimas_employer
+            
+            elif d.components.upper() == "FUNERAL POLICY":
+                if d.amount_usd:
+                    funeral_employee= d.amount_usd  * flt(self.funeral_policy_employee_) /100
+                    funeral_employer= d.amount_usd  * flt(self.funeral_policy_employer_) /100
+                    total_deduction += flt(funeral_employee)
+                    self.funeral_employee=funeral_employee
+                    self.funeral_employer=funeral_employer
+            
+            elif d.components.upper() == "NECWEI":
+                necwei= basic_salary * flt(component_doc.employee_amount) /100
+                total_deduction += flt(necwei)
+                self.necwei=necwei
+                d.amount_usd = necwei
+                d.amount_zwg = 0
+            
+            elif d.components.upper() == "ZESCWU":
+                zescwu= basic_salary * flt(component_doc.employee_amount) /100
+                total_deduction += flt(zescwu)
+                self.zescwu=zescwu
+                d.amount_usd = zescwu
+                d.amount_zwg = 0
+            
+            elif d.components.upper() == "UFAWUZ":
+                ufawuz=0.03 * basic_salary
+                total_deduction += flt(ufawuz)
+                d.amount_usd = ufawuz
+                d.amount_zwg = 0
+            
+            elif d.components.upper() == "ZIBAWU":
+                zibawu=0.02 * basic_salary
+                total_deduction += flt(zibawu)
+                d.amount_usd = zibawu
+                d.amount_zwg = 0
+            
+            elif d.components.upper() == "LAPF":
+                lapf_employee=0.06 * basic_salary
+                lapf_employer=0.173 * basic_salary
+                total_deduction += flt(lapf_employee)
+                d.amount_usd = lapf_employee
+                d.amount_zwg = 0
+                self.lapf_employee=lapf_employee
+                self.lapf_employer=lapf_employer
+            else:
+                if self.salary_currency == "USD":
+                    total_deduction += flt(d.amount_usd)
                 else:
-                    total_deduction += flt(d.amount_usd )
-                    #----------------------------------------------------------------------------
+                    total_deduction += flt(d.amount_zwg)
+
+        # Check if it is an allowable deduction (deductible for tax)
+        if component_doc.is_tax_applicable:
+            if self.salary_currency == "USD":
+                total_allowable_deductions += flt(d.amount_usd)
+            else:
+                total_allowable_deductions += flt(d.amount_zwg)
+
         salary_structure.append("deductions", {
             "components": d.components,
             "amount_zwg": d.amount_zwg,
@@ -493,8 +484,24 @@ def main(self):
         total_deduction += ads_levy
         self.payee=payee
         self.aids_levy=ads_levy
-    self.total_deductions=round(total_deduction,2)
-    self.net_income= self.total_income - self.total_deductions
+    self.total_deductions = round(total_deduction, 2)
+    # Net Pay = Total Earnings - Total Deductions
+    self.net_income = self.total_income - self.total_deductions
+    # Populate split-currency display fields for base currency mode
+    if default_currency == "USD":
+        self.total_earnings_usd = self.total_income
+        self.total_earnings_zwg = 0
+        self.total_deduction_usd = self.total_deductions
+        self.total_deduction_zwg = 0
+        self.total_net_income_usd = self.net_income
+        self.total_net_income_zwg = 0
+    else:
+        self.total_earnings_usd = 0
+        self.total_earnings_zwg = self.total_income
+        self.total_deduction_usd = 0
+        self.total_deduction_zwg = self.total_deductions
+        self.total_net_income_usd = 0
+        self.total_net_income_zwg = self.net_income
     # Save it
     salary_structure.save()
     print(f"havano_salary_structure saved: {salary_structure.name}")

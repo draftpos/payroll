@@ -114,8 +114,18 @@ def run_payroll(month, year, work_date, daily):
     total_net_salary_now=0
     total_sdl=0
     total_loan = 0
+    # Default work_date to end of month if not provided
+    if not work_date:
+        _, end_date = get_month_range(year, month)
+        work_date = end_date
+
     for emp in employees:
         emp_doc = frappe.get_doc("havano_employee", emp.name)
+        
+        # Ensure fresh calculations by saving the employee doc
+        # This triggers before_save logic which calculates PAYE, Net Income, etc.
+        emp_doc.save(ignore_permissions=True)
+        
         # dealing with employee basic salary based on hours worked
         total_hours=get_employee_hours(emp.name, year, month)
         if total_hours > 0:
@@ -123,6 +133,7 @@ def run_payroll(month, year, work_date, daily):
             add_basic_hourly(emp.name,caculated_basic)
             emp_doc.reload()
             frappe.log_error(f"Employee: {emp.name}, Hours Worked: {total_hours}", "Payroll Hours Worked Log")
+        
         # Dealing with employee loan and deduction
         employee_loan_record = get_employee_loan(emp['name'])
 
@@ -148,13 +159,13 @@ def run_payroll(month, year, work_date, daily):
         payroll.first_name = emp_doc.first_name
         payroll.surname = emp_doc.last_name
         payroll.payroll_period = f"{month} {year}"
-        payroll.date = work_date,
+        payroll.date = work_date
         payroll.payroll_frequency=emp_doc.payroll_frequency
         nssa_usd=0
         nssa_zwg=0
         try:
             loan_deduction_add_back = get_loan_deduction_amounts(emp.name)
-            emp_netpay = emp.net_income
+            emp_netpay = emp_doc.net_income
             total_net_salary_now += emp_doc.net_income + loan_deduction_add_back["amount_usd"]
             total_loan += loan_deduction_add_back["amount_usd"]
             total_sdl +=emp_doc.total_income * 0.01

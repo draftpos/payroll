@@ -16,18 +16,26 @@ def main(self):
     # frappe.msgprint(str(exchange_rate))
     self.tax_credits=[]
 
+    exchange_rate = flt(frappe.db.get_value(
+        "Currency Exchange", 
+        {"from_currency": 'USD', "to_currency":"ZWL"},
+        "exchange_rate"
+    ) or 1)
+
     # Elderly
     if getattr(self, "is_elderly", 0):
         tax_credits_usd += 75
+        tax_credits_zwg += 75 * exchange_rate
 
     # Blind
     if getattr(self, "is_blind", 0):
         tax_credits_usd += 75
-      
+        tax_credits_zwg += 75 * exchange_rate
 
     # Disabled
     if getattr(self, "is_disabled", 0):
-        tax_credits += 75
+        tax_credits_usd += 75
+        tax_credits_zwg += 75 * exchange_rate
 
     # --- Create or Update havano_salary_structure ---
     if self.salary_structure:
@@ -98,73 +106,62 @@ def main(self):
     for d in self.employee_deductions:
         # Get the related component document
         component_doc = frappe.get_doc("havano_salary_component", d.components)
-        nassa_component = frappe.get_doc("havano_salary_component", "NSSA")
+        
         # If NSSA, calculate 4.5% of Basic Salary
         if d.components == "NSSA":
-            if flt(self.total_ensuarable_earnings_usd) >= nassa_component.usd_ceiling:
-                nassa_usd= nassa_component.usd_ceiling_amount
+            if flt(self.total_ensuarable_earnings_usd) >= component_doc.usd_ceiling:
+                nassa_usd= component_doc.usd_ceiling_amount
             else:
                 nassa_usd=flt(self.total_ensuarable_earnings_usd) * 0.045
-            if flt(self.total_ensuarable_earnings_zwg) >= nassa_component.zwg_ceiling:
-                nassa_zwg=  nassa_component.zwg_ceiling_amount
+            if flt(self.total_ensuarable_earnings_zwg) >= component_doc.zwg_ceiling:
+                nassa_zwg=  component_doc.zwg_ceiling_amount
             else:
                 nassa_zwg=flt(self.total_ensuarable_earnings_zwg) * 0.045
 
             d.amount_usd = nassa_usd
             d.amount_zwg = nassa_zwg
 
-            total_allowable_deductions_usd += flt(nassa_usd)
-            total_allowable_deductions_zwg += flt(nassa_zwg)
-
             self.total_deduction_usd += flt(nassa_usd)
             self.total_deduction_zwg += flt(nassa_zwg)
             
-            # frappe.msgprint(f"{total_deduction}")
-
         # If Medical Aid, apply employer percentage
-        elif component_doc.salary_component.lower() == "medical aid":
-            #frappe.msgprint("✅ Medical Aid Deduction Found")
-            print(f"Employer Percentage: {flt(component_doc.employer_amount)}")
-     
-            medical_zwg += flt(d.amount_zwg)
-            medical_usd += flt(d.amount_usd)
+        elif d.components.upper() == "MEDICAL AID" or d.components.upper() == "CIMAS":
+            medical_zwg = flt(d.amount_zwg)
+            medical_usd = flt(d.amount_usd)
 
+            # 50% of employee contribution as tax credit
+            tax_credits_usd += medical_usd * 0.5
+            tax_credits_zwg += medical_zwg * 0.5
 
-            #----------------------------------------------------------------------------
-            
-            # tax_credits_usd += (medical_usd * (flt(component_doc.employer_amount) / 100))
-            # tax_credits_zwg += (medical_zwg * (flt(component_doc.employer_amount) / 100))
-            self.total_deduction_usd += flt(5)
-            # self.total_deduction_zwg += flt(medical_zwg)
-            d.amount_usd = 5
-            d.amount_zwg = 0
+            self.total_deduction_usd += medical_usd
+            self.total_deduction_zwg += medical_zwg
 
-            #----------------------------------------------------------------------------
-            # self.append("tax_credits", {
-            #     "credit_name": d.components,
-            #     "amount_usd": usd_medical,
-            #     "amount_zwg": zwg_medical
-            # })
-            # self.total_tax_credits_usd = tax_credits_usd
-            # self.total_tax_credits_zwg = tax_credits_zwg
-            # total_allowable_deductions += flt(medical)
-
-        elif component_doc.component_mode == "NEC":
-            #frappe.msgprint("✅ Medical Aid Deduction Found")
-            print(f"Employer Percentage: {flt(component_doc.employer_amount)}")
+        elif d.components.upper() == "NEC":
             self.nec_usd = basic_salary_usd * 0.015
             self.nec_zwg = basic_salary_zwg * 0.015
 
             d.amount_usd = self.nec_usd
             d.amount_zwg = self.nec_zwg
 
-            total_allowable_deductions_zwg += flt(self.nec_zwg)
-            total_allowable_deductions_usd += flt( self.nec_usd)
-
             self.total_deduction_usd += flt(self.nec_usd)
             self.total_deduction_zwg += flt(self.nec_zwg)
+        
+        elif d.components.upper() == "PAYEE":
+            d.amount_usd = 0
+            d.amount_zwg = 0
+        
+        elif d.components.upper() == "AIDS LEVY":
+            d.amount_usd = 0
+            d.amount_zwg = 0
 
+        else:
+            self.total_deduction_usd += flt(d.amount_usd)
+            self.total_deduction_zwg += flt(d.amount_zwg)
 
+        # Check if it is an allowable deduction (deductible for tax)
+        if component_doc.is_tax_applicable:
+            total_allowable_deductions_usd += flt(d.amount_usd)
+            total_allowable_deductions_zwg += flt(d.amount_zwg)
 
         salary_structure.append("deductions", {
             "components": d.components,
@@ -173,7 +170,6 @@ def main(self):
             "is_tax_applicable": bool(d.is_tax_applicable),
             "amount_currency": "ZWG" if d.amount_zwg else "USD"
         })
-
 
     self.total_allowable_deductions_usd=total_allowable_deductions_usd
     print(f"total_allowable_deductions_usd {total_allowable_deductions_usd}")
@@ -195,8 +191,12 @@ def main(self):
     self.payee_zwg=payee_zwg
     self.aids_levy_usd=aids_levy_usd
     self.aids_levy_zwg=aids_levy_zwg
-    self.total_net_income_usd= self.total_earnings_usd - self.total_deduction_usd
-    self.total_net_income_zwg= self.total_earnings_zwg - self.total_deduction_zwg
+    self.total_net_income_usd = self.total_earnings_usd - self.total_deduction_usd
+    self.total_net_income_zwg = self.total_earnings_zwg - self.total_deduction_zwg
+    # Net Pay = Total Earnings - Total Deductions (unified field)
+    self.net_income = (self.total_net_income_usd + self.total_net_income_zwg)
+    self.total_income = (self.total_earnings_usd + self.total_earnings_zwg)
+    self.total_deductions = (self.total_deduction_usd + self.total_deduction_zwg)
 
     # Save it_
     salary_structure.save()
