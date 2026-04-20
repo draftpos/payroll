@@ -20,22 +20,20 @@ def main(self):
     self.total_earnings_zwg = round(total_earnings_zwg, 2)
     self.total_income = self.total_earnings_usd + self.total_earnings_zwg
 
-    # 3. CALCULATE TAX CREDITS (Currently simplified: split equally or based on currency)
+    # 3. CALCULATE TAX CREDITS (Base)
     exchange_rate = flt(frappe.db.get_value("Currency Exchange", {"from_currency": "USD", "to_currency": ["in", ["ZWG", "ZWL"]]}, "exchange_rate") or 1)
     
-    # Base Credits in USD
-    base_credits_usd = 0
-    if getattr(self, "is_elderly", 0): base_credits_usd += 75
-    if getattr(self, "is_blind", 0): base_credits_usd += 75
-    if getattr(self, "is_disabled", 0): base_credits_usd += 75
+    tax_credits_usd = 0.0
+    if getattr(self, "is_elderly", 0): tax_credits_usd += 75
+    if getattr(self, "is_blind", 0): tax_credits_usd += 75
+    if getattr(self, "is_disabled", 0): tax_credits_usd += 75
     
-    tax_credits_usd = base_credits_usd
-    tax_credits_zwg = base_credits_usd * exchange_rate
-    
-    self.total_tax_credits_usd = round(tax_credits_usd, 2)
-    self.total_tax_credits_zwg = round(tax_credits_zwg, 2)
+    tax_credits_zwg = tax_credits_usd * exchange_rate
 
-    # 4. CALCULATE DEDUCTIONS (NSSA, etc.)
+    # 4. CALCULATE DEDUCTIONS (NSSA, CIMAS, etc.)
+    medical_credit_usd = 0.0
+    medical_credit_zwg = 0.0
+
     for d in self.employee_deductions:
         component_doc = frappe.get_doc("havano_salary_component", d.components)
         
@@ -54,6 +52,18 @@ def main(self):
             total_deduction_usd += d.amount_usd
             total_deduction_zwg += d.amount_zwg
             
+        elif d.components.upper() in ["MEDICAL AID", "CIMAS"]:
+            emp_pct = flt(self.cimas_employee_) / 100
+            emp_contribution_usd = flt(d.amount_usd) * emp_pct
+            emp_contribution_zwg = flt(d.amount_zwg) * emp_pct
+            
+            medical_credit_usd = round(emp_contribution_usd * 0.5, 2)
+            medical_credit_zwg = round(emp_contribution_zwg * 0.5, 2)
+            self.medical_aid_tax_credit = medical_credit_usd + medical_credit_zwg
+
+            total_deduction_usd += emp_contribution_usd
+            total_deduction_zwg += emp_contribution_zwg
+
         elif d.components.upper() in ["PAYEE", "AIDS LEVY", "SDL"]:
             continue
             
@@ -63,6 +73,14 @@ def main(self):
             if component_doc.is_tax_applicable:
                 total_allowable_deductions_usd += flt(d.amount_usd)
                 total_allowable_deductions_zwg += flt(d.amount_zwg)
+
+    # Apply medical credit to tax credits
+    tax_credits_usd += medical_credit_usd
+    tax_credits_zwg += medical_credit_zwg
+    
+    self.total_tax_credits_usd = round(tax_credits_usd, 2)
+    self.total_tax_credits_zwg = round(tax_credits_zwg, 2)
+    self.total_tax_credits = tax_credits_usd + tax_credits_zwg
 
     self.total_allowable_deductions_usd = round(total_allowable_deductions_usd, 2)
     self.total_allowable_deductions_zwg = round(total_allowable_deductions_zwg, 2)
@@ -123,9 +141,9 @@ def payee_against_slab(amount, mode="Monthly", currency="USD"):
     payee = 0.0
     try:
         slab_name = f"{currency}-{mode}"
-        if not frappe.db.exists("Havana Tax Slab", slab_name):
+        if not frappe.db.exists("Havano Tax Slab", slab_name):
             slab_name = currency
-        slab_doc = frappe.get_doc("Havana Tax Slab", slab_name)
+        slab_doc = frappe.get_doc("Havano Tax Slab", slab_name)
         for slab in slab_doc.tax_brackets:
             if flt(slab.lower_limit) <= flt(amount) <= flt(slab.upper_limit):
                 payee = (flt(amount) * (flt(slab.percent) / 100)) - flt(slab.fixed_amount)
