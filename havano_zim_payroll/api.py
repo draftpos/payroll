@@ -7,12 +7,17 @@ frappe.error_log = error_log
 
 
 @frappe.whitelist()
-def run_payroll_async(month, year, work_date=None, daily=None):
+def run_payroll_async(month, year, work_date=None, daily=None, sync=True):
     """
-    Enqueue payroll in background and return job info.
+    Enqueue payroll or run synchronously.
+    Defaults to sync=True to ensure immediate results if workers aren't active.
     """
+    if sync:
+        # Run immediately in the current request
+        return run_payroll(month, year, work_date, daily)
+    
     job = frappe.enqueue(
-        "havano_zim_payroll.api.run_payroll",  # your payroll function path
+        "havano_zim_payroll.api.run_payroll",
         month=month,
         year=year,
         work_date=work_date,
@@ -21,7 +26,6 @@ def run_payroll_async(month, year, work_date=None, daily=None):
         timeout=15000
     )
 
-    # Return only simple data — avoid returning the Job object itself
     return {
         "message": f"Payroll job queued for {month}/{year}",
         "job_id": job.id
