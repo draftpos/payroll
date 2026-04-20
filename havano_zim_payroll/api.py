@@ -168,7 +168,7 @@ def run_payroll(month, year, work_date, daily):
             emp_netpay = emp_doc.net_income
             total_net_salary_now += emp_doc.net_income + loan_deduction_add_back["amount_usd"]
             total_loan += loan_deduction_add_back["amount_usd"]
-            total_sdl +=emp_doc.total_income * 0.01
+            total_sdl += emp_doc.total_income * 0.05
         except AttributeError as e:
             print(f"Net income not found for employee {emp.employee}: {e}")
             frappe.log_error(f"{e}")
@@ -243,11 +243,12 @@ def run_payroll(month, year, work_date, daily):
             create_nssa_p4_report_store(surname=emp_doc.last_name,first_name=emp_doc.first_name,total_insuarable_earnings_zwg=0,total_insuarable_earnings_usd=emp_doc.total_taxable_income, current_contributions_usd=nssa_usd,current_contributions_zwg=0,total_payment_usd=nssa_usd,total_payment_zwg=0)
             create_zimra_p2form(employer_name="DPT",trade_name="DPT",tax_period=f"{month} {year}",total_renumeration=emp_doc.total_income,gross_paye=emp_doc.payee,aids_levy=emp_doc.aids_levy,total_tax_due = float(emp_doc.aids_levy or 0) + float(emp_doc.payee or 0),currency="USD")
             create_zimra_itf16(surname=emp_doc.last_name,first_name=emp_doc.first_name,employee_id=emp_doc.name,gross_paye=emp_doc.total_income,payee=emp_doc.payee,aids_levy=emp_doc.aids_levy,currency="USD",dob=emp_doc.date_of_birth,start_date=emp_doc.final_confirmation_date,end_date=emp_doc.contract_end_date)
-            bb=add_sdl_report(employee=emp_doc.name,date=f"{month} {year}",amount=emp_doc.total_income * 0.1)
+            bb=add_sdl_report(employee=emp_doc.name,date=f"{month} {year}",amount=emp_doc.total_income * 0.05)
         elif  emp_doc.salary_currency == "ZWL" and emp_doc.payslip_type =="Base Currency":
             create_nssa_p4_report_store(surname=emp_doc.last_name,first_name=emp_doc.first_name,total_insuarable_earnings_zwg=emp_doc.total_taxable_income,total_insuarable_earnings_usd=0, current_contributions_usd=0,current_contributions_zwg=nssa_zwg,total_payment_usd=nssa_usd,total_payment_zwg=nssa_zwg)
             create_zimra_p2form(employer_name="DPT",trade_name="DPT",tax_period=f"{month} {year}",total_renumeration=emp_doc.total_income,gross_paye=emp_doc.payee,aids_levy=emp_doc.aids_levy,total_tax_due = float(emp_doc.aids_levy or 0) + float(emp_doc.payee or 0),currency="ZWG")
             create_zimra_itf16(surname=emp_doc.last_name,first_name=emp_doc.first_name,employee_id=emp_doc.name,gross_paye=emp_doc.total_income,payee=emp_doc.payee,aids_levy=emp_doc.aids_levy,currency="ZWG",dob=emp_doc.date_of_birth,start_date=emp_doc.final_confirmation_date,end_date=emp_doc.contract_end_date)
+            add_sdl_report(employee=emp_doc.name,date=f"{month} {year}",amount=emp_doc.total_income * 0.05)
         print(bb)
 
         acc = get_basic_salary_component()[0]
