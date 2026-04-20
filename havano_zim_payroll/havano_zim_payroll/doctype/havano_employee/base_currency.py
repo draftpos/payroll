@@ -512,9 +512,19 @@ def main(self):
 	# Update child table rows for PAYEE and AIDS LEVY
 	for d in self.employee_deductions:
 		if d.components.upper() == "PAYEE":
-			d.amount_usd = self.payee
+			if default_currency == "USD":
+				d.amount_usd = self.payee
+				d.amount_zwg = 0
+			else:
+				d.amount_usd = 0
+				d.amount_zwg = self.payee
 		elif d.components.upper() == "AIDS LEVY":
-			d.amount_usd = self.aids_levy
+			if default_currency == "USD":
+				d.amount_usd = self.aids_levy
+				d.amount_zwg = 0
+			else:
+				d.amount_usd = 0
+				d.amount_zwg = self.aids_levy
 		# SDL removed from child table so it doesn't deduct from salary or show in print
 
 	self.total_deductions = round(total_deduction, 2)
