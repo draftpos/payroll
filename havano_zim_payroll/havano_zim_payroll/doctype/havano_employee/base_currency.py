@@ -476,9 +476,12 @@ def main(self):
         self.wcif_zwg=self.total_taxable_income * self.wcif_percentage/100
         self.wcif_usd=0
     print(self.ensuarable_earnings)
-    payee = round(max(payee_against_slab(self.ensuarable_earnings, self.payroll_frequency) - tax_credits, 0), 2)
+    payee = round(max(payee_against_slab(self.ensuarable_earnings, self.payroll_frequency, self.salary_currency) - tax_credits, 0), 2)
     ads_levy = round(0.03 * payee, 2)
     sdl_amount = round(self.total_income * 0.05, 2)
+
+    # Debug info for user
+    frappe.msgprint(f"<b>Payroll Calc (Base):</b><br>Gross: {self.total_income}<br>Taxable: {self.ensuarable_earnings}<br>Currency: {self.salary_currency}<br>Payee: {payee}<br>SDL: {sdl_amount}")
 
     total_deduction += payee
     total_deduction += ads_levy

@@ -17,7 +17,7 @@ def run_payroll_async(month, year, work_date=None, daily=None):
         year=year,
         work_date=work_date,
         daily=daily,
-        queue="long",
+        queue="default",
         timeout=15000
     )
 
@@ -101,13 +101,16 @@ def run_payroll(month, year, work_date, daily):
     if daily:
         employees = frappe.get_all(
             "havano_employee",
-            filters={"payroll_frequency": "Daily"},
-            fields=["name", "first_name", "last_name", "net_income", "payroll_frequency"]
+            filters={"payroll_frequency": "Daily", "status": "Active"},
+            fields=["name", "first_name", "last_name", "net_income", "payroll_frequency"],
+            ignore_permissions=True
         )
     else:
         employees = frappe.get_all(
             "havano_employee",
-            fields=["name", "first_name", "last_name", "net_income", "payroll_frequency"]
+            filters={"status": "Active"},
+            fields=["name", "first_name", "last_name", "net_income", "payroll_frequency"],
+            ignore_permissions=True
         )
     if not employees:
         frappe.log_error("No employees found for payroll run", "Payroll Error")

@@ -202,6 +202,8 @@ def main(self):
     sdl_usd = self.total_earnings_usd * 0.05
     sdl_zwg = self.total_earnings_zwg * 0.05
 
+    frappe.msgprint(f"<b>Payroll Calc (Split):</b><br>USD Taxable: {self.total_taxable_income_usd}<br>ZWG Taxable: {self.total_taxable_income_zwg}<br>Payee USD: {payee_usd}<br>Payee ZWG: {payee_zwg}<br>SDL USD: {sdl_usd}")
+
     # Update summary fields on employee record
     self.payee_usd = payee_usd
     self.payee_zwg = payee_zwg
