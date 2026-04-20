@@ -69,3 +69,18 @@ class havano_employee(Document):
 
             self.native_employee_id = employee_doc.name
             #frappe.msgprint(f"Created Employee: {employee_doc.name}")
+    @frappe.whitelist()
+    def calculate_totals(self):
+        """Whitelisted method to trigger calculations from client side."""
+        from . import base_currency, split_currency
+        
+        payslip_type = frappe.db.get_value("Company", self.company, "custom_payslip_type")
+        self.payslip_type = payslip_type
+
+        if payslip_type == "Base Currency":
+            base_currency.main(self)
+        elif payslip_type == "Split Currency":
+            split_currency.main(self)
+        
+        # Return the modified fields so the client can update the UI
+        return self.as_dict()

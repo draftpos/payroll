@@ -509,14 +509,13 @@ def main(self):
 	self.payee = payee
 	self.aids_levy = ads_levy
 
-	# Update child table rows for PAYEE, AIDS LEVY, and SDL
+	# Update child table rows for PAYEE and AIDS LEVY
 	for d in self.employee_deductions:
 		if d.components.upper() == "PAYEE":
 			d.amount_usd = self.payee
 		elif d.components.upper() == "AIDS LEVY":
 			d.amount_usd = self.aids_levy
-		elif d.components.upper() == "SDL":
-			d.amount_usd = sdl_amount
+		# SDL removed from child table so it doesn't deduct from salary or show in print
 
 	self.total_deductions = round(total_deduction, 2)
 	# Net Pay = Total Earnings - Total Deductions

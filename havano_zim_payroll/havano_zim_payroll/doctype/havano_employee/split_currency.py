@@ -226,11 +226,12 @@ def main(self):
 	self.aids_levy_zwg = aids_levy_zwg
 	self.payee = payee_usd + payee_zwg
 	self.aids_levy = aids_levy_usd + aids_levy_zwg
+	self.sdl = sdl_usd + sdl_zwg # Keep for online display only
 	self.total_tax_credits_usd = tax_credits_usd
 	self.total_tax_credits_zwg = tax_credits_zwg
 	self.total_tax_credits = tax_credits_usd + tax_credits_zwg
 
-	# Update child table rows for PAYEE, AIDS LEVY, and SDL
+	# Update child table rows for PAYEE and AIDS LEVY
 	for d in self.employee_deductions:
 		if d.components.upper() == "PAYEE":
 			d.amount_usd = payee_usd
@@ -238,9 +239,7 @@ def main(self):
 		elif d.components.upper() == "AIDS LEVY":
 			d.amount_usd = aids_levy_usd
 			d.amount_zwg = aids_levy_zwg
-		elif d.components.upper() == "SDL":
-			d.amount_usd = sdl_usd
-			d.amount_zwg = sdl_zwg
+		# SDL removed from child table so it doesn't deduct or show in print
 
 	self.total_deduction_usd += payee_usd + aids_levy_usd
 	self.total_deduction_zwg += payee_zwg + aids_levy_zwg

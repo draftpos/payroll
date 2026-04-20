@@ -12,37 +12,79 @@ frappe.ui.form.on("havano_employee", {
 	total_deductions(frm) {
 		update_net_income(frm);
 	},
-	salary_currency(frm) {
-		update_tax_credits(frm);
+	payroll_frequency(frm) {
+		calculate_totals_server(frm);
 	},
 	cimas_employee_(frm) {
-		update_tax_credits(frm);
+		calculate_totals_server(frm);
 	},
 	is_blind(frm) {
-		update_tax_credits(frm);
+		calculate_totals_server(frm);
 	},
 	is_disabled(frm) {
-		update_tax_credits(frm);
+		calculate_totals_server(frm);
 	},
 	is_elderly(frm) {
-		update_tax_credits(frm);
+		calculate_totals_server(frm);
+	},
+	native_employee_id(frm) {
+		calculate_totals_server(frm);
 	}
 });
 
 frappe.ui.form.on("havano_payroll_earnings", {
 	amount_usd(frm, cdt, cdn) {
-		update_tax_credits_if_needed(frm, cdt, cdn);
+		calculate_totals_server(frm);
 	},
 	amount_zwg(frm, cdt, cdn) {
-		update_tax_credits_if_needed(frm, cdt, cdn);
+		calculate_totals_server(frm);
 	},
 	components(frm, cdt, cdn) {
-		update_tax_credits_if_needed(frm, cdt, cdn);
+		calculate_totals_server(frm);
 	},
-	employee_deductions_remove(frm) {
-		update_tax_credits(frm);
+	employee_earnings_remove(frm) {
+		calculate_totals_server(frm);
 	}
 });
+
+frappe.ui.form.on("havano_payroll_deductions", {
+	amount_usd(frm, cdt, cdn) {
+		calculate_totals_server(frm);
+	},
+	amount_zwg(frm, cdt, cdn) {
+		calculate_totals_server(frm);
+	},
+	components(frm, cdt, cdn) {
+		calculate_totals_server(frm);
+	},
+	employee_deductions_remove(frm) {
+		calculate_totals_server(frm);
+	}
+});
+
+function calculate_totals_server(frm) {
+	if (frm.doc.company) {
+		frappe.call({
+			doc: frm.doc,
+			method: "calculate_totals",
+			callback: function(r) {
+				if (r.message) {
+					// Update the form fields with calculated values
+					frm.refresh_fields([
+						"payee", "aids_levy", "sdl", "net_income", 
+						"total_income", "total_deductions", "total_tax_credits",
+						"total_income_usd", "total_income_zwg",
+						"total_deduction_usd", "total_deduction_zwg",
+						"total_net_income_usd", "total_net_income_zwg",
+						"employee_earnings", "employee_deductions",
+						"blind", "disabled", "elderly", "medical_aid_tax_credit",
+						"ensuarable_earnings", "allowable_deductions"
+					]);
+				}
+			}
+		});
+	}
+}
 
 function update_tax_credits_if_needed(frm, cdt, cdn) {
 	let row = locals[cdt][cdn];
