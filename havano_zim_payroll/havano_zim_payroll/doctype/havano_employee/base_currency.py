@@ -518,17 +518,22 @@ def main(self):
     self.salary_structure = salary_structure.name
     self.total_tax_credits=tax_credits
 
-def payee_against_slab(amount, mode="Monthly"):
+def payee_against_slab(amount, mode="Monthly", currency="USD"):
     if mode not in ['Monthly', "Daily"]:
         mode = "Monthly"
+    
+    # Standardize currency
+    if currency == "ZWL": currency = "ZWG"
+    
     payee = 0.0
-    print(f"Calculating PAYE for amount: {amount} in mode: USD-{mode}")
-    # Get the Havano Tax Slab for the given currency
-    slab_doc = frappe.get_doc("Havano Tax Slab", f"USD-{mode}")
-    print(f"Retrieved Havano Tax Slab: {slab_doc.tax_brackets}")
-    for slab in slab_doc.tax_brackets:
-        print(f"Checking slab: { vars(slab)}")
-        if slab.lower_limit <= amount <= slab.upper_limit:
-            payee = (amount * (slab.percent / 100)) - slab.fixed_amount
+    slabs = frappe.get_all("Havano Tax Slab", 
+        filters={"mode": mode, "currency": currency}, 
+        fields=["lower_limit", "upper_limit", "rate", "deduction"]
+    )
+    
+    for slab in slabs:
+        if amount >= flt(slab.lower_limit) and amount <= flt(slab.upper_limit):
+            payee = (amount * flt(slab.rate) / 100) - flt(slab.deduction)
             break
-    return flt(payee)
+            
+    return payee

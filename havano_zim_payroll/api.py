@@ -110,7 +110,10 @@ def run_payroll(month, year, work_date, daily):
             fields=["name", "first_name", "last_name", "net_income", "payroll_frequency"]
         )
     if not employees:
+        frappe.log_error("No employees found for payroll run", "Payroll Error")
         return "No employees found."
+    
+    frappe.log_error(f"Starting payroll run for {len(employees)} employees", "Payroll Progress")
     total_net_salary_now=0
     total_sdl=0
     total_loan = 0
@@ -124,6 +127,7 @@ def run_payroll(month, year, work_date, daily):
     acc = basic_comp_accounts[0] if basic_comp_accounts else None
 
     for emp in employees:
+        frappe.logger().info(f"Processing payroll for: {emp.name}")
         emp_doc = frappe.get_doc("havano_employee", emp.name)
         
         # Ensure fresh calculations by saving the employee doc
@@ -190,7 +194,6 @@ def run_payroll(month, year, work_date, daily):
                     "amount_zwg": e.amount_zwg
                 })
 
-        print(f"---------------------rrrr----{emp_netpay}")
         # Fetch the ledger for the employee
         ledger = frappe.db.get_value(
             "Employee Ledger",
@@ -219,7 +222,6 @@ def run_payroll(month, year, work_date, daily):
         if hasattr(emp_doc, "employee_deductions"):
             for d in emp_doc.employee_deductions:
                 if d.components == "NSSA":
-                    print("------------------------------------nssa--------------------")
                     try:
                         create_payroll_report(emp_doc.first_name,emp_doc.last_name, d.amount_zwg,0,d.amount_usd,0,f"{month} {year}",emp_doc.wcif_usd,emp_doc.wcif_zwg)
                     except Exception as e:
@@ -245,7 +247,7 @@ def run_payroll(month, year, work_date, daily):
                 create_zimra_itf16(surname=emp_doc.last_name, first_name=emp_doc.first_name, employee_id=emp_doc.name, gross_paye=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_usd, payee=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_usd, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_usd, currency="USD", dob=emp_doc.date_of_birth, start_date=emp_doc.final_confirmation_date, end_date=emp_doc.contract_end_date)
                 add_sdl_report(employee=emp_doc.name, date=f"{month} {year}", amount=flt(emp_doc.total_income) * 0.05)
             
-            elif emp_doc.salary_currency == "ZWL" or emp_doc.salary_currency == "ZWG" or flt(emp_doc.total_income_zwg) > 0:
+            elif emp_doc.salary_currency in ["ZWL", "ZWG"] or flt(emp_doc.total_income_zwg) > 0:
                 create_nssa_p4_report_store(surname=emp_doc.last_name, first_name=emp_doc.first_name, total_insuarable_earnings_zwg=emp_doc.total_taxable_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_taxable_income_zwg, total_insuarable_earnings_usd=0, current_contributions_usd=0, current_contributions_zwg=nssa_zwg, total_payment_usd=0, total_payment_zwg=nssa_zwg)
                 create_zimra_p2form(employer_name="DPT", trade_name="DPT", tax_period=f"{month} {year}", total_renumeration=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_zwg, gross_paye=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_zwg, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_zwg, total_tax_due=flt(emp_doc.aids_levy or 0) + flt(emp_doc.payee or 0) if emp_doc.payslip_type == "Base Currency" else flt(emp_doc.aids_levy_zwg or 0) + flt(emp_doc.payee_zwg or 0), currency="ZWG")
                 create_zimra_itf16(surname=emp_doc.last_name, first_name=emp_doc.first_name, employee_id=emp_doc.name, gross_paye=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_zwg, payee=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_zwg, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_zwg, currency="ZWG", dob=emp_doc.date_of_birth, start_date=emp_doc.final_confirmation_date, end_date=emp_doc.contract_end_date)
@@ -256,33 +258,7 @@ def run_payroll(month, year, work_date, daily):
         update_employee_annual_leave(emp.name, payroll_period=f"{month} {year}")
         frappe.db.commit()
 
-
-    # try:
-    #     # Get the account (assuming get_basic_salary_component returns a list)
-        
-
-    #     entries = [
-    #     {"account": "Administrative Expenses - AA a@a6326", "debit": 70.0, "credit": "70.0", "cost_center": "Aa Fridays - AA a@a6326"},
-    #     {"account": "Cash - AA a@a6326", "debit": 70.0, "credit": 70.0, "cost_center": "Aa Fridays - AA a@a6326"}
-    #         ]
-
-    #     je_doc = create_journal_entry_safe(
-    #         company="Aa Fridays",
-    #         posting_date="2026-01-07",
-    #         entries=entries,
-    #         voucher_type="Cash Entry"
-    #     )
-
-
-    # except Exception as e:
-    #     # Log the error in Frappe Error Log
-    #     frappe.log_error(message=str(e), title="Journal Entry Creation Error")
-
-
-
     try:
-        # PURCHASE Invoice for all employees net salaries
-
         c = create_salary_purchase_invoice(
             item_name=acc["item"],
             supplier=acc["supplier"],
@@ -299,7 +275,6 @@ def run_payroll(month, year, work_date, daily):
         frappe.log_error(frappe.get_traceback(), "Salary Purchase Invoice Creation Failed")
     
     try:
-    # SDL Invoice for all employees net salaries
         c = create_salary_purchase_invoice(
             item_name="Payroll Expense",
             supplier=setting_supplier,
@@ -314,7 +289,6 @@ def run_payroll(month, year, work_date, daily):
         )
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "SDL Purchase Invoice Creation Failed")
-
         return f"Error creating Salary Purchase Invoice: {str(e)}"
 
     return f"Payroll created for {len(employees)} employees for {month} {year}."
