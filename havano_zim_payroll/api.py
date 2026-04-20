@@ -141,7 +141,11 @@ def run_payroll(month, year, work_date, daily):
         
         # Ensure fresh calculations by saving the employee doc
         # This triggers before_save logic which calculates PAYE, Net Income, etc.
-        emp_doc.save(ignore_permissions=True)
+        try:
+            emp_doc.save(ignore_permissions=True)
+        except Exception as e:
+            frappe.log_error(f"Error saving employee {emp.name} during payroll: {e}")
+            continue
         
         # dealing with employee basic salary based on hours worked
         total_hours=get_employee_hours(emp.name, year, month)
@@ -176,7 +180,7 @@ def run_payroll(month, year, work_date, daily):
         payroll.first_name = emp_doc.first_name
         payroll.surname = emp_doc.last_name
         payroll.payroll_period = f"{month_name} {year}"
-        payroll.date = work_date
+        payroll.date = work_date or nowdate()
         payroll.payroll_frequency=emp_doc.payroll_frequency
         nssa_usd=0
         nssa_zwg=0
@@ -187,8 +191,8 @@ def run_payroll(month, year, work_date, daily):
             total_loan += flt(loan_deduction_add_back.get("amount_usd", 0))
             total_sdl += flt(emp_doc.total_income) * 0.05
         except Exception as e:
-            print(f"Error calculating net income for employee {emp.name}: {e}")
             frappe.log_error(f"Payroll Calc Error for {emp.name}: {e}")
+            continue
 
         # Copy Earnings
         if hasattr(emp_doc, "employee_earnings"):
