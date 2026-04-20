@@ -27,6 +27,8 @@ def main(self):
     ) or 1)
     # frappe.msgprint(str(exchange_rate))
     self.tax_credits=[]
+    total_deduction = 0
+    total_allowable_deductions = 0
 
     # Elderly
     if getattr(self, "is_elderly", 0):

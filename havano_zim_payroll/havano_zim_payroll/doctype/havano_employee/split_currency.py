@@ -178,8 +178,8 @@ def main(self):
     self.total_earnings_zwg=total_amount_basic_and_bonus_and_allowances_zwg
     self.total_taxable_income_usd=self.total_earnings_usd-self.total_allowable_deductions_usd
     self.total_taxable_income_zwg=self.total_earnings_zwg-self.total_allowable_deductions_zwg
-    payee_usd=max(payee_against_slab_usd(self.total_taxable_income_usd)-tax_credits_usd,0)
-    payee_zwg=max(payee_against_slab_zwg(self.total_taxable_income_zwg)-tax_credits_zwg,0)
+    payee_usd=max(payee_against_slab_usd(self.total_taxable_income_usd, getattr(self, 'payroll_frequency', 'Monthly'))-tax_credits_usd,0)
+    payee_zwg=max(payee_against_slab_zwg(self.total_taxable_income_zwg, getattr(self, 'payroll_frequency', 'Monthly'))-tax_credits_zwg,0)
     self.total_deduction_usd += payee_usd
     self.total_deduction_zwg += payee_zwg
     aids_levy_usd=0.03 * payee_usd
@@ -216,56 +216,36 @@ def main(self):
 
 #------------------------------------------------------------------splt currecy--------------------------------------------------------------------------------------
 
-def payee_against_slab_usd(amount):
+def payee_against_slab_usd(amount, mode="Monthly"):
     """
-    Calculate PAYE based on given slabs.
-    :param amount: Taxable income (float)
-    :return: PAYE amount (float)
+    Calculate PAYE based on database slabs.
     """
     from frappe.utils import flt
     payee = 0.0
-    slabs = [
-        (0.00, 100.00, 0.0, 0.00),
-        (100.01, 300.00, 0.20, 20.00),
-        (300.01, 1000.00, 0.25, 35.00),
-        (1000.01, 2000.00, 0.30, 85.00),
-        (2000.01, 3000.00, 0.35, 185.00),
-        (3000.01, 1000000.00, 0.40, 335.00),
-    ]
-
-    for lower, upper, percent, fixed in slabs:
-        if lower <= amount <= upper:
-            payee = ( amount * percent) - fixed
-            print(f"{amount} -----wwwwwwwwwwwwwwwww-----percent {percent} --fixed {fixed}-----------payee {payee}")
-            break
-
+    try:
+        slab_doc = frappe.get_doc("Havano Tax Slab", f"USD-{mode}")
+        for slab in slab_doc.tax_brackets:
+            if slab.lower_limit <= amount <= slab.upper_limit:
+                payee = (amount * (slab.percent / 100)) - slab.fixed_amount
+                break
+    except Exception:
+        pass
     return flt(payee)
 
-
-
-def payee_against_slab_zwg(amount):
+def payee_against_slab_zwg(amount, mode="Monthly"):
     """
-    Calculate PAYE based on given slabs.
-    :param amount: Taxable income (float)
-    :return: PAYE amount (float)
+    Calculate PAYE based on database slabs.
     """
     from frappe.utils import flt
     payee = 0.0
-    slabs = [
-        (0.00, 2800.00, 0.0, 0.00),
-        (2800.01, 8400.00, 0.20, 560.00),
-        (8400.01, 28000.00, 0.25, 980.00),
-        (28000.01, 56000.00, 0.30, 2380.00),
-        (56000.01, 84000.00, 0.35, 5180.00),
-        (84000.01, 1000000.00, 0.40, 9380.00),
-    ]
-
-    for lower, upper, percent, fixed in slabs:
-        if lower <= amount <= upper:
-            payee = ( amount * percent) - fixed
-            print(f"{amount} -----wwwwwwwwwwwwwwwww-----percent {percent} --fixed {fixed}-----------payee {payee}")
-            break
-
+    try:
+        slab_doc = frappe.get_doc("Havano Tax Slab", f"ZWG-{mode}")
+        for slab in slab_doc.tax_brackets:
+            if slab.lower_limit <= amount <= slab.upper_limit:
+                payee = (amount * (slab.percent / 100)) - slab.fixed_amount
+                break
+    except Exception:
+        pass
     return flt(payee)
 
 
