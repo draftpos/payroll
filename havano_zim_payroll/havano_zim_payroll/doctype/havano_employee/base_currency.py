@@ -522,21 +522,18 @@ def main(self):
     self.total_tax_credits=tax_credits
 
 def payee_against_slab(amount, mode="Monthly", currency="USD"):
-    if mode not in ['Monthly', "Daily"]:
-        mode = "Monthly"
-    
     # Standardize currency
     if currency == "ZWL": currency = "ZWG"
     
     payee = 0.0
-    slabs = frappe.get_all("Havano Tax Slab", 
-        filters={"mode": mode, "currency": currency}, 
-        fields=["lower_limit", "upper_limit", "rate", "deduction"]
-    )
-    
-    for slab in slabs:
-        if amount >= flt(slab.lower_limit) and amount <= flt(slab.upper_limit):
-            payee = (amount * flt(slab.rate) / 100) - flt(slab.deduction)
-            break
+    try:
+        # Fetch the slab doc named by currency (e.g., 'USD' or 'ZWG')
+        slab_doc = frappe.get_doc("Havano Tax Slab", currency)
+        for slab in slab_doc.tax_brackets:
+            if flt(slab.lower_limit) <= amount <= flt(slab.upper_limit):
+                payee = (amount * (flt(slab.percent) / 100)) - flt(slab.fixed_amount)
+                break
+    except Exception as e:
+        frappe.log_error(f"PAYE Calculation Error for {currency}: {e}")
             
     return payee

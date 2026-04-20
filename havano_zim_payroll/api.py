@@ -101,14 +101,13 @@ def run_payroll(month, year, work_date, daily):
     if daily:
         employees = frappe.get_all(
             "havano_employee",
-            filters={"payroll_frequency": "Daily", "status": "Active"},
+            filters={"payroll_frequency": "Daily"},
             fields=["name", "first_name", "last_name", "net_income", "payroll_frequency"],
             ignore_permissions=True
         )
     else:
         employees = frappe.get_all(
             "havano_employee",
-            filters={"status": "Active"},
             fields=["name", "first_name", "last_name", "net_income", "payroll_frequency"],
             ignore_permissions=True
         )

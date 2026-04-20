@@ -1,0 +1,7 @@
+{
+    "python.defaultInterpreterPath": "/home/ashley/frappe-bench-v15/env/bin/python",
+    "python.analysis.extraPaths": [
+        "/home/ashley/frappe-bench-v15/apps/frappe",
+        "/home/ashley/frappe-bench-v15/apps/erpnext"
+    ]
+}
