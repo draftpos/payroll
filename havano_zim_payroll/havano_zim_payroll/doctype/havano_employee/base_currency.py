@@ -478,11 +478,22 @@ def main(self):
     print(self.ensuarable_earnings)
     payee = round(max(payee_against_slab(self.ensuarable_earnings, self.payroll_frequency) - tax_credits, 0), 2)
     ads_levy = round(0.03 * payee, 2)
-    if calculate_payee:
-        total_deduction += payee
-        total_deduction += ads_levy
-        self.payee=payee
-        self.aids_levy=ads_levy
+    sdl_amount = round(self.total_income * 0.05, 2)
+
+    total_deduction += payee
+    total_deduction += ads_levy
+    self.payee=payee
+    self.aids_levy=ads_levy
+    
+    # Update child table rows for PAYEE, AIDS LEVY, and SDL
+    for d in self.employee_deductions:
+        if d.components.upper() == "PAYEE":
+            d.amount_usd = self.payee
+        elif d.components.upper() == "AIDS LEVY":
+            d.amount_usd = self.aids_levy
+        elif d.components.upper() == "SDL":
+            d.amount_usd = sdl_amount
+
     self.total_deductions = round(total_deduction, 2)
     # Net Pay = Total Earnings - Total Deductions
     self.net_income = self.total_income - self.total_deductions

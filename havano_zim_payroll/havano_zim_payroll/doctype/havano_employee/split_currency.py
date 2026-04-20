@@ -193,25 +193,45 @@ def main(self):
     self.total_taxable_income_zwg=self.total_earnings_zwg-self.total_allowable_deductions_zwg
     payee_usd=max(payee_against_slab_usd(self.total_taxable_income_usd, getattr(self, 'payroll_frequency', 'Monthly'))-tax_credits_usd,0)
     payee_zwg=max(payee_against_slab_zwg(self.total_taxable_income_zwg, getattr(self, 'payroll_frequency', 'Monthly'))-tax_credits_zwg,0)
-    self.total_deduction_usd += payee_usd
-    self.total_deduction_zwg += payee_zwg
-    aids_levy_usd=0.03 * payee_usd
-    aids_levy_zwg=0.03 * payee_zwg
-    self.total_deduction_usd += aids_levy_usd
-    self.total_deduction_zwg += aids_levy_zwg
 
-    self.payee_usd=payee_usd
-    self.payee_zwg=payee_zwg
-    self.aids_levy_usd=aids_levy_usd
-    self.aids_levy_zwg=aids_levy_zwg
+    # Calculate AIDS Levy (3% of net PAYE)
+    aids_levy_usd = payee_usd * 0.03
+    aids_levy_zwg = payee_zwg * 0.03
+    
+    # Calculate SDL (5% of Gross)
+    sdl_usd = self.total_earnings_usd * 0.05
+    sdl_zwg = self.total_earnings_zwg * 0.05
+
+    # Update summary fields on employee record
+    self.payee_usd = payee_usd
+    self.payee_zwg = payee_zwg
+    self.aids_levy_usd = aids_levy_usd
+    self.aids_levy_zwg = aids_levy_zwg
+    self.payee = payee_usd + payee_zwg
+    self.aids_levy = aids_levy_usd + aids_levy_zwg
+    self.total_tax_credits_usd = tax_credits_usd
+    self.total_tax_credits_zwg = tax_credits_zwg
+    self.total_tax_credits = tax_credits_usd + tax_credits_zwg
+    
+    # Update child table rows for PAYEE, AIDS LEVY, and SDL
+    for d in self.employee_deductions:
+        if d.components.upper() == "PAYEE":
+            d.amount_usd = payee_usd
+            d.amount_zwg = payee_zwg
+        elif d.components.upper() == "AIDS LEVY":
+            d.amount_usd = aids_levy_usd
+            d.amount_zwg = aids_levy_zwg
+        elif d.components.upper() == "SDL":
+            d.amount_usd = sdl_usd
+            d.amount_zwg = sdl_zwg
+
+    self.total_deduction_usd += (payee_usd + aids_levy_usd)
+    self.total_deduction_zwg += (payee_zwg + aids_levy_zwg)
     self.total_net_income_usd = self.total_earnings_usd - self.total_deduction_usd
     self.total_net_income_zwg = self.total_earnings_zwg - self.total_deduction_zwg
     # Net Pay = Total Earnings - Total Deductions (unified field)
     self.net_income = (self.total_net_income_usd + self.total_net_income_zwg)
     self.total_income = (self.total_earnings_usd + self.total_earnings_zwg)
-    self.total_tax_credits_usd = tax_credits_usd
-    self.total_tax_credits_zwg = tax_credits_zwg
-    self.total_tax_credits = tax_credits_usd + tax_credits_zwg
     self.total_deductions = (self.total_deduction_usd + self.total_deduction_zwg)
 
     # Save it_
