@@ -4,13 +4,16 @@
 frappe.ui.form.on("havano_employee", {
 	refresh(frm) {
 		update_net_income(frm);
-		update_medical_aid_tax_credit(frm);
+		update_tax_credits(frm);
 	},
 	total_income(frm) {
 		update_net_income(frm);
 	},
 	total_deductions(frm) {
 		update_net_income(frm);
+	},
+	salary_currency(frm) {
+		update_tax_credits(frm);
 	},
 	cimas_employee_(frm) {
 		update_tax_credits(frm);
@@ -28,24 +31,28 @@ frappe.ui.form.on("havano_employee", {
 
 frappe.ui.form.on("havano_payroll_earnings", {
 	amount_usd(frm, cdt, cdn) {
-		let row = locals[cdt][cdn];
-		if (row.parentfield === "employee_deductions" && (row.components || "").toUpperCase() === "CIMAS") {
-			update_medical_aid_tax_credit(frm);
-		}
+		update_tax_credits_if_needed(frm, cdt, cdn);
 	},
 	amount_zwg(frm, cdt, cdn) {
-		let row = locals[cdt][cdn];
-		if (row.parentfield === "employee_deductions" && (row.components || "").toUpperCase() === "CIMAS") {
-			update_medical_aid_tax_credit(frm);
-		}
+		update_tax_credits_if_needed(frm, cdt, cdn);
 	},
 	components(frm, cdt, cdn) {
-		let row = locals[cdt][cdn];
-		if (row.parentfield === "employee_deductions" && (row.components || "").toUpperCase() === "CIMAS") {
-			update_medical_aid_tax_credit(frm);
-		}
+		update_tax_credits_if_needed(frm, cdt, cdn);
+	},
+	employee_deductions_remove(frm) {
+		update_tax_credits(frm);
 	}
 });
+
+function update_tax_credits_if_needed(frm, cdt, cdn) {
+	let row = locals[cdt][cdn];
+	if (row.parentfield === "employee_deductions") {
+		const comp = (row.components || "").toUpperCase();
+		if (comp === "CIMAS" || comp === "MEDICAL AID") {
+			update_tax_credits(frm);
+		}
+	}
+}
 
 function update_net_income(frm) {
 	const total_earnings = flt(frm.doc.total_income);
@@ -67,13 +74,14 @@ function update_tax_credits(frm) {
 	frm.set_value("medical_aid_tax_credit", medical_aid_credit);
 
 	// Then, handle Blind, Disabled, Elderly credits
-	// We assume a flat 75 USD credit for each, converted if needed.
-	// For real-time UI, we'll fetch exchange rate once or use a default.
+	// Use frappe.call to get exchange rate for ZWG or ZWL
+	let target_currency = "ZWG"; 
+	
 	frappe.call({
 		method: "frappe.client.get_value",
 		args: {
 			doctype: "Currency Exchange",
-			filters: { from_currency: "USD", to_currency: "ZWL" },
+			filters: { from_currency: "USD", to_currency: ["in", ["ZWG", "ZWL"]] },
 			fieldname: "exchange_rate"
 		},
 		callback: function(r) {
@@ -90,6 +98,15 @@ function update_tax_credits(frm) {
 
 			let total = medical_aid_credit + blind_val + disabled_val + elderly_val;
 			frm.set_value("total_tax_credits", total);
+			
+			// If in split currency mode, we might want to set total_tax_credits_usd/zwg too
+			if (frm.doc.payslip_type === "Split Currency") {
+				// Simplified: Assigning full credits to USD for display if available, 
+				// or ZWG if that's the main currency.
+				// The backend handles the exact split.
+				frm.set_value("total_tax_credits_usd", is_usd ? total : total / rate);
+				frm.set_value("total_tax_credits_zwg", is_usd ? total * rate : total);
+			}
 		}
 	});
 }
