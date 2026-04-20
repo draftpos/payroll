@@ -26,16 +26,25 @@ def main(self):
     if getattr(self, "is_elderly", 0):
         tax_credits_usd += 75
         tax_credits_zwg += 75 * exchange_rate
+        self.elderly = 75
+    else:
+        self.elderly = 0
 
     # Blind
     if getattr(self, "is_blind", 0):
         tax_credits_usd += 75
         tax_credits_zwg += 75 * exchange_rate
+        self.blind = 75
+    else:
+        self.blind = 0
 
     # Disabled
     if getattr(self, "is_disabled", 0):
         tax_credits_usd += 75
         tax_credits_zwg += 75 * exchange_rate
+        self.disabled = 75
+    else:
+        self.disabled = 0
 
     # --- Create or Update havano_salary_structure ---
     if self.salary_structure:
@@ -125,16 +134,20 @@ def main(self):
             self.total_deduction_zwg += flt(nassa_zwg)
             
         # If Medical Aid, apply employer percentage
-        elif d.components.upper() == "MEDICAL AID" or d.components.upper() == "CIMAS":
+        elif d.components.upper() in ["MEDICAL AID", "CIMAS"]:
             medical_zwg = flt(d.amount_zwg)
             medical_usd = flt(d.amount_usd)
 
-            # 50% of employee contribution as tax credit
-            tax_credits_usd += medical_usd * 0.5
-            tax_credits_zwg += medical_zwg * 0.5
+            emp_cimas_usd = medical_usd * flt(self.cimas_employee_) / 100
+            emp_cimas_zwg = medical_zwg * flt(self.cimas_employee_) / 100
 
-            self.total_deduction_usd += medical_usd
-            self.total_deduction_zwg += medical_zwg
+            # 50% of employee contribution as tax credit
+            tax_credits_usd += emp_cimas_usd * 0.5
+            tax_credits_zwg += emp_cimas_zwg * 0.5
+            self.medical_aid_tax_credit = (emp_cimas_usd * 0.5) + (emp_cimas_zwg * 0.5)
+
+            self.total_deduction_usd += emp_cimas_usd
+            self.total_deduction_zwg += emp_cimas_zwg
 
         elif d.components.upper() == "NEC":
             self.nec_usd = basic_salary_usd * 0.015
@@ -196,6 +209,9 @@ def main(self):
     # Net Pay = Total Earnings - Total Deductions (unified field)
     self.net_income = (self.total_net_income_usd + self.total_net_income_zwg)
     self.total_income = (self.total_earnings_usd + self.total_earnings_zwg)
+    self.total_tax_credits_usd = tax_credits_usd
+    self.total_tax_credits_zwg = tax_credits_zwg
+    self.total_tax_credits = tax_credits_usd + tax_credits_zwg
     self.total_deductions = (self.total_deduction_usd + self.total_deduction_zwg)
 
     # Save it_

@@ -32,12 +32,11 @@ def main(self):
 
     # Elderly
     if getattr(self, "is_elderly", 0):
-        if self.salary_currency == "USD":
-            tax_credits += 75
-            self.elderly=75
-        else:
-            tax_credits += 75 * exchange_rate
-            self.elderly=tax_credits
+        val = 75 if self.salary_currency == "USD" else 75 * exchange_rate
+        tax_credits += val
+        self.elderly = val
+    else:
+        self.elderly = 0
         # self.append("tax_credits", {
         #     "credit_name": "Elderly",
         #     "amount_usd": 75,
@@ -45,12 +44,11 @@ def main(self):
         # })
     # Blind
     if getattr(self, "is_blind", 0):
-        if self.salary_currency == "USD":
-            tax_credits += 75
-            self.blind=75
-        else:
-            tax_credits += 75 * exchange_rate
-            self.blind=tax_credits
+        val = 75 if self.salary_currency == "USD" else 75 * exchange_rate
+        tax_credits += val
+        self.blind = val
+    else:
+        self.blind = 0
         # self.append("tax_credits", {
         #     "credit_name": "Blind",
         #     "amount_usd": 75,
@@ -59,12 +57,11 @@ def main(self):
 
     # Disabled
     if getattr(self, "is_disabled", 0):
-        if self.salary_currency == "USD":
-            tax_credits += 75
-            self.disabled=75
-        else:
-            tax_credits += 75 * exchange_rate
-            self.disabled=tax_credits
+        val = 75 if self.salary_currency == "USD" else 75 * exchange_rate
+        tax_credits += val
+        self.disabled = val
+    else:
+        self.disabled = 0
         # self.append("tax_credits", {
         #     "credit_name": "Disabled",
         #     "amount_usd": 75,
@@ -396,7 +393,7 @@ def main(self):
                     d.amount_usd = 0
                     d.amount_zwg = nec_employee
             
-            elif d.components.upper() == "CIMAS":
+            elif d.components.upper() in ["CIMAS", "MEDICAL AID"]:
                 cimas_employee= d.amount_usd  * flt(self.cimas_employee_) /100
                 cimas_employer= d.amount_usd  * flt(self.cimas_employer_ ) /100
                 total_deduction += flt(cimas_employee)
