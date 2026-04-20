@@ -102,19 +102,27 @@ def run_payroll(month, year, work_date, daily):
     setting_cost_center=settin["cost_center"]
     setting_supplier=settin["supplier"]
     """Runs payroll for all employees immediately (synchronous)."""
+    # Cast parameters to ensure correct type
+    from frappe.utils import cint
+    daily = cint(daily)
+    
     if daily:
         employees = frappe.get_all(
             "havano_employee",
-            filters={"payroll_frequency": "Daily"},
+            filters={"payroll_frequency": "Daily", "status": "Active"},
             fields=["name", "first_name", "last_name", "net_income", "payroll_frequency"],
             ignore_permissions=True
         )
     else:
+        # Default: Process all Active employees regardless of frequency (or you can filter for Monthly)
         employees = frappe.get_all(
             "havano_employee",
+            filters={"status": "Active"},
             fields=["name", "first_name", "last_name", "net_income", "payroll_frequency"],
             ignore_permissions=True
         )
+
+    frappe.log_error(f"Found {len(employees)} active employees for payroll run (Daily={daily})", "Payroll Debug")
     if not employees:
         frappe.log_error("No employees found for payroll run", "Payroll Error")
         return "No employees found."
