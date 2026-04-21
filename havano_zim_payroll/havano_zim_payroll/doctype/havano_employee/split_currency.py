@@ -108,6 +108,9 @@ def main(self):
         elif d.components.upper() == "AIDS LEVY":
             d.amount_usd = aids_levy_usd
             d.amount_zwg = aids_levy_zwg
+        elif d.components.upper() == "SDL":
+            d.amount_usd = 0
+            d.amount_zwg = 0
 
     # 8. FINAL SUMMARY
     self.payee_usd = final_payee_usd
@@ -127,7 +130,8 @@ def main(self):
     self.total_net_income_zwg = round(total_earnings_zwg - total_deduction_zwg, 2)
     self.net_income = self.total_net_income_usd + self.total_net_income_zwg
     
-    self.sdl = round(self.total_income * 0.05, 2)
+    # self.sdl = round(self.total_income * 0.05, 2)
+    self.sdl = 0
 
     frappe.msgprint(
         f"<b>Split Currency Calculation:</b><br>"

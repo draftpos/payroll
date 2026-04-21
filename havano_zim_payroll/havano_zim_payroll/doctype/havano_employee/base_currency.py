@@ -135,8 +135,8 @@ def main(self):
     aids_levy = round(final_payee * 0.03, 2)
     
     # SDL = 5% of Gross (reference only, not a deduction)
-    sdl_amount = round(self.total_income * 0.05, 2)
-    self.sdl = sdl_amount
+    # self.sdl = round(self.total_income * 0.05, 2)
+    self.sdl = 0
 
     # 6. UPDATE DEDUCTION TABLE ROWS
     for d in self.employee_deductions:
@@ -150,6 +150,9 @@ def main(self):
                 d.amount_usd = aids_levy
             else:
                 d.amount_zwg = aids_levy
+        elif d.components.upper() == "SDL":
+            d.amount_usd = 0
+            d.amount_zwg = 0
 
     # 7. UPDATE TOTAL DEDUCTIONS AND NET INCOME
     total_deduction += final_payee + aids_levy
