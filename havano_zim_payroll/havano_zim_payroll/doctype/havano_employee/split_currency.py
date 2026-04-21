@@ -51,6 +51,16 @@ def main(self):
             total_deduction_usd += d.amount_usd
             total_deduction_zwg += d.amount_zwg
 
+        elif d.components.upper() == "NEC":
+            basic_usd = sum(flt(e.amount_usd) for e in self.employee_earnings if e.components == "Basic Salary")
+            basic_zwg = sum(flt(e.amount_zwg) for e in self.employee_earnings if e.components == "Basic Salary")
+            d.amount_usd = round(basic_usd * 0.015, 2)
+            d.amount_zwg = round(basic_zwg * 0.015, 2)
+            total_allowable_deductions_usd += d.amount_usd
+            total_allowable_deductions_zwg += d.amount_zwg
+            total_deduction_usd += d.amount_usd
+            total_deduction_zwg += d.amount_zwg
+
         elif d.components.upper() in ["MEDICAL AID", "CIMAS"]:
             emp_pct = flt(self.cimas_employee_) / 100
             emp_contribution_usd = round(flt(d.amount_usd) * emp_pct, 2)
