@@ -78,7 +78,7 @@ function calculate_totals_server(frm) {
 						"total_net_income_usd", "total_net_income_zwg",
 						"employee_earnings", "employee_deductions",
 						"blind", "disabled", "elderly", "medical_aid_tax_credit",
-						"ensuarable_earnings", "allowable_deductions"
+						"ensuarable_earnings", "allowable_deductions", "basic_salary_calculated"
 					]);
 				}
 			}

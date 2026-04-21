@@ -19,6 +19,7 @@ def main(self):
     self.total_earnings_usd = round(total_earnings_usd, 2)
     self.total_earnings_zwg = round(total_earnings_zwg, 2)
     self.total_income = self.total_earnings_usd + self.total_earnings_zwg
+    self.basic_salary_calculated = sum(flt(e.amount_usd) + flt(e.amount_zwg) for e in self.employee_earnings if e.components == "Basic Salary")
 
     # 3. EXCHANGE RATE
     exchange_rate = flt(frappe.db.get_value("Currency Exchange", {"from_currency": "USD", "to_currency": ["in", ["ZWG", "ZWL"]]}, "exchange_rate") or 1)

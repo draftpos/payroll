@@ -38,6 +38,7 @@ def main(self):
             basic_salary = amount
 
     self.total_income = round(total_income, 2)
+    self.basic_salary_calculated = basic_salary
 
     # 3. CALCULATE TAX CREDITS
     if getattr(self, "is_elderly", 0):
