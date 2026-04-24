@@ -36,6 +36,10 @@ def main(self):
     medical_credit_zwg = 0.0
 
     # 5. CALCULATE DEDUCTIONS
+    # Remove rows for components with always_calculate unchecked, then ensure mandatory rows
+    remove_unchecked_deductions(self)
+    ensure_deductions(self)
+
     for d in self.employee_deductions:
         component_doc = frappe.get_doc("havano_salary_component", d.components)
 
@@ -164,3 +168,49 @@ def payee_against_slab(amount, mode="Monthly", currency="USD"):
     except Exception:
         pass
     return max(flt(payee), 0.0)
+
+
+def remove_unchecked_deductions(self):
+    """Remove NSSA/PAYEE/AIDS LEVY rows from deductions where always_calculate is unchecked."""
+    controlled = ["NSSA", "PAYEE", "AIDS LEVY"]
+    rows_to_keep = []
+    for d in self.employee_deductions:
+        upper = (d.components or "").upper()
+        if upper in controlled:
+            comp_name = frappe.db.get_value(
+                "havano_salary_component",
+                {"salary_component": ["like", d.components]},
+                "salary_component"
+            )
+            always_calc = frappe.db.get_value(
+                "havano_salary_component", comp_name, "always_calculate"
+            ) if comp_name else 0
+            if always_calc:
+                rows_to_keep.append(d)
+            # else: skip — effectively removes the row
+        else:
+            rows_to_keep.append(d)
+    self.employee_deductions = rows_to_keep
+
+
+def ensure_deductions(self):
+    """Ensures statutory rows exist in employee_deductions ONLY if always_calculate is checked."""
+    existing = [d.components.upper() for d in self.employee_deductions]
+    for comp in ["NSSA", "PAYEE", "AIDS LEVY"]:
+        if comp not in existing:
+            comp_name = frappe.db.get_value(
+                "havano_salary_component",
+                {"salary_component": ["like", comp]},
+                "salary_component"
+            )
+            if comp_name:
+                always_calc = frappe.db.get_value(
+                    "havano_salary_component", comp_name, "always_calculate"
+                )
+                if always_calc:
+                    self.append("employee_deductions", {
+                        "components": comp_name,
+                        "amount_usd": 0,
+                        "amount_zwg": 0
+                    })
+
