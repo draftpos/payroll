@@ -172,62 +172,66 @@ function update_tax_credits(frm) {
  * Sync the employee_deductions table based on always_calculate flag.
  * - Adds NSSA, PAYEE, AIDS LEVY rows when always_calculate = 1.
  * - Removes those rows when always_calculate = 0.
+ * Uses case-insensitive matching so "Aids Levy", "AIDS LEVY" etc. all work.
  */
 function sync_always_calculate_deductions(frm) {
-	// Fetch all salary components that are in the controlled list
+	// Fetch ALL deduction-type components (no name filter — avoids case mismatch)
 	frappe.call({
 		method: "frappe.client.get_list",
 		args: {
 			doctype: "havano_salary_component",
 			filters: [
-				["salary_component", "in", ALWAYS_CALC_COMPONENTS]
+				["type", "=", "Deduction"]
 			],
 			fields: ["salary_component", "always_calculate"],
-			limit_page_length: 10
+			limit_page_length: 50
 		},
 		callback: function(r) {
 			if (!r.message) return;
 
-			let changed = false;
-			let components_data = r.message; // [{salary_component, always_calculate}, ...]
-
-			// Build a set of components where always_calculate = 1
-			let should_be_in_deductions = new Set(
-				components_data
-					.filter(c => c.always_calculate == 1)
-					.map(c => c.salary_component)
+			// Only keep components whose name matches ALWAYS_CALC_COMPONENTS (case-insensitive)
+			let controlled = r.message.filter(c =>
+				ALWAYS_CALC_COMPONENTS.includes((c.salary_component || "").toUpperCase())
 			);
 
-			// Build a set of components where always_calculate = 0 (should be removed)
-			let should_be_removed = new Set(
-				components_data
-					.filter(c => c.always_calculate == 0)
-					.map(c => c.salary_component)
+			if (!controlled.length) return;
+
+			let changed = false;
+
+			// Map: exact DB name → always_calculate value
+			let should_add = new Set(
+				controlled.filter(c => c.always_calculate == 1).map(c => c.salary_component)
+			);
+			let should_remove = new Set(
+				controlled.filter(c => c.always_calculate == 0).map(c => c.salary_component)
 			);
 
 			let deductions = frm.doc.employee_deductions || [];
 
-			// Remove rows that no longer have always_calculate checked
-			let rows_to_remove = deductions.filter(row =>
-				ALWAYS_CALC_COMPONENTS.includes((row.components || "").toUpperCase()) &&
-				should_be_removed.has(row.components)
-			);
+			// Remove rows whose component is in should_remove
+			// Use case-insensitive match to find the row, but exact DB name in the set
+			let rows_to_remove = deductions.filter(row => {
+				let upper = (row.components || "").toUpperCase();
+				// Check if this row is one we control AND it should be removed
+				return ALWAYS_CALC_COMPONENTS.includes(upper) &&
+					[...should_remove].some(n => n.toUpperCase() === upper);
+			});
 			rows_to_remove.forEach(row => {
-				frm.get_field("employee_deductions").grid.grid_rows_by_docname[row.name] &&
-					frm.get_field("employee_deductions").grid.grid_rows_by_docname[row.name].remove();
-				changed = true;
+				let grid_row = frm.get_field("employee_deductions").grid.grid_rows_by_docname[row.name];
+				if (grid_row) {
+					grid_row.remove();
+					changed = true;
+				}
 			});
 
 			// Refresh local reference after removals
 			deductions = frm.doc.employee_deductions || [];
-			let existing_components = new Set(deductions.map(d => d.components));
+			let existing_upper = new Set(deductions.map(d => (d.components || "").toUpperCase()));
 
-			// Add rows for components that should be in deductions but are missing
-			should_be_in_deductions.forEach(comp_name => {
-				if (!existing_components.has(comp_name)) {
-					let new_row = frm.add_child("employee_deductions", {
-						components: comp_name
-					});
+			// Add rows that are missing (case-insensitive check for existing)
+			should_add.forEach(comp_name => {
+				if (!existing_upper.has(comp_name.toUpperCase())) {
+					frm.add_child("employee_deductions", { components: comp_name });
 					changed = true;
 				}
 			});
