@@ -150,13 +150,13 @@ def main(self):
 
     self.sdl = round(self.total_income * 0.05, 2)
 
-    frappe.msgprint(
-        f"<b>Split Currency Calculation:</b><br>"
-        f"Gross USD: {self.total_earnings_usd} | Allowable Deductions: {self.total_allowable_deductions_usd}<br>"
-        f"Taxable USD: {self.total_taxable_income_usd} | Tax Credits: {self.total_tax_credits_usd}<br>"
-        f"Gross PAYEE: {payee_usd} | Final PAYEE: {final_payee_usd}<br>"
-        f"AIDS Levy: {aids_levy_usd} | Net Income: {self.total_net_income_usd}"
-    )
+    # frappe.msgprint(
+    #     f"<b>Split Currency Calculation:</b><br>"
+    #     f"Gross USD: {self.total_earnings_usd} | Allowable Deductions: {self.total_allowable_deductions_usd}<br>"
+    #     f"Taxable USD: {self.total_taxable_income_usd} | Tax Credits: {self.total_tax_credits_usd}<br>"
+    #     f"Gross PAYEE: {payee_usd} | Final PAYEE: {final_payee_usd}<br>"
+    #     f"AIDS Levy: {aids_levy_usd} | Net Income: {self.total_net_income_usd}"
+    # )
 
 
 def payee_against_slab(amount, mode="Monthly", currency="USD"):

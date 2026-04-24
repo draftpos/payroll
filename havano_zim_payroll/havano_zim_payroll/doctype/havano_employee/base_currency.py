@@ -185,16 +185,16 @@ def main(self):
         self.total_taxable_income_zwg = self.total_taxable_income
 
     # Final debug message
-    frappe.msgprint(
-        f"<b>Payroll Calculation:</b><br>"
-        f"Gross: {self.total_income}<br>"
-        f"Allowable Deductions: {self.allowable_deductions}<br>"
-        f"Taxable Income: {self.total_taxable_income}<br>"
-        f"Base PAYE: {base_payee}<br>"
-        f"Tax Credits: {tax_credits}<br>"
-        f"Final PAYE: {final_payee}<br>"
-        f"Net Income: {self.net_income}"
-    )
+    # frappe.msgprint(
+    #     f"<b>Payroll Calculation:</b><br>"
+    #     f"Gross: {self.total_income}<br>"
+    #     f"Allowable Deductions: {self.allowable_deductions}<br>"
+    #     f"Taxable Income: {self.total_taxable_income}<br>"
+    #     f"Base PAYE: {base_payee}<br>"
+    #     f"Tax Credits: {tax_credits}<br>"
+    #     f"Final PAYE: {final_payee}<br>"
+    #     f"Net Income: {self.net_income}"
+    # )
 
 def remove_unchecked_deductions(self):
     """Remove NSSA/PAYEE/AIDS LEVY rows from deductions where always_calculate is unchecked."""
