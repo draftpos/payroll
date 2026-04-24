@@ -25,6 +25,7 @@ def main(self):
 
     # 2. CALCULATE EARNINGS (GROSS SALARY)
     basic_salary = 0
+    taxable_earnings = 0.0
     for e in self.employee_earnings:
         # Check if amount is in USD or ZWG based on company default
         if default_currency == "USD":
@@ -34,6 +35,10 @@ def main(self):
         
         total_income += amount
         
+        component_doc = frappe.get_doc("havano_salary_component", e.components)
+        if component_doc.is_tax_applicable:
+            taxable_earnings += amount
+            
         if e.components == "Basic Salary":
             basic_salary = amount
 
@@ -123,8 +128,8 @@ def main(self):
     self.allowable_deductions = round(total_allowable_deductions, 2)
     
     # 5. FINAL PAYE CALCULATION
-    # Taxable Income = Gross Salary - Allowable Deductions
-    self.ensuarable_earnings = round(self.total_income - self.allowable_deductions, 2)
+    # Taxable Income = Taxable Earnings - Allowable Deductions
+    self.ensuarable_earnings = round(taxable_earnings - self.allowable_deductions, 2)
     self.total_taxable_income = self.ensuarable_earnings
 
     # Get PAYE from Slab: ((Taxable * %) - Deduction)

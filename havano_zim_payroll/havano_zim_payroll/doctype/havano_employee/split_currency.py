@@ -12,9 +12,16 @@ def main(self):
     total_deduction_zwg = 0.0
 
     # 2. CALCULATE EARNINGS (GROSS)
+    taxable_earnings_usd = 0.0
+    taxable_earnings_zwg = 0.0
     for e in self.employee_earnings:
         total_earnings_usd += flt(e.amount_usd)
         total_earnings_zwg += flt(e.amount_zwg)
+        
+        component_doc = frappe.get_doc("havano_salary_component", e.components)
+        if component_doc.is_tax_applicable:
+            taxable_earnings_usd += flt(e.amount_usd)
+            taxable_earnings_zwg += flt(e.amount_zwg)
 
     self.total_earnings_usd = round(total_earnings_usd, 2)
     self.total_earnings_zwg = round(total_earnings_zwg, 2)
@@ -97,9 +104,9 @@ def main(self):
     self.total_allowable_deductions_usd = round(total_allowable_deductions_usd, 2)
     self.total_allowable_deductions_zwg = round(total_allowable_deductions_zwg, 2)
 
-    # 6. TAXABLE INCOME = Gross - Allowable Deductions
-    self.total_taxable_income_usd = round(total_earnings_usd - total_allowable_deductions_usd, 2)
-    self.total_taxable_income_zwg = round(total_earnings_zwg - total_allowable_deductions_zwg, 2)
+    # 6. TAXABLE INCOME = Taxable Earnings - Allowable Deductions
+    self.total_taxable_income_usd = round(taxable_earnings_usd - total_allowable_deductions_usd, 2)
+    self.total_taxable_income_zwg = round(taxable_earnings_zwg - total_allowable_deductions_zwg, 2)
 
     # 7. PAYE CALCULATION
     payee_usd = payee_against_slab(self.total_taxable_income_usd, self.payroll_frequency, "USD")
