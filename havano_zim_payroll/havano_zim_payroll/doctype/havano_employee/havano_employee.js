@@ -1,10 +1,25 @@
 // Copyright (c) 2025, Havano and contributors
 // For license information, please see license.txt
 
+// Components that are controlled by "Always Calculate" checkbox on havano_salary_component
+const ALWAYS_CALC_COMPONENTS = ["NSSA", "PAYEE", "AIDS LEVY"];
+
 frappe.ui.form.on("havano_employee", {
 	refresh(frm) {
 		update_net_income(frm);
 		update_tax_credits(frm);
+		sync_always_calculate_deductions(frm);
+
+		// Filter the components link in deductions: hide NSSA/PAYEE/AIDS LEVY rows
+		// unless always_calculate is checked on that component
+		frm.set_query("components", "employee_deductions", function() {
+			return {
+				filters: [
+					["havano_salary_component", "type", "=", "Deduction"],
+					["havano_salary_component", "enabled", "=", 1]
+				]
+			};
+		});
 	},
 	total_income(frm) {
 		update_net_income(frm);
@@ -148,6 +163,77 @@ function update_tax_credits(frm) {
 				// The backend handles the exact split.
 				frm.set_value("total_tax_credits_usd", is_usd ? total : total / rate);
 				frm.set_value("total_tax_credits_zwg", is_usd ? total * rate : total);
+			}
+		}
+	});
+}
+
+/**
+ * Sync the employee_deductions table based on always_calculate flag.
+ * - Adds NSSA, PAYEE, AIDS LEVY rows when always_calculate = 1.
+ * - Removes those rows when always_calculate = 0.
+ */
+function sync_always_calculate_deductions(frm) {
+	// Fetch all salary components that are in the controlled list
+	frappe.call({
+		method: "frappe.client.get_list",
+		args: {
+			doctype: "havano_salary_component",
+			filters: [
+				["salary_component", "in", ALWAYS_CALC_COMPONENTS]
+			],
+			fields: ["salary_component", "always_calculate"],
+			limit_page_length: 10
+		},
+		callback: function(r) {
+			if (!r.message) return;
+
+			let changed = false;
+			let components_data = r.message; // [{salary_component, always_calculate}, ...]
+
+			// Build a set of components where always_calculate = 1
+			let should_be_in_deductions = new Set(
+				components_data
+					.filter(c => c.always_calculate == 1)
+					.map(c => c.salary_component)
+			);
+
+			// Build a set of components where always_calculate = 0 (should be removed)
+			let should_be_removed = new Set(
+				components_data
+					.filter(c => c.always_calculate == 0)
+					.map(c => c.salary_component)
+			);
+
+			let deductions = frm.doc.employee_deductions || [];
+
+			// Remove rows that no longer have always_calculate checked
+			let rows_to_remove = deductions.filter(row =>
+				ALWAYS_CALC_COMPONENTS.includes((row.components || "").toUpperCase()) &&
+				should_be_removed.has(row.components)
+			);
+			rows_to_remove.forEach(row => {
+				frm.get_field("employee_deductions").grid.grid_rows_by_docname[row.name] &&
+					frm.get_field("employee_deductions").grid.grid_rows_by_docname[row.name].remove();
+				changed = true;
+			});
+
+			// Refresh local reference after removals
+			deductions = frm.doc.employee_deductions || [];
+			let existing_components = new Set(deductions.map(d => d.components));
+
+			// Add rows for components that should be in deductions but are missing
+			should_be_in_deductions.forEach(comp_name => {
+				if (!existing_components.has(comp_name)) {
+					let new_row = frm.add_child("employee_deductions", {
+						components: comp_name
+					});
+					changed = true;
+				}
+			});
+
+			if (changed) {
+				frm.refresh_field("employee_deductions");
 			}
 		}
 	});
