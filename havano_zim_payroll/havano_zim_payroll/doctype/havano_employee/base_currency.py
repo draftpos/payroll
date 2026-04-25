@@ -27,6 +27,9 @@ def main(self):
     basic_salary = 0
     taxable_earnings = 0.0
     for e in self.employee_earnings:
+        if not e.components:
+            continue
+            
         # Check if amount is in USD or ZWG based on company default
         if default_currency == "USD":
             amount = flt(e.amount_usd)
@@ -86,6 +89,9 @@ def main(self):
     ensure_deductions(self)
     
     for d in self.employee_deductions:
+        if not d.components:
+            continue
+            
         component_doc = frappe.get_doc("havano_salary_component", d.components)
         
         # Calculate NSSA if it's NSSA row
@@ -146,6 +152,9 @@ def main(self):
 
     # 6. UPDATE DEDUCTION TABLE ROWS
     for d in self.employee_deductions:
+        if not d.components:
+            continue
+            
         if d.components.upper() == "PAYEE":
             if self.salary_currency == "USD":
                 d.amount_usd = final_payee
@@ -161,7 +170,7 @@ def main(self):
             d.amount_zwg = 0
 
     # 7. UPDATE TOTAL DEDUCTIONS AND NET INCOME
-    existing = [d.components.upper() for d in self.employee_deductions]
+    existing = [(d.components or "").upper() for d in self.employee_deductions]
     if "PAYEE" not in existing:
         final_payee = 0
     if "AIDS LEVY" not in existing:
@@ -203,7 +212,7 @@ def main(self):
 
 def ensure_deductions(self):
     """Ensures statutory rows exist in employee_deductions ONLY if always_calculate is checked."""
-    existing = [d.components.upper() for d in self.employee_deductions]
+    existing = [(d.components or "").upper() for d in self.employee_deductions]
     for comp in ["NSSA", "PAYEE", "AIDS LEVY"]:
         if comp not in existing:
             # Only add if the salary component has always_calculate = 1
