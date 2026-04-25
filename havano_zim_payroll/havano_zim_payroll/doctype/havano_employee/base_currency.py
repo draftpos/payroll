@@ -161,6 +161,12 @@ def main(self):
             d.amount_zwg = 0
 
     # 7. UPDATE TOTAL DEDUCTIONS AND NET INCOME
+    existing = [d.components.upper() for d in self.employee_deductions]
+    if "PAYEE" not in existing:
+        final_payee = 0
+    if "AIDS LEVY" not in existing:
+        aids_levy = 0
+
     total_deduction += final_payee + aids_levy
     self.payee = final_payee
     self.aids_levy = aids_levy

@@ -130,6 +130,14 @@ def main(self):
             d.amount_zwg = round(total_earnings_zwg * 0.05, 2)
 
     # 9. FINAL SUMMARY
+    existing = [d.components.upper() for d in self.employee_deductions]
+    if "PAYEE" not in existing:
+        final_payee_usd = 0
+        final_payee_zwg = 0
+    if "AIDS LEVY" not in existing:
+        aids_levy_usd = 0
+        aids_levy_zwg = 0
+
     self.payee_usd = final_payee_usd
     self.payee_zwg = final_payee_zwg
     self.aids_levy_usd = aids_levy_usd
