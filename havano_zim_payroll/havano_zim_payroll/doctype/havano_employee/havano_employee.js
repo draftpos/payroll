@@ -9,17 +9,6 @@ frappe.ui.form.on("havano_employee", {
 		update_net_income(frm);
 		update_tax_credits(frm);
 		sync_always_calculate_deductions(frm);
-
-		// Filter the components link in deductions: hide NSSA/PAYEE/AIDS LEVY rows
-		// unless always_calculate is checked on that component
-		frm.set_query("components", "employee_deductions", function() {
-			return {
-				filters: [
-					["havano_salary_component", "type", "=", "Deduction"],
-					["havano_salary_component", "enabled", "=", 1]
-				]
-			};
-		});
 	},
 	total_income(frm) {
 		update_net_income(frm);
@@ -203,30 +192,8 @@ function sync_always_calculate_deductions(frm) {
 			let should_add = new Set(
 				controlled.filter(c => c.always_calculate == 1).map(c => c.salary_component)
 			);
-			let should_remove = new Set(
-				controlled.filter(c => c.always_calculate == 0).map(c => c.salary_component)
-			);
 
 			let deductions = frm.doc.employee_deductions || [];
-
-			// Remove rows whose component is in should_remove
-			// Use case-insensitive match to find the row, but exact DB name in the set
-			let rows_to_remove = deductions.filter(row => {
-				let upper = (row.components || "").toUpperCase();
-				// Check if this row is one we control AND it should be removed
-				return ALWAYS_CALC_COMPONENTS.includes(upper) &&
-					[...should_remove].some(n => n.toUpperCase() === upper);
-			});
-			rows_to_remove.forEach(row => {
-				let grid_row = frm.get_field("employee_deductions").grid.grid_rows_by_docname[row.name];
-				if (grid_row) {
-					grid_row.remove();
-					changed = true;
-				}
-			});
-
-			// Refresh local reference after removals
-			deductions = frm.doc.employee_deductions || [];
 			let existing_upper = new Set(deductions.map(d => (d.components || "").toUpperCase()));
 
 			// Add rows that are missing (case-insensitive check for existing)

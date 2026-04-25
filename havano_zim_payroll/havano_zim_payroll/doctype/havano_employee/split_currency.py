@@ -43,8 +43,7 @@ def main(self):
     medical_credit_zwg = 0.0
 
     # 5. CALCULATE DEDUCTIONS
-    # Remove rows for components with always_calculate unchecked, then ensure mandatory rows
-    remove_unchecked_deductions(self)
+    # Ensure mandatory rows exist if always_calculate is checked
     ensure_deductions(self)
 
     for d in self.employee_deductions:
@@ -175,28 +174,6 @@ def payee_against_slab(amount, mode="Monthly", currency="USD"):
     except Exception:
         pass
     return max(flt(payee), 0.0)
-
-
-def remove_unchecked_deductions(self):
-    """Remove NSSA/PAYEE/AIDS LEVY rows from deductions where always_calculate is unchecked."""
-    controlled = ["NSSA", "PAYEE", "AIDS LEVY"]
-    to_remove = []
-    for d in self.employee_deductions:
-        upper = (d.components or "").upper()
-        if upper in controlled:
-            comp_name = frappe.db.get_value(
-                "havano_salary_component",
-                {"salary_component": ["like", d.components]},
-                "salary_component"
-            )
-            always_calc = frappe.db.get_value(
-                "havano_salary_component", comp_name, "always_calculate"
-            ) if comp_name else 0
-            if not always_calc:
-                to_remove.append(d)
-                
-    for d in to_remove:
-        self.remove(d)
 
 
 def ensure_deductions(self):
