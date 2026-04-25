@@ -199,7 +199,7 @@ def main(self):
 def remove_unchecked_deductions(self):
     """Remove NSSA/PAYEE/AIDS LEVY rows from deductions where always_calculate is unchecked."""
     controlled = ["NSSA", "PAYEE", "AIDS LEVY"]
-    rows_to_keep = []
+    to_remove = []
     for d in self.employee_deductions:
         upper = (d.components or "").upper()
         if upper in controlled:
@@ -211,12 +211,11 @@ def remove_unchecked_deductions(self):
             always_calc = frappe.db.get_value(
                 "havano_salary_component", comp_name, "always_calculate"
             ) if comp_name else 0
-            if always_calc:
-                rows_to_keep.append(d)
-            # else: skip (don't keep) — effectively removes this row
-        else:
-            rows_to_keep.append(d)
-    self.employee_deductions = rows_to_keep
+            if not always_calc:
+                to_remove.append(d)
+    
+    for d in to_remove:
+        self.remove(d)
 
 def ensure_deductions(self):
     """Ensures statutory rows exist in employee_deductions ONLY if always_calculate is checked."""
