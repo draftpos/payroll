@@ -21,8 +21,7 @@ def main(self):
         total_earnings_usd += flt(e.amount_usd)
         total_earnings_zwg += flt(e.amount_zwg)
         
-        component_doc = frappe.get_doc("havano_salary_component", e.components)
-        if component_doc.is_tax_applicable:
+        if e.is_tax_applicable:
             taxable_earnings_usd += flt(e.amount_usd)
             taxable_earnings_zwg += flt(e.amount_zwg)
 
@@ -96,7 +95,7 @@ def main(self):
         else:
             total_deduction_usd += flt(d.amount_usd)
             total_deduction_zwg += flt(d.amount_zwg)
-            if component_doc.is_tax_applicable:
+            if d.is_tax_applicable or (component_doc and component_doc.component_mode and "allowable" in component_doc.component_mode.lower()):
                 total_allowable_deductions_usd += flt(d.amount_usd)
                 total_allowable_deductions_zwg += flt(d.amount_zwg)
 
@@ -110,6 +109,8 @@ def main(self):
     self.total_allowable_deductions_zwg = round(total_allowable_deductions_zwg, 2)
 
     # 6. TAXABLE INCOME = Taxable Earnings - Allowable Deductions
+    self.total_ensuarable_earnings_usd = round(taxable_earnings_usd, 2)
+    self.total_ensuarable_earnings_zwg = round(taxable_earnings_zwg, 2)
     self.total_taxable_income_usd = round(taxable_earnings_usd - total_allowable_deductions_usd, 2)
     self.total_taxable_income_zwg = round(taxable_earnings_zwg - total_allowable_deductions_zwg, 2)
 

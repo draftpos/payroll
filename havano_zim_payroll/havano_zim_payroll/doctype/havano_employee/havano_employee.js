@@ -44,6 +44,24 @@ frappe.ui.form.on("havano_payroll_earnings", {
 		calculate_totals_server(frm);
 	},
 	components(frm, cdt, cdn) {
+		let row = locals[cdt][cdn];
+		if (row.components) {
+			frappe.db.get_value('havano_salary_component', row.components, 'is_tax_applicable')
+				.then(r => {
+					if (r && r.message) {
+						frappe.model.set_value(cdt, cdn, 'is_tax_applicable', r.message.is_tax_applicable);
+					}
+					calculate_totals_server(frm);
+				});
+		} else {
+			calculate_totals_server(frm);
+		}
+	},
+	is_tax_applicable(frm, cdt, cdn) {
+		let row = locals[cdt][cdn];
+		if (row.components) {
+			frappe.db.set_value('havano_salary_component', row.components, 'is_tax_applicable', row.is_tax_applicable);
+		}
 		calculate_totals_server(frm);
 	},
 	employee_earnings_remove(frm) {
@@ -83,7 +101,8 @@ function calculate_totals_server(frm) {
 						"employee_earnings", "employee_deductions",
 						"blind", "disabled", "elderly", "medical_aid_tax_credit",
 						"ensuarable_earnings", "allowable_deductions", "basic_salary_calculated",
-						"total_taxable_income", "total_taxable_income_usd", "total_taxable_income_zwg"
+						"total_taxable_income", "total_taxable_income_usd", "total_taxable_income_zwg",
+						"total_ensuarable_earnings_usd", "total_ensuarable_earnings_zwg"
 					]);
 				}
 			}

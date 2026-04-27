@@ -38,8 +38,7 @@ def main(self):
         
         total_income += amount
         
-        component_doc = frappe.get_doc("havano_salary_component", e.components)
-        if component_doc.is_tax_applicable:
+        if e.is_tax_applicable:
             taxable_earnings += amount
             
         if e.components == "Basic Salary":
@@ -127,18 +126,17 @@ def main(self):
                     d.amount_zwg = amt
             
             total_deduction += amt
-            if component_doc.is_tax_applicable:
+            if d.is_tax_applicable or (component_doc and component_doc.component_mode and "allowable" in component_doc.component_mode.lower()):
                 total_allowable_deductions += amt
 
     self.allowable_deductions = round(total_allowable_deductions, 2)
     
     # 5. FINAL PAYE CALCULATION
-    # Taxable Income = Taxable Earnings - Allowable Deductions
-    self.ensuarable_earnings = round(taxable_earnings - self.allowable_deductions, 2)
-    self.total_taxable_income = self.ensuarable_earnings
+    self.ensuarable_earnings = round(taxable_earnings, 2)
+    self.total_taxable_income = round(self.ensuarable_earnings - self.allowable_deductions, 2)
 
     # Get PAYE from Slab: ((Taxable * %) - Deduction)
-    base_payee = payee_against_slab(self.ensuarable_earnings, self.payroll_frequency, self.salary_currency)
+    base_payee = payee_against_slab(self.total_taxable_income, self.payroll_frequency, self.salary_currency)
     
     # Final Payee = Base Payee - Total Tax Credits
     final_payee = round(max(base_payee - tax_credits, 0), 2)
