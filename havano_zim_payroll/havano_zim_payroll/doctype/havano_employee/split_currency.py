@@ -111,8 +111,8 @@ def main(self):
     # 6. TAXABLE INCOME = Taxable Earnings - Allowable Deductions
     self.total_ensuarable_earnings_usd = round(taxable_earnings_usd, 2)
     self.total_ensuarable_earnings_zwg = round(taxable_earnings_zwg, 2)
-    self.total_taxable_income_usd = round(taxable_earnings_usd - total_allowable_deductions_usd, 2)
-    self.total_taxable_income_zwg = round(taxable_earnings_zwg - total_allowable_deductions_zwg, 2)
+    self.total_taxable_income_usd = round(self.total_ensuarable_earnings_usd - total_allowable_deductions_usd, 2)
+    self.total_taxable_income_zwg = round(self.total_ensuarable_earnings_zwg - total_allowable_deductions_zwg, 2)
 
     # 7. PAYE CALCULATION
     payee_usd = payee_against_slab(self.total_taxable_income_usd, self.payroll_frequency, "USD")
