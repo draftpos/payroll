@@ -132,11 +132,15 @@ def main(self):
     self.allowable_deductions = round(total_allowable_deductions, 2)
     
     # 5. FINAL PAYE CALCULATION
-    self.ensuarable_earnings = round(taxable_earnings, 2)
-    self.total_taxable_income = round(self.ensuarable_earnings - self.allowable_deductions, 2)
+    # NOTE: In the UI, the labels are swapped!
+    # Fieldname 'total_taxable_income' is labeled as "Ensurable Earnings" (Gross)
+    # Fieldname 'ensuarable_earnings' is labeled as "Total Taxable Income" (Net)
+    
+    self.total_taxable_income = round(taxable_earnings, 2)
+    self.ensuarable_earnings = round(self.total_taxable_income - self.allowable_deductions, 2)
 
     # Get PAYE from Slab: ((Taxable * %) - Deduction)
-    base_payee = payee_against_slab(self.total_taxable_income, self.payroll_frequency, self.salary_currency)
+    base_payee = payee_against_slab(self.ensuarable_earnings, self.payroll_frequency, self.salary_currency)
     
     # Final Payee = Base Payee - Total Tax Credits
     final_payee = round(max(base_payee - tax_credits, 0), 2)
