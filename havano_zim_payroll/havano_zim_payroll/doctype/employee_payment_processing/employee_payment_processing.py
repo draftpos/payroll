@@ -164,7 +164,8 @@ def get_employees_with_ledger(company=None, branch=None, department=None):
     # if department:
     #     filters["department"] = department
 
-    # Step 1: Get all employees based on filters
+    # Step 1: Get all active employees based on filters
+    filters["status"] = "Active"
     employees = frappe.get_all(
         "havano_employee",
         filters=filters,

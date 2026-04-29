@@ -801,6 +801,7 @@ def generate_salary_slips(month, year):
     # 1️⃣ Get employees (only what you need)
     employees = frappe.get_all(
         "havano_employee",
+        filters={"status": "Active"},
         fields=["name", "employee_name"]
     )
 
