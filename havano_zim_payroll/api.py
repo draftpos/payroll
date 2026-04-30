@@ -7,7 +7,7 @@ frappe.error_log = error_log
 
 
 @frappe.whitelist()
-def run_payroll_async(month, year, work_date=None, daily=None, sync=True):
+def run_payroll_async(month, year, work_date=None, daily=None, sync=False):
     """
     Enqueue payroll or run synchronously.
     Defaults to sync=True to ensure immediate results if workers aren't active.
@@ -1181,3 +1181,10 @@ def add_payroll_fields_to_purchase_invoice():
 
     return "Fields already exist"
 
+@frappe.whitelist()
+def cleanup_obsolete_doctypes():
+    for doctype in ["Payroll Summary", "Payroll Summary Item"]:
+        if frappe.db.exists("DocType", doctype):
+            frappe.delete_doc("DocType", doctype, force=True, ignore_permissions=True)
+            frappe.db.commit()
+    return "Cleanup Done"
