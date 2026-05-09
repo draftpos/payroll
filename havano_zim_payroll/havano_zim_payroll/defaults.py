@@ -19,6 +19,7 @@ def install_defaults():
     add_payroll_fields_to_purchase_invoice()
     set_havano_payroll_defaults()
     fix_leave_application_naming()
+    fix_leave_type_options()
 
     frappe.msgprint("Default payroll items, suppliers, accounts, and salary components have been installed.")
 
@@ -34,3 +35,18 @@ def fix_leave_application_naming():
                 frappe.db.commit()
     except Exception as e:
         frappe.log_error(str(e), "Fix Leave Application Naming Error")
+
+def fix_leave_type_options():
+    """Change the options of leave_type in Leave Application to point to havano_leave_type"""
+    try:
+        frappe.make_property_setter({
+            'doctype': 'Leave Application',
+            'doctype_or_field': 'DocField',
+            'fieldname': 'leave_type',
+            'property': 'options',
+            'value': 'havano_leave_type',
+            'property_type': 'Link'
+        })
+        frappe.db.commit()
+    except Exception as e:
+        frappe.log_error(str(e), "Fix Leave Type Options Error")

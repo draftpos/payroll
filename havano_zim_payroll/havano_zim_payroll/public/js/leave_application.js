@@ -1,4 +1,8 @@
 frappe.ui.form.on('Leave Application', {
+    setup: function(frm) {
+        // Override the leave_type field to point to our custom leave types
+        frm.set_df_property('leave_type', 'options', 'havano_leave_type');
+    },
     employee: function(frm) {
         if (frm.doc.employee) {
             // Fetch Leave Approver
