@@ -73,6 +73,7 @@
     "fetch_from": "employee.employee_name",
     "fieldname": "employee_name",
     "fieldtype": "Read Only",
+    "in_list_view": 1,
     "label": "Employee Name"
    },
    {
@@ -154,6 +155,7 @@
    {
     "fieldname": "leave_balance",
     "fieldtype": "Float",
+    "in_list_view": 1,
     "label": "Leave Balance",
     "read_only": 1
    },
