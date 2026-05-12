@@ -1,212 +1,217 @@
 {
- "actions": [],
-  "allow_rename": 1,
-  "autoname": "HLA-.YYYY.-.#####",
-  "creation": "2024-05-09 21:35:00.000000",
-  "doctype": "DocType",
-  "engine": "InnoDB",
-  "field_order": [
-   "section_1",
-   "naming_series",
-   "leave_type",
-   "employee",
-   "employee_name",
-   "column_break_1",
-   "company",
-   "section_2",
-   "from_date",
-   "to_date",
-   "column_break_2",
-   "half_day",
-   "reason",
-   "approval_section",
-   "leave_approver",
-   "follow_via_email",
-   "column_break_3",
-   "posting_date",
-   "status",
-   "total_leave_days",
-   "leave_balance",
-   "leave_balance_html",
-   "leave_balance_updated",
-   "amended_from"
-  ],
-  "fields": [
-   {
-    "fieldname": "section_1",
-    "fieldtype": "Section Break"
-   },
-   {
-    "fieldname": "naming_series",
-    "fieldtype": "Select",
-    "label": "Series",
-    "options": "HLA-"
-   },
-   {
-    "fieldname": "leave_type",
-    "fieldtype": "Link",
-    "in_list_view": 1,
-    "label": "Leave Type",
-    "options": "havano_leave_type",
-    "reqd": 1
-   },
-   {
-    "fieldname": "employee",
-    "fieldtype": "Link",
-    "in_list_view": 1,
-    "label": "Employee",
-    "options": "havano_employee",
-    "reqd": 1
-   },
-   {
-    "fieldname": "column_break_1",
-    "fieldtype": "Column Break"
-   },
-   {
-    "fetch_from": "employee.company",
-    "fieldname": "company",
-    "fieldtype": "Link",
-    "label": "Company",
-    "options": "Company"
-   },
-   {
-    "fetch_from": "employee.employee_name",
-    "fieldname": "employee_name",
-    "fieldtype": "Read Only",
-    "in_list_view": 1,
-    "label": "Employee Name"
-   },
-   {
-    "fieldname": "section_2",
-    "fieldtype": "Section Break",
-    "label": "Dates & Reason"
-   },
-   {
-    "fieldname": "from_date",
-    "fieldtype": "Date",
-    "in_list_view": 1,
-    "label": "From Date",
-    "reqd": 1
-   },
-   {
-    "fieldname": "to_date",
-    "fieldtype": "Date",
-    "in_list_view": 1,
-    "label": "To Date",
-    "reqd": 1
-   },
-   {
-    "fieldname": "column_break_2",
-    "fieldtype": "Column Break"
-   },
-   {
-    "default": "0",
-    "fieldname": "half_day",
-    "fieldtype": "Check",
-    "label": "Half Day"
-   },
-   {
-    "fieldname": "reason",
-    "fieldtype": "Small Text",
-    "label": "Reason"
-   },
-   {
-    "fieldname": "approval_section",
-    "fieldtype": "Section Break",
-    "label": "Approval"
-   },
-   {
-    "fetch_from": "employee.leave_approver",
-    "fieldname": "leave_approver",
-    "fieldtype": "Link",
-    "label": "Employee Leave Approver",
-    "options": "havano_employee"
-   },
-   {
-    "default": "0",
-    "fieldname": "follow_via_email",
-    "fieldtype": "Check",
-    "label": "Follow via Email"
-   },
-   {
-    "fieldname": "column_break_3",
-    "fieldtype": "Column Break"
-   },
-   {
-    "default": "Today",
-    "fieldname": "posting_date",
-    "fieldtype": "Date",
-    "label": "Posting Date"
-   },
-   {
-    "default": "Open",
-    "fieldname": "status",
-    "fieldtype": "Select",
-    "in_list_view": 1,
-    "label": "Status",
-    "options": "Open\nApproved\nRejected\nCancelled"
-   },
-   {
-    "fieldname": "total_leave_days",
-    "fieldtype": "Float",
-    "label": "Total Leave Days",
-    "read_only": 1
-   },
-   {
-    "fieldname": "leave_balance",
-    "fieldtype": "Float",
-    "in_list_view": 1,
-    "label": "Leave Balance",
-    "read_only": 1
-   },
-   {
-    "fieldname": "leave_balance_html",
-    "fieldtype": "HTML",
-    "label": "Leave Balance Details"
-   },
-   {
-    "default": "0",
-    "fieldname": "leave_balance_updated",
-    "fieldtype": "Check",
-    "hidden": 1,
-    "label": "Leave Balance Updated",
-    "read_only": 1
-   },
-   {
-    "fieldname": "amended_from",
-    "fieldtype": "Link",
-    "label": "Amended From",
-    "no_copy": 1,
-    "options": "havano_leave_application",
-    "print_hide": 1,
-    "read_only": 1
-   }
-  ],
-  "index_web_pages_for_search": 1,
-  "is_submittable": 1,
-  "modified": "2024-05-11 11:40:00.000000",
-  "modified_by": "Administrator",
-  "module": "Havano Zim Payroll",
-  "name": "havano_leave_application",
-  "owner": "Administrator",
-  "permissions": [
-   {
-    "create": 1,
-    "delete": 1,
-    "email": 1,
-    "export": 1,
-    "print": 1,
-    "read": 1,
-    "report": 1,
-    "role": "System Manager",
-    "share": 1,
-    "write": 1
-   }
-  ],
-  "sort_field": "modified",
-  "sort_order": "DESC",
-  "states": [],
-  "title_field": "employee_name"
- }
-
-
+    "actions": [],
+    "allow_rename": 1,
+    "autoname": "HLA-.YYYY.-.#####",
+    "creation": "2024-05-09 21:35:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "section_1",
+        "naming_series",
+        "leave_type",
+        "employee",
+        "employee_name",
+        "column_break_1",
+        "company",
+        "section_2",
+        "from_date",
+        "to_date",
+        "column_break_2",
+        "half_day",
+        "reason",
+        "approval_section",
+        "leave_approver",
+        "follow_via_email",
+        "column_break_3",
+        "posting_date",
+        "status",
+        "total_leave_days",
+        "leave_balance",
+        "leave_balance_html",
+        "leave_balance_updated",
+        "amended_from"
+    ],
+    "fields": [
+        {
+            "fieldname": "section_1",
+            "fieldtype": "Section Break"
+        },
+        {
+            "fieldname": "naming_series",
+            "fieldtype": "Select",
+            "label": "Series",
+            "options": "HLA-",
+            "in_list_view": 0
+        },
+        {
+            "fieldname": "leave_type",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Leave Type",
+            "options": "havano_leave_type",
+            "reqd": 1
+        },
+        {
+            "fieldname": "employee",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Employee",
+            "options": "havano_employee",
+            "reqd": 1
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fetch_from": "employee.company",
+            "fieldname": "company",
+            "fieldtype": "Link",
+            "label": "Company",
+            "options": "Company"
+        },
+        {
+            "fetch_from": "employee.employee_name",
+            "fieldname": "employee_name",
+            "fieldtype": "Data",
+            "fetch_if_empty": 0,
+            "in_list_view": 1,
+            "bold": 1,
+            "label": "Employee Name",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_2",
+            "fieldtype": "Section Break",
+            "label": "Dates & Reason"
+        },
+        {
+            "fieldname": "from_date",
+            "fieldtype": "Date",
+            "in_list_view": 1,
+            "label": "From Date",
+            "reqd": 1
+        },
+        {
+            "fieldname": "to_date",
+            "fieldtype": "Date",
+            "in_list_view": 1,
+            "label": "To Date",
+            "reqd": 1
+        },
+        {
+            "fieldname": "column_break_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "default": "0",
+            "fieldname": "half_day",
+            "fieldtype": "Check",
+            "label": "Half Day"
+        },
+        {
+            "fieldname": "reason",
+            "fieldtype": "Small Text",
+            "label": "Reason"
+        },
+        {
+            "fieldname": "approval_section",
+            "fieldtype": "Section Break",
+            "label": "Approval"
+        },
+        {
+            "fetch_from": "employee.leave_approver",
+            "fieldname": "leave_approver",
+            "fieldtype": "Link",
+            "label": "Employee Leave Approver",
+            "options": "havano_employee"
+        },
+        {
+            "default": "0",
+            "fieldname": "follow_via_email",
+            "fieldtype": "Check",
+            "label": "Follow via Email"
+        },
+        {
+            "fieldname": "column_break_3",
+            "fieldtype": "Column Break"
+        },
+        {
+            "default": "Today",
+            "fieldname": "posting_date",
+            "fieldtype": "Date",
+            "label": "Posting Date"
+        },
+        {
+            "default": "Open",
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Status",
+            "options": "Open\nApproved\nRejected\nCancelled"
+        },
+        {
+            "fieldname": "total_leave_days",
+            "fieldtype": "Float",
+            "label": "Total Leave Days",
+            "read_only": 1
+        },
+        {
+            "fieldname": "leave_balance",
+            "fieldtype": "Float",
+            "in_list_view": 1,
+            "label": "Leave Balance",
+            "read_only": 1
+        },
+        {
+            "fieldname": "leave_balance_html",
+            "fieldtype": "HTML",
+            "label": "Leave Balance Details"
+        },
+        {
+            "default": "0",
+            "fieldname": "leave_balance_updated",
+            "fieldtype": "Check",
+            "hidden": 1,
+            "label": "Leave Balance Updated",
+            "read_only": 1
+        },
+        {
+            "fieldname": "amended_from",
+            "fieldtype": "Link",
+            "label": "Amended From",
+            "no_copy": 1,
+            "options": "havano_leave_application",
+            "print_hide": 1,
+            "read_only": 1
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "is_submittable": 1,
+    "modified": "2024-05-11 11:40:00.000000",
+    "modified_by": "Administrator",
+    "module": "Havano Zim Payroll",
+    "name": "havano_leave_application",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": [],
+    "title_field": "employee_name"
+}
