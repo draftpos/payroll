@@ -281,6 +281,7 @@ def run_payroll(month, year, work_date, daily):
             frappe.log_error(f"Statutory Report Error for {emp.name}: {e}")
 
         update_employee_annual_leave(emp.name, payroll_period=f"{month_name} {year}")
+        update_havano_leave_balances(emp.name)
         frappe.db.commit()
 
     if acc:
