@@ -565,15 +565,23 @@ def update_havano_leave_balances(employee):
 
     # Loop over each leave type
     for leave_type, balance in default_leave_types.items():
+        # Try to find the actual name of the leave type in the system
+        # If it doesn't match 'Annual Leave' exactly, try to find one that looks like it
+        actual_leave_type = leave_type
+        if leave_type == "Annual Leave":
+            db_leave_type = frappe.db.get_value("havano_leave_type", {"name": ["like", "%Annual%"]}, "name")
+            if db_leave_type:
+                actual_leave_type = db_leave_type
+
         existing_record = frappe.db.get_value(
             "Havano Leave Balances",
-            {"employee": emp.name, "havano_leave_type": leave_type},
+            {"employee": emp.name, "havano_leave_type": actual_leave_type},
             "name"
         )
 
         if existing_record:
             # If it already exists, only modify Annual Leave
-            if leave_type == "Annual Leave":
+            if "annual" in actual_leave_type.lower():
                 # Fetch current balance directly from DB to avoid any caching
                 current_balance = flt(frappe.db.get_value("Havano Leave Balances", existing_record, "leave_balance") or 0)
                 new_balance = current_balance + 2.5
@@ -596,13 +604,13 @@ def update_havano_leave_balances(employee):
                 "doctype": "Havano Leave Balances",
                 "employee": emp.name,
                 "employee_name": emp.employee_name,
-                "havano_leave_type": leave_type,
+                "havano_leave_type": actual_leave_type,
                 "leave_balance": balance
             })
             new_doc.insert(ignore_permissions=True)
             frappe.db.commit()
-            frappe.log_error(f"Created new {leave_type} for {emp.name} with balance {balance}", "Leave Update")
-            frappe.logger().info(f"Created {leave_type} for {emp.name}")
+            frappe.log_error(f"Created new {actual_leave_type} for {emp.name} with balance {balance}", "Leave Update")
+            frappe.logger().info(f"Created {actual_leave_type} for {emp.name}")
 
     return f"Leave balances updated for {emp.employee_name}"
 
