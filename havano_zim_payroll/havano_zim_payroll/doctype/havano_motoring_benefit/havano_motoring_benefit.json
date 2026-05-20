@@ -1,0 +1,46 @@
+{
+ "actions": [],
+ "creation": "2026-05-20 14:04:24.894825",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["engine_capacity", "deemed_value_usd"],
+ "fields": [
+  {
+   "fieldname": "engine_capacity",
+   "fieldtype": "Data",
+   "label": "Engine Capacity",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "deemed_value_usd",
+   "fieldtype": "Currency",
+   "label": "Deemed Value (USD)",
+   "reqd": 1
+  }
+ ],
+ "issingle": 0,
+ "links": [],
+ "modified": "2026-05-20 14:04:24.894825",
+ "modified_by": "Administrator",
+ "module": "Havano Zim Payroll",
+ "name": "Havano Motoring Benefit",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

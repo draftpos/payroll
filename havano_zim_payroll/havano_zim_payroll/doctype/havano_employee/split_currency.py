@@ -14,8 +14,19 @@ def main(self):
     # 2. CALCULATE EARNINGS (GROSS)
     taxable_earnings_usd = 0.0
     taxable_earnings_zwg = 0.0
+    basic_salary_usd = 0.0
+    basic_salary_zwg = 0.0
     for e in self.employee_earnings:
         if not e.components:
+            continue
+        if e.components.upper() == "MOTORING BENEFIT":
+            if getattr(self, "has_motoring_benefit", 0) and getattr(self, "engine_capacity", None):
+                deemed_usd = flt(frappe.db.get_value("Havano Motoring Benefit", self.engine_capacity, "deemed_value_usd"))
+                e.amount_usd = deemed_usd
+                e.amount_zwg = 0
+                
+            taxable_earnings_usd += flt(e.amount_usd)
+            taxable_earnings_zwg += flt(e.amount_zwg)
             continue
             
         total_earnings_usd += flt(e.amount_usd)
@@ -25,10 +36,14 @@ def main(self):
             taxable_earnings_usd += flt(e.amount_usd)
             taxable_earnings_zwg += flt(e.amount_zwg)
 
+        if (e.components or "") == "Basic Salary":
+            basic_salary_usd = flt(e.amount_usd)
+            basic_salary_zwg = flt(e.amount_zwg)
+
     self.total_earnings_usd = round(total_earnings_usd, 2)
     self.total_earnings_zwg = round(total_earnings_zwg, 2)
     self.total_income = self.total_earnings_usd + self.total_earnings_zwg
-    self.basic_salary_calculated = sum(flt(e.amount_usd) + flt(e.amount_zwg) for e in self.employee_earnings if (e.components or "") == "Basic Salary")
+    self.basic_salary_calculated = basic_salary_usd + basic_salary_zwg
 
     # 3. EXCHANGE RATE
     exchange_rate = flt(frappe.db.get_value("Currency Exchange", {"from_currency": "USD", "to_currency": ["in", ["ZWG", "ZWL"]]}, "exchange_rate") or 1)
@@ -48,6 +63,12 @@ def main(self):
     # Ensure mandatory rows exist if always_calculate is checked
     ensure_deductions(self)
 
+    include_nssa = 0
+    try:
+        include_nssa = frappe.db.get_single_value("Havano Payroll Settings", "include_nssa_in_taxable_income") or 0
+    except Exception:
+        pass
+
     for d in self.employee_deductions:
         if not d.components:
             continue
@@ -55,15 +76,23 @@ def main(self):
         component_doc = frappe.get_doc("havano_salary_component", d.components)
 
         if d.components.upper() == "NSSA":
+            # Read calculation basis from the salary component
+            nssa_basis = frappe.db.get_value("havano_salary_component", d.components, "nssa_calculation_basis") or "Gross Salary"
+            # Use basic salary or gross earnings depending on setting
+            nssa_base_usd = basic_salary_usd if nssa_basis == "Basic Only" else total_earnings_usd
+            nssa_base_zwg = basic_salary_zwg if nssa_basis == "Basic Only" else total_earnings_zwg
+
             nssa_limit_usd = 700
-            nssa_income_usd = min(total_earnings_usd, nssa_limit_usd)
+            nssa_income_usd = min(nssa_base_usd, nssa_limit_usd)
             d.amount_usd = round(nssa_income_usd * 0.045, 2)
             nssa_limit_zwg = 700 * exchange_rate
-            nssa_income_zwg = min(total_earnings_zwg, nssa_limit_zwg)
+            nssa_income_zwg = min(nssa_base_zwg, nssa_limit_zwg)
             d.amount_zwg = round(nssa_income_zwg * 0.045, 2)
 
-            total_allowable_deductions_usd += d.amount_usd
-            total_allowable_deductions_zwg += d.amount_zwg
+            # NSSA is allowable if NOT "Include NSSA in Taxable Income"
+            if not include_nssa:
+                total_allowable_deductions_usd += d.amount_usd
+                total_allowable_deductions_zwg += d.amount_zwg
             total_deduction_usd += d.amount_usd
             total_deduction_zwg += d.amount_zwg
 
@@ -77,7 +106,7 @@ def main(self):
             total_deduction_usd += d.amount_usd
             total_deduction_zwg += d.amount_zwg
 
-        elif d.components.upper() in ["MEDICAL AID", "CIMAS"]:
+        elif d.components.upper() in ["MEDICAL AID", "CIMAS", "MEDICAL AID EXPENSE"]:
             emp_pct = flt(self.cimas_employee_) / 100
             emp_contribution_usd = round(flt(d.amount_usd) * emp_pct, 2)
             emp_contribution_zwg = round(flt(d.amount_zwg) * emp_pct, 2)
@@ -197,7 +226,14 @@ def payee_against_slab(amount, mode="Monthly", currency="USD"):
 def ensure_deductions(self):
     """Ensures statutory rows exist in employee_deductions ONLY if always_calculate is checked."""
     existing = [(d.components or "").upper() for d in self.employee_deductions]
-    for comp in ["NSSA", "PAYEE", "AIDS LEVY"]:
+    
+    medical_aid_comp = "CIMAS"
+    try:
+        medical_aid_comp = frappe.db.get_single_value("Havano Payroll Settings", "medical_aid_component_name") or "CIMAS"
+    except Exception:
+        pass
+
+    for comp in ["NSSA", "PAYEE", "AIDS LEVY", medical_aid_comp.upper()]:
         if comp not in existing:
             comp_name = frappe.db.get_value(
                 "havano_salary_component",

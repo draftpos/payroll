@@ -29,7 +29,31 @@ def main(self):
     for e in self.employee_earnings:
         if not e.components:
             continue
-            
+        # Motoring Benefit Logic
+        if e.components.upper() == "MOTORING BENEFIT":
+            if getattr(self, "has_motoring_benefit", 0) and getattr(self, "engine_capacity", None):
+                deemed_usd = flt(frappe.db.get_value("Havano Motoring Benefit", self.engine_capacity, "deemed_value_usd"))
+                
+                # Auto-set the amounts based on currency
+                if default_currency == "USD":
+                    e.amount_usd = deemed_usd
+                    e.amount_zwg = 0
+                    amount = deemed_usd
+                else:
+                    e.amount_usd = 0
+                    e.amount_zwg = deemed_usd * exchange_rate
+                    amount = deemed_usd * exchange_rate
+                    
+            # Check if amount is in USD or ZWG based on company default
+            if default_currency == "USD":
+                amount = flt(e.amount_usd)
+            else:
+                amount = flt(e.amount_zwg)
+
+            # Motoring benefit is taxable but does NOT increase gross total_income
+            taxable_earnings += amount
+            continue
+
         # Check if amount is in USD or ZWG based on company default
         if default_currency == "USD":
             amount = flt(e.amount_usd)
@@ -72,7 +96,7 @@ def main(self):
     # Medical Aid Credit (50% of employee contribution)
     cimas_employee_credit = 0
     for d in self.employee_deductions:
-        if d.components.upper() in ["CIMAS", "MEDICAL AID"]:
+        if d.components.upper() in ["CIMAS", "MEDICAL AID", "MEDICAL AID EXPENSE"]:
             # If d.amount is the TOTAL, calculate employee portion
             amt = flt(d.amount_usd) if self.salary_currency == "USD" else flt(d.amount_zwg)
             emp_portion = amt * flt(self.cimas_employee_) / 100
@@ -87,6 +111,12 @@ def main(self):
     # Ensure mandatory rows exist if always_calculate is checked
     ensure_deductions(self)
     
+    include_nssa = 0
+    try:
+        include_nssa = frappe.db.get_single_value("Havano Payroll Settings", "include_nssa_in_taxable_income") or 0
+    except Exception:
+        pass
+    
     for d in self.employee_deductions:
         if not d.components:
             continue
@@ -95,8 +125,12 @@ def main(self):
         
         # Calculate NSSA if it's NSSA row
         if d.components.upper() == "NSSA":
+            # Read calculation basis from the salary component
+            nssa_basis = frappe.db.get_value("havano_salary_component", d.components, "nssa_calculation_basis") or "Gross Salary"
+            # Use basic salary or gross income depending on setting
+            nssa_base_income = basic_salary if nssa_basis == "Basic Only" else total_income
             nssa_limit = 700 if self.salary_currency == "USD" else 700 * exchange_rate
-            nssa_income = min(total_income, nssa_limit)
+            nssa_income = min(nssa_base_income, nssa_limit)
             nssa_amt = nssa_income * 0.045
             if self.salary_currency == "USD":
                 d.amount_usd = nssa_amt
@@ -105,13 +139,19 @@ def main(self):
                 d.amount_usd = 0
                 d.amount_zwg = nssa_amt
             
-            # NSSA is always allowable
-            total_allowable_deductions += nssa_amt
+            # NSSA is allowable if NOT "Include NSSA in Taxable Income"
+            if not include_nssa:
+                total_allowable_deductions += nssa_amt
             total_deduction += nssa_amt
 
         elif d.components.upper() in ["PAYEE", "AIDS LEVY", "SDL"]:
             # Skip these for now, calculate later
             continue
+            
+        elif d.components.upper() in ["CIMAS", "MEDICAL AID", "MEDICAL AID EXPENSE"]:
+            amt = flt(d.amount_usd) if self.salary_currency == "USD" else flt(d.amount_zwg)
+            emp_portion = amt * flt(self.cimas_employee_) / 100
+            total_deduction += emp_portion
             
         else:
             # Other deductions (NEC, Pension, etc.)
@@ -215,7 +255,14 @@ def main(self):
 def ensure_deductions(self):
     """Ensures statutory rows exist in employee_deductions ONLY if always_calculate is checked."""
     existing = [(d.components or "").upper() for d in self.employee_deductions]
-    for comp in ["NSSA", "PAYEE", "AIDS LEVY"]:
+    
+    medical_aid_comp = "CIMAS"
+    try:
+        medical_aid_comp = frappe.db.get_single_value("Havano Payroll Settings", "medical_aid_component_name") or "CIMAS"
+    except Exception:
+        pass
+
+    for comp in ["NSSA", "PAYEE", "AIDS LEVY", medical_aid_comp.upper()]:
         if comp not in existing:
             # Only add if the salary component has always_calculate = 1
             comp_name = frappe.db.get_value(

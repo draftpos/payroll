@@ -10,6 +10,9 @@
   "payroll_salary_slip_location",
   "column_break_rxep",
   "supplier",
+  "include_nssa_in_taxable_income",
+  "medical_aid_section",
+  "medical_aid_component_name",
   "section_break_qmwu",
   "components_for_reporting"
  ],
@@ -49,6 +52,25 @@
    "fieldname": "payroll_salary_slip_location",
    "fieldtype": "Data",
    "label": "Payroll Salary Slip Location"
+  },
+  {
+   "default": "0",
+   "fieldname": "include_nssa_in_taxable_income",
+   "fieldtype": "Check",
+   "label": "Include NSSA in Taxable Income"
+  },
+  {
+   "fieldname": "medical_aid_section",
+   "fieldtype": "Section Break",
+   "label": "Medical Aid Settings"
+  },
+  {
+   "default": "CIMAS",
+   "description": "Select the name of the component used for Medical Aid on payslips.",
+   "fieldname": "medical_aid_component_name",
+   "fieldtype": "Select",
+   "label": "Medical Aid Component Name",
+   "options": "CIMAS\nMedical Aid Expense"
   }
  ],
  "grid_page_length": 50,

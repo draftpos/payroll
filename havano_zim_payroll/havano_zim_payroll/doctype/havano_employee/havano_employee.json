@@ -107,6 +107,9 @@
   "column_break_fhzq",
   "payroll_frequency",
   "wcif_percentage",
+  "motoring_benefits_section",
+  "has_motoring_benefit",
+  "engine_capacity",
   "funeral_and_cimas_section",
   "cimas_employer_",
   "cimas_employee_",
@@ -1486,6 +1489,24 @@
    "fieldname": "native_employee_id",
    "fieldtype": "Data",
    "label": "Native Employee ID"
+  },
+  {
+   "fieldname": "motoring_benefits_section",
+   "fieldtype": "Section Break",
+   "label": "Motoring Benefits"
+  },
+  {
+   "default": "0",
+   "fieldname": "has_motoring_benefit",
+   "fieldtype": "Check",
+   "label": "Has Motoring Benefit"
+  },
+  {
+   "depends_on": "eval:doc.has_motoring_benefit == 1",
+   "fieldname": "engine_capacity",
+   "fieldtype": "Link",
+   "label": "Engine Capacity",
+   "options": "Havano Motoring Benefit"
   },
   {
    "fieldname": "funeral_and_cimas_section",

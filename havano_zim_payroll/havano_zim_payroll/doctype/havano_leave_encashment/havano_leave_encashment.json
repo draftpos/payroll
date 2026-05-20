@@ -12,7 +12,13 @@
   "column_break_tvhj",
   "leave_period",
   "leave_type",
-  "column_break_jeuw"
+  "column_break_jeuw",
+  "encashment_section",
+  "current_leave_balance",
+  "days_being_encashed",
+  "column_break_enc",
+  "rate_per_day",
+  "encashment_amount"
  ],
  "fields": [
   {
@@ -64,6 +70,41 @@
   {
    "fieldname": "column_break_jeuw",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "encashment_section",
+   "fieldtype": "Section Break",
+   "label": "Encashment Details"
+  },
+  {
+   "fieldname": "current_leave_balance",
+   "fieldtype": "Float",
+   "label": "Current Leave Balance",
+   "read_only": 1,
+   "description": "Auto-fetched from Havano Leave Balances for the selected employee and leave type."
+  },
+  {
+   "fieldname": "days_being_encashed",
+   "fieldtype": "Float",
+   "label": "Days Being Encashed",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_enc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rate_per_day",
+   "fieldtype": "Currency",
+   "label": "Rate Per Day",
+   "reqd": 1
+  },
+  {
+   "fieldname": "encashment_amount",
+   "fieldtype": "Currency",
+   "label": "Encashment Amount",
+   "read_only": 1,
+   "description": "Rate Per Day x Days Being Encashed"
   }
  ],
  "grid_page_length": 50,
