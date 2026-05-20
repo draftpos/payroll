@@ -1,0 +1,31 @@
+{
+  "salary_component": "Motoring Benefit",
+  "code": null,
+  "type": "Earning",
+  "is_tax_applicable": 1,
+  "component_mode": null,
+  "track_nassa": 0,
+  "enabled": 1,
+  "always_calculate": 1,
+  "nssa_calculation_basis": "Gross Salary",
+  "employee_amount": null,
+  "employer_amount": null,
+  "usd_ceiling": 0.0,
+  "usd_ceiling_amount": 0.0,
+  "percentage": 0.0,
+  "zwg_ceiling": 0.0,
+  "zwg_ceiling_amount": 0.0,
+  "accounts": [
+    {
+      "company": "PAY",
+      "cost_center": null,
+      "account": "Salaries & Wages - PYT",
+      "supplier": null,
+      "currency": "USD",
+      "item": null,
+      "parent": "Motoring Benefit",
+      "parentfield": "accounts",
+      "parenttype": "havano_salary_component"
+    }
+  ]
+}

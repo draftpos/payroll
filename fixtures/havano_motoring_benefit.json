@@ -1,0 +1,18 @@
+[
+  {
+    "engine_capacity": "Over 3000cc",
+    "deemed_value_usd": 1660.0
+  },
+  {
+    "engine_capacity": "Over 2000cc - 3000cc",
+    "deemed_value_usd": 1250.0
+  },
+  {
+    "engine_capacity": "Over 1500cc - 2000cc",
+    "deemed_value_usd": 830.0
+  },
+  {
+    "engine_capacity": "Up to 1500cc",
+    "deemed_value_usd": 625.0
+  }
+]
