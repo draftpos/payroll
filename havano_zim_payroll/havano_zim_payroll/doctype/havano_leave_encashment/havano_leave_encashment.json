@@ -18,7 +18,8 @@
   "days_being_encashed",
   "column_break_enc",
   "rate_per_day",
-  "encashment_amount"
+  "encashment_amount",
+  "amended_from"
  ],
  "fields": [
   {
@@ -31,32 +32,32 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Employee",
-   "options": "Employee",
+   "options": "havano_employee",
    "reqd": 1
   },
   {
+   "fetch_from": "employee.employee_name",
    "fieldname": "employee_name",
    "fieldtype": "Data",
    "label": "Employee Name",
-   "read_only": 1,
-   "fetch_from": "employee.employee_name"
+   "read_only": 1
   },
   {
+   "fetch_from": "employee.department",
    "fieldname": "department",
    "fieldtype": "Link",
    "label": "Department",
    "options": "Department",
-   "read_only": 1,
-   "fetch_from": "employee.department"
+   "read_only": 1
   },
   {
+   "fetch_from": "employee.company",
    "fieldname": "company",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Company",
    "options": "Company",
-   "reqd": 1,
-   "fetch_from": "employee.company"
+   "reqd": 1
   },
   {
    "fieldname": "column_break_tvhj",
@@ -83,55 +84,61 @@
    "label": "Encashment Details"
   },
   {
+   "bold": 1,
+   "description": "Auto-fetched from Havano Leave Balances",
    "fieldname": "current_leave_balance",
    "fieldtype": "Float",
-   "label": "Current Leave Balance",
-   "read_only": 1,
-   "description": "Auto-fetched from Havano Leave Balances",
-   "allow_on_submit": 0,
-   "bold": 1,
    "in_list_view": 1,
-   "in_standard_filter": 0,
-   "precision": "2"
+   "label": "Current Leave Balance",
+   "precision": "2",
+   "read_only": 1
   },
   {
+   "bold": 1,
    "fieldname": "days_being_encashed",
    "fieldtype": "Float",
-   "label": "Days Being Encashed",
-   "reqd": 1,
-   "allow_on_submit": 0,
-   "bold": 1,
    "in_list_view": 1,
-   "precision": "2"
+   "label": "Days Being Encashed",
+   "precision": "2",
+   "reqd": 1
   },
   {
    "fieldname": "column_break_enc",
    "fieldtype": "Column Break"
   },
   {
+   "bold": 1,
    "fieldname": "rate_per_day",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Rate Per Day",
-   "reqd": 1,
-   "allow_on_submit": 0,
-   "bold": 1,
-   "in_list_view": 1
+   "reqd": 1
   },
   {
+   "bold": 1,
+   "description": "Rate Per Day \u00d7 Days Being Encashed",
    "fieldname": "encashment_amount",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Encashment Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "havano_leave_encashment",
+   "print_hide": 1,
    "read_only": 1,
-   "description": "Rate Per Day × Days Being Encashed",
-   "allow_on_submit": 0,
-   "bold": 1,
-   "in_list_view": 1
+   "search_index": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
- "modified": "2026-05-20 14:04:24.894825",
+ "modified": "2026-05-20 21:18:24.032728",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_leave_encashment",
