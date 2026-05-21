@@ -770,6 +770,13 @@
    "oldfieldtype": "Date"
   },
   {
+   "fieldname": "leave_days_to_sell",
+   "fieldtype": "Float",
+   "label": "Leave Days to Sell",
+   "insert_after": "encashment_date",
+   "default": "0"
+  },
+  {
    "fieldname": "exit_interview_details",
    "fieldtype": "Column Break",
    "oldfieldname": "col_brk6",
@@ -1504,9 +1511,9 @@
   {
    "depends_on": "eval:doc.has_motoring_benefit == 1",
    "fieldname": "engine_capacity",
-   "fieldtype": "Link",
+   "fieldtype": "Select",
    "label": "Engine Capacity",
-   "options": "Havano Motoring Benefit"
+   "options": "Up to 1500cc\nOver 1500cc - 2000cc\nOver 2000cc - 3000cc\nOver 3000cc"
   },
   {
    "fieldname": "funeral_and_cimas_section",

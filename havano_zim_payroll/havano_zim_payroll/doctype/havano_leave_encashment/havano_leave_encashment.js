@@ -3,6 +3,13 @@
 
 frappe.ui.form.on("havano_leave_encashment", {
 
+        refresh(frm) {
+                // Always re-fetch live balance from DB on every form open
+                if (frm.doc.employee && frm.doc.leave_type && !frm.doc.docstatus) {
+                        fetch_leave_balance(frm);
+                }
+        },
+
 	employee(frm) {
 		if (frm.doc.employee) {
 			frappe.db.get_value("havano_employee", frm.doc.employee,

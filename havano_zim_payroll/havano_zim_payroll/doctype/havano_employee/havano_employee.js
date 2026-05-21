@@ -85,29 +85,41 @@ frappe.ui.form.on("havano_payroll_deductions", {
 });
 
 function calculate_totals_server(frm) {
-	if (frm.doc.company) {
-		frappe.call({
-			doc: frm.doc,
-			method: "calculate_totals",
-			callback: function(r) {
-				if (r.message) {
-					// Update the form fields with calculated values
-					frm.refresh_fields([
-						"payee", "aids_levy", "sdl", "net_income", 
-						"total_income", "total_deductions", "total_tax_credits",
-						"total_income_usd", "total_income_zwg",
-						"total_deduction_usd", "total_deduction_zwg",
-						"total_net_income_usd", "total_net_income_zwg",
-						"employee_earnings", "employee_deductions",
-						"blind", "disabled", "elderly", "medical_aid_tax_credit",
-						"ensuarable_earnings", "allowable_deductions", "basic_salary_calculated",
-						"total_taxable_income", "total_taxable_income_usd", "total_taxable_income_zwg",
-						"total_ensuarable_earnings_usd", "total_ensuarable_earnings_zwg"
-					]);
-				}
-			}
-		});
-	}
+        if (frm.doc.company) {
+                frappe.call({
+                        doc: frm.doc,
+                        method: "calculate_totals",
+                        callback: function(r) {
+                                if (r.message) {
+                                        // Sync scalar fields
+                                        const scalar_fields = [
+                                                "payee", "aids_levy", "sdl", "net_income",
+                                                "total_income", "total_deductions", "total_tax_credits",
+                                                "total_income_usd", "total_income_zwg",
+                                                "total_deduction_usd", "total_deduction_zwg",
+                                                "total_net_income_usd", "total_net_income_zwg",
+                                                "blind", "disabled", "elderly", "medical_aid_tax_credit",
+                                                "ensuarable_earnings", "allowable_deductions", "basic_salary_calculated",
+                                                "overtime_amount", "hourly_rate", "cash_in_lieu_amount",
+                                                "total_taxable_income", "total_taxable_income_usd", "total_taxable_income_zwg",
+                                                "total_ensuarable_earnings_usd", "total_ensuarable_earnings_zwg"
+                                        ];
+                                        scalar_fields.forEach(function(f) {
+                                                if (r.message[f] !== undefined) {
+                                                        frm.doc[f] = r.message[f];
+                                                }
+                                        });
+                                        // Reload child tables from server response
+                                        ["employee_earnings", "employee_deductions"].forEach(function(table) {
+                                                if (r.message[table]) {
+                                                        frm.doc[table] = r.message[table];
+                                                }
+                                        });
+                                        frm.refresh_fields();
+                                }
+                        }
+                });
+        }
 }
 
 function update_tax_credits_if_needed(frm, cdt, cdn) {

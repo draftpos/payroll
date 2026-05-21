@@ -32,7 +32,7 @@ def main(self):
         # Motoring Benefit Logic
         if e.components.upper() == "MOTORING BENEFIT":
             if getattr(self, "has_motoring_benefit", 0) and getattr(self, "engine_capacity", None):
-                deemed_usd = flt(frappe.db.get_value("Havano Motoring Benefit", self.engine_capacity, "deemed_value_usd"))
+                deemed_usd = flt(frappe.db.get_value("Havano Motoring Benefit", {"engine_capacity": self.engine_capacity}, "deemed_value_usd"))
                 
                 # Auto-set the amounts based on currency
                 if default_currency == "USD":
@@ -70,6 +70,19 @@ def main(self):
 
     self.total_income = round(total_income, 2)
     self.basic_salary_calculated = basic_salary
+
+    # --- MOTORING BENEFIT ---
+    apply_motoring_benefit(self, default_currency, exchange_rate)
+
+    # --- CASH IN LIEU OF LEAVE ---
+    apply_cash_in_lieu(self, basic_salary, default_currency)
+    total_income += flt(self.cash_in_lieu_amount)
+    self.total_income = round(total_income, 2)
+
+    # --- OVERTIME ---
+    apply_overtime(self, basic_salary, default_currency)
+    total_income += flt(self.overtime_amount)
+    self.total_income = round(total_income, 2)
 
     # 3. CALCULATE TAX CREDITS
     if getattr(self, "is_elderly", 0):
@@ -301,3 +314,130 @@ def payee_against_slab(amount, mode="Monthly", currency="USD"):
         frappe.log_error(f"PAYE Calculation Error for {currency}: {e}")
 
     return max(flt(payee), 0.0)
+
+
+def apply_overtime(self, basic_salary, default_currency):
+    """
+    Overtime Calculation Formula:
+      Daily Rate  = Basic Salary / 26
+      Hourly Rate = Daily Rate / 7.5
+      Double Time = Hours * Hourly Rate * 2        -> component: Overtime Double (taxable)
+      Time & Half = Hours * Hourly Rate * 1.5      -> component: Overtime Short  (not taxable)
+    """
+    from frappe.utils import flt
+
+    days_worked = 26.0
+    ot_hours    = flt(self.hours) or 0.0
+    ot_type     = (self.overtime or "").strip()
+
+    # Always remove both overtime rows first (clean slate)
+    self.employee_earnings = [
+        e for e in self.employee_earnings
+        if (e.components or "") not in ("Overtime Double", "Overtime Short")
+    ]
+
+    if not basic_salary or ot_hours <= 0 or not ot_type:
+        self.hourly_rate     = 0.0
+        self.overtime_amount = 0.0
+        return
+
+    daily_rate  = basic_salary / days_worked
+    hourly_rate = daily_rate / 7.5
+    self.hourly_rate = round(hourly_rate, 4)
+
+    if ot_type == "Double Time":
+        ot_amount    = round(ot_hours * hourly_rate * 2, 2)
+        comp_name    = "Overtime Double"
+        is_taxable   = 1
+    elif ot_type == "Time & Half":
+        ot_amount    = round(ot_hours * hourly_rate * 1.5, 2)
+        comp_name    = "Overtime Short"
+        is_taxable   = 0
+    else:
+        self.overtime_amount = 0.0
+        return
+
+    self.overtime_amount = ot_amount
+
+    # Inject into earnings table
+    amount_usd = ot_amount if default_currency == "USD" else 0.0
+    amount_zwg = ot_amount if default_currency != "USD" else 0.0
+
+    self.append("employee_earnings", {
+        "components":        comp_name,
+        "amount_usd":        amount_usd,
+        "amount_zwg":        amount_zwg,
+        "is_tax_applicable": is_taxable,
+    })
+
+
+def apply_cash_in_lieu(self, basic_salary, default_currency):
+    """
+    Cash in Lieu of Leave:
+      Daily Rate = Basic Salary / 26
+      Amount     = Days to Sell * Daily Rate
+    """
+    from frappe.utils import flt
+
+    days_to_sell = flt(self.leave_days_to_sell) or 0.0
+
+    # Remove existing cash in lieu row (clean slate)
+    self.employee_earnings = [
+        e for e in self.employee_earnings
+        if (e.components or "") != "cash in lieu of leave"
+    ]
+
+    if not basic_salary or days_to_sell <= 0:
+        self.cash_in_lieu_amount = 0.0
+        return
+
+    daily_rate = basic_salary / 26.0
+    amount = round(days_to_sell * daily_rate, 2)
+    self.cash_in_lieu_amount = amount
+
+    amount_usd = amount if default_currency == "USD" else 0.0
+    amount_zwg = amount if default_currency != "USD" else 0.0
+
+    self.append("employee_earnings", {
+        "components":        "cash in lieu of leave",
+        "amount_usd":        amount_usd,
+        "amount_zwg":        amount_zwg,
+        "is_tax_applicable": 0,
+    })
+
+
+def apply_motoring_benefit(self, default_currency, exchange_rate=1.0):
+    """
+    Auto-inject Motoring Benefit row into earnings.
+    Amount = deemed_value_usd from Havano Motoring Benefit table (by engine_capacity).
+    Taxable but does NOT count toward gross total_income (ZIMRA rule).
+    """
+    import frappe
+    from frappe.utils import flt
+
+    # Always remove existing row first (clean slate)
+    self.employee_earnings = [
+        e for e in self.employee_earnings
+        if (e.components or "").upper() != "MOTORING BENEFIT"
+    ]
+
+    if not getattr(self, "has_motoring_benefit", 0) or not getattr(self, "engine_capacity", None):
+        return
+
+    deemed_usd = flt(frappe.db.get_value("Havano Motoring Benefit", {"engine_capacity": self.engine_capacity}, "deemed_value_usd"))
+    if not deemed_usd:
+        return
+
+    if default_currency == "USD":
+        amount_usd = deemed_usd
+        amount_zwg = 0.0
+    else:
+        amount_usd = 0.0
+        amount_zwg = round(deemed_usd * flt(exchange_rate), 2)
+
+    self.append("employee_earnings", {
+        "components":        "Motoring Benefit",
+        "amount_usd":        amount_usd,
+        "amount_zwg":        amount_zwg,
+        "is_tax_applicable": 1,
+    })

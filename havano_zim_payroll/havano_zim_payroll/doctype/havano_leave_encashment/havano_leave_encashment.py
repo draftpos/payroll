@@ -30,10 +30,10 @@ class havano_leave_encashment(Document):
 			"name"
 		)
 
-		if not leave_balance_name:
+		if leave_balance_name is None:
 			frappe.throw(f"No leave balance record found for employee {self.employee} and leave type {self.leave_type}.")
 
-		lb = frappe.get_doc("Havano Leave Balances", leave_balance_name)
+		lb = frappe.get_doc("Havano Leave Balances", str(leave_balance_name))
 		lb.leave_balance = float(lb.leave_balance or 0) - days
 		lb.save(ignore_permissions=True)
 
@@ -56,7 +56,7 @@ class havano_leave_encashment(Document):
 		)
 
 		if leave_balance_name:
-			lb = frappe.get_doc("Havano Leave Balances", leave_balance_name)
+			lb = frappe.get_doc("Havano Leave Balances", str(leave_balance_name))
 			lb.leave_balance = float(lb.leave_balance or 0) + days
 			lb.save(ignore_permissions=True)
 
