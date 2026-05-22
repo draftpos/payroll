@@ -354,8 +354,10 @@ def apply_overtime(self, basic_salary, default_currency):
         comp_name    = "Overtime Short"
         is_taxable   = 0
     elif ot_type == 'Time & Half and Double Time':
-        half_amount  = round(ot_hours * hourly_rate * 1.5, 2)
-        double_amount = round(ot_hours * hourly_rate * 2, 2)
+        half_hours   = flt(getattr(self, 'hours_half', 0) or 0)
+        double_hours = flt(getattr(self, 'hours_double', 0) or 0)
+        half_amount  = round(half_hours * hourly_rate * 1.5, 2)
+        double_amount = round(double_hours * hourly_rate * 2, 2)
         ot_amount    = half_amount + double_amount
         self.overtime_amount = ot_amount
 

@@ -1405,6 +1405,18 @@
    "label": "Overtime Hours"
   },
   {
+   "fieldname": "hours_half",
+   "fieldtype": "Float",
+   "label": "Time & Half Hours",
+   "depends_on": "eval:doc.overtime==\"Time & Half and Double Time\""
+  },
+  {
+   "fieldname": "hours_double",
+   "fieldtype": "Float",
+   "label": "Double Time Hours",
+   "depends_on": "eval:doc.overtime==\"Time & Half and Double Time\""
+  },
+  {
    "fieldname": "overtime_amount",
    "fieldtype": "Float",
    "label": "Overtime Amount"
