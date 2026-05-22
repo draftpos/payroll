@@ -359,6 +359,8 @@ def apply_overtime(self, basic_salary, default_currency):
         half_amount  = round(half_hours * hourly_rate * 1.5, 2)
         double_amount = round(double_hours * hourly_rate * 2, 2)
         ot_amount    = half_amount + double_amount
+        self.half_amount   = half_amount
+        self.double_amount = double_amount
         self.overtime_amount = ot_amount
 
         amount_usd = half_amount if default_currency == 'USD' else 0.0

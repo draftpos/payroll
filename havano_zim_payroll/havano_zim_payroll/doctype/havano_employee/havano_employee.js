@@ -9,6 +9,52 @@ frappe.ui.form.on("havano_employee", {
 		update_net_income(frm);
 		update_tax_credits(frm);
 		sync_always_calculate_deductions(frm);
+		// Fetch Leave Balance from Havano Leave Balances
+		if (frm.doc.name) {
+			frappe.db.get_value('Havano Leave Balances',
+				{'employee': frm.doc.name, 'havano_leave_type': 'Annual Leave'},
+				'leave_balance', (r) => {
+					if (r && r.leave_balance !== undefined) {
+						frm.set_value('total_leave_allocated', r.leave_balance);
+					}
+				}
+			);
+		}
+		let is_both = frm.doc.overtime === 'Time & Half and Double Time';
+		['hours','overtime_amount'].forEach(f => {
+			$(cur_frm.fields_dict[f].wrapper).toggleClass('hide-control', is_both);
+		});
+		['hours_half','hours_double','half_amount','double_amount'].forEach(f => {
+			$(cur_frm.fields_dict[f].wrapper).toggleClass('hide-control', !is_both);
+		});
+	},
+	total_leave_allocated(frm) {
+		// When user enters a value, create/update Havano Leave Balances
+		if (!frm.doc.total_leave_allocated || !frm.doc.name) return;
+		frappe.db.get_value('Havano Leave Balances',
+			{'employee': frm.doc.name, 'havano_leave_type': 'Annual Leave'},
+			'name', (r) => {
+				if (r && r.name) {
+					frappe.db.set_value('Havano Leave Balances', r.name, 'leave_balance', flt(frm.doc.total_leave_allocated));
+				} else {
+					frappe.call({
+						method: 'frappe.client.insert',
+						args: {
+							doc: {
+								doctype: 'Havano Leave Balances',
+								employee: frm.doc.name,
+								employee_name: frm.doc.employee_name,
+								havano_leave_type: 'Annual Leave',
+								leave_balance: flt(frm.doc.total_leave_allocated)
+							}
+						},
+						callback: (res) => {
+							if (!res.exc) frappe.show_alert({message: __('Leave Balance record created'), indicator: 'green'});
+						}
+					});
+				}
+			}
+		);
 	},
 	total_income(frm) {
 		update_net_income(frm);
@@ -35,9 +81,22 @@ frappe.ui.form.on("havano_employee", {
 		calculate_totals_server(frm);
 	},
 	overtime(frm) {
+		let is_both = frm.doc.overtime === 'Time & Half and Double Time';
+		['hours','overtime_amount'].forEach(f => {
+			$(cur_frm.fields_dict[f].wrapper).toggleClass('hide-control', is_both);
+		});
+		['hours_half','hours_double','half_amount','double_amount'].forEach(f => {
+			$(cur_frm.fields_dict[f].wrapper).toggleClass('hide-control', !is_both);
+		});
 		calculate_totals_server(frm);
 	},
 	hours(frm) {
+		calculate_totals_server(frm);
+	},
+	hours_half(frm) {
+		calculate_totals_server(frm);
+	},
+	hours_double(frm) {
 		calculate_totals_server(frm);
 	}
 });
@@ -106,7 +165,7 @@ function calculate_totals_server(frm) {
                                                 "total_net_income_usd", "total_net_income_zwg",
                                                 "blind", "disabled", "elderly", "medical_aid_tax_credit",
                                                 "ensuarable_earnings", "allowable_deductions", "basic_salary_calculated",
-                                                "overtime_amount", "hourly_rate", "cash_in_lieu_amount",
+                                                "overtime_amount", "hourly_rate", "cash_in_lieu_amount", "half_amount", "double_amount", "hours_half", "hours_double",
                                                 "total_taxable_income", "total_taxable_income_usd", "total_taxable_income_zwg",
                                                 "total_ensuarable_earnings_usd", "total_ensuarable_earnings_zwg"
                                         ];
@@ -122,6 +181,16 @@ function calculate_totals_server(frm) {
                                                 }
                                         });
                                         frm.refresh_fields();
+                                        // Re-apply overtime visibility after field refresh
+                                        let is_both = frm.doc.overtime === 'Time & Half and Double Time';
+                                        ['hours','overtime_amount'].forEach(f => {
+                                                frm.set_df_property(f, 'hidden', is_both ? 1 : 0);
+                                                frm.refresh_field(f);
+                                        });
+                                        ['hours_half','hours_double','half_amount','double_amount'].forEach(f => {
+                                                frm.set_df_property(f, 'hidden', is_both ? 0 : 1);
+                                                frm.refresh_field(f);
+                                        });
                                 }
                         }
                 });

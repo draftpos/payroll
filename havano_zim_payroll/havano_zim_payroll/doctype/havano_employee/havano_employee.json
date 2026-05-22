@@ -552,6 +552,55 @@
    "oldfieldtype": "Data"
   },
   {
+   "fieldname": "overtime_section",
+   "fieldtype": "Section Break",
+   "label": "Overtime"
+  },
+  {
+   "fieldname": "overtime",
+   "fieldtype": "Select",
+   "label": "Overtime",
+   "options": "\nTime & Half\nDouble Time\nTime & Half and Double Time"
+  },
+  {
+   "fieldname": "hours",
+   "fieldtype": "Float",
+   "label": "Overtime Hours",
+   "hidden": 0
+  },
+  {
+   "fieldname": "hours_half",
+   "fieldtype": "Float",
+   "label": "Time & Half Hours",
+   "hidden": 1
+  },
+  {
+   "fieldname": "hours_double",
+   "fieldtype": "Float",
+   "label": "Double Time Hours",
+   "hidden": 1
+  },
+  {
+   "fieldname": "half_amount",
+   "fieldtype": "Float",
+   "label": "Time & Half Amount",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "double_amount",
+   "fieldtype": "Float",
+   "label": "Double Time Amount",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "overtime_amount",
+   "fieldtype": "Float",
+   "label": "Overtime Amount",
+   "hidden": 0
+  },
+  {
    "collapsible": 1,
    "fieldname": "contact_details",
    "fieldtype": "Tab Break",
@@ -1373,7 +1422,7 @@
   {
    "fieldname": "total_leave_allocated",
    "fieldtype": "Data",
-   "label": "Total Leave Allocated"
+   "label": "Leave Balances"
   },
   {
    "fieldname": "total_leave_taken",
@@ -1392,34 +1441,6 @@
    "fieldtype": "Float",
    "hidden": 1,
    "label": "Medical"
-  },
-  {
-   "fieldname": "overtime",
-   "fieldtype": "Select",
-   "label": "Overtime",
-   "options": "\nTime & Half\nDouble Time\nTime & Half and Double Time"
-  },
-  {
-   "fieldname": "hours",
-   "fieldtype": "Float",
-   "label": "Overtime Hours"
-  },
-  {
-   "fieldname": "hours_half",
-   "fieldtype": "Float",
-   "label": "Time & Half Hours",
-   "depends_on": "eval:doc.overtime==\"Time & Half and Double Time\""
-  },
-  {
-   "fieldname": "hours_double",
-   "fieldtype": "Float",
-   "label": "Double Time Hours",
-   "depends_on": "eval:doc.overtime==\"Time & Half and Double Time\""
-  },
-  {
-   "fieldname": "overtime_amount",
-   "fieldtype": "Float",
-   "label": "Overtime Amount"
   },
   {
    "fieldname": "formula_display",
