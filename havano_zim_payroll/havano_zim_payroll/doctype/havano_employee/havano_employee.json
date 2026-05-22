@@ -1397,7 +1397,7 @@
    "fieldname": "overtime",
    "fieldtype": "Select",
    "label": "Overtime",
-   "options": "\nTime & Half\nDouble Time"
+   "options": "\nTime & Half\nDouble Time\nTime & Half and Double Time"
   },
   {
    "fieldname": "hours",

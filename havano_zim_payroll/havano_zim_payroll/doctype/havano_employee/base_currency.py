@@ -353,6 +353,30 @@ def apply_overtime(self, basic_salary, default_currency):
         ot_amount    = round(ot_hours * hourly_rate * 1.5, 2)
         comp_name    = "Overtime Short"
         is_taxable   = 0
+    elif ot_type == 'Time & Half and Double Time':
+        half_amount  = round(ot_hours * hourly_rate * 1.5, 2)
+        double_amount = round(ot_hours * hourly_rate * 2, 2)
+        ot_amount    = half_amount + double_amount
+        self.overtime_amount = ot_amount
+
+        amount_usd = half_amount if default_currency == 'USD' else 0.0
+        amount_zwg = half_amount if default_currency != 'USD' else 0.0
+        self.append('employee_earnings', {
+            'components': 'Overtime Short',
+            'amount_usd': amount_usd,
+            'amount_zwg': amount_zwg,
+            'is_tax_applicable': 0,
+        })
+
+        amount_usd = double_amount if default_currency == 'USD' else 0.0
+        amount_zwg = double_amount if default_currency != 'USD' else 0.0
+        self.append('employee_earnings', {
+            'components': 'Overtime Double',
+            'amount_usd': amount_usd,
+            'amount_zwg': amount_zwg,
+            'is_tax_applicable': 1,
+        })
+        return
     else:
         self.overtime_amount = 0.0
         return

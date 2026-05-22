@@ -33,6 +33,12 @@ frappe.ui.form.on("havano_employee", {
 	},
 	native_employee_id(frm) {
 		calculate_totals_server(frm);
+	},
+	overtime(frm) {
+		calculate_totals_server(frm);
+	},
+	hours(frm) {
+		calculate_totals_server(frm);
 	}
 });
 
