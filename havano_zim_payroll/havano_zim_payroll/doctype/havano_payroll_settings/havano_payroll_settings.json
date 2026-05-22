@@ -43,6 +43,12 @@
    "fieldtype": "Section Break"
   },
   {
+   "fieldname": "use_formula_cash_in_lieu",
+   "fieldtype": "Check",
+   "label": "Use Formula for Cash in Lieu of Leave",
+   "description": "If checked: Amount = Days to Sell x (Basic Salary / 26).<br>If unchecked: use the manually entered Cash in Lieu Amount."
+  },
+  {
    "fieldname": "components_for_reporting",
    "fieldtype": "Table",
    "label": "Components for Reporting",

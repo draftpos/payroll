@@ -8,6 +8,7 @@ frappe.ui.form.on("havano_leave_encashment", {
                 if (frm.doc.employee && frm.doc.leave_type && !frm.doc.docstatus) {
                         fetch_leave_balance(frm);
                 }
+                apply_formula_mode(frm);
         },
 
 	employee(frm) {
@@ -26,6 +27,7 @@ frappe.ui.form.on("havano_leave_encashment", {
 			frm.set_value("current_leave_balance", 0);
 			frm.set_value("days_being_encashed", 0);
 			frm.set_value("encashment_amount", 0);
+			apply_formula_mode(frm);
 		} else {
 			frm.set_value("employee_name", "");
 			frm.set_value("department", "");
@@ -66,9 +68,49 @@ frappe.ui.form.on("havano_leave_encashment", {
 	},
 
 	rate_per_day(frm) {
+		// Only fires in manual mode
 		calculate_encashment(frm);
 	}
 });
+
+function apply_formula_mode(frm) {
+	frappe.db.get_single_value("Havano Payroll Settings", "use_formula_cash_in_lieu").then(use_formula => {
+		if (use_formula) {
+			frm.set_df_property("rate_per_day", "read_only", 1);
+			frm.set_df_property("encashment_amount", "read_only", 1);
+			frm.refresh_field("rate_per_day");
+			frm.refresh_field("encashment_amount");
+			if (frm.doc.employee) {
+				auto_calculate_rate(frm);
+			}
+		} else {
+			frm.set_df_property("rate_per_day", "read_only", 0);
+			frm.set_df_property("encashment_amount", "read_only", 0);
+			frm.refresh_field("rate_per_day");
+			frm.refresh_field("encashment_amount");
+		}
+	});
+}
+
+function auto_calculate_rate(frm) {
+	frappe.call({
+		method: "frappe.client.get_value",
+		args: {
+			doctype: "havano_employee",
+			filters: { name: frm.doc.employee },
+			fieldname: ["basic_salary_calculated"]
+		},
+		callback: function(r) {
+			if (r && r.message && r.message.basic_salary_calculated) {
+				const rate = r.message.basic_salary_calculated / 26.0;
+				frm.set_value("rate_per_day", Math.round(rate * 100) / 100);
+				calculate_encashment(frm);
+			} else {
+				frappe.msgprint({title: __("No Salary Found"), message: __("Basic Salary Calculated is not set for this employee."), indicator: "orange"});
+			}
+		}
+	});
+}
 
 function fetch_leave_balance(frm) {
 	if (!frm.doc.employee || !frm.doc.leave_type) return;

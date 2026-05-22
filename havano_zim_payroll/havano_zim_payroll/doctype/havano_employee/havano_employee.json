@@ -584,14 +584,14 @@
    "fieldname": "half_amount",
    "fieldtype": "Float",
    "label": "Time & Half Amount",
-   "read_only": 1,
+   "read_only": 0,
    "hidden": 1
   },
   {
    "fieldname": "double_amount",
    "fieldtype": "Float",
    "label": "Double Time Amount",
-   "read_only": 1,
+   "read_only": 0,
    "hidden": 1
   },
   {

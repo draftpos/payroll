@@ -4,6 +4,18 @@
 // Components that are controlled by "Always Calculate" checkbox on havano_salary_component
 const ALWAYS_CALC_COMPONENTS = ["NSSA", "PAYEE", "AIDS LEVY"];
 
+function apply_overtime_visibility(frm) {
+	let is_both = frm.doc.overtime === 'Time & Half and Double Time';
+	['hours', 'overtime_amount'].forEach(f => {
+		frm.set_df_property(f, 'hidden', is_both ? 1 : 0);
+		frm.refresh_field(f);
+	});
+	['hours_half', 'hours_double', 'half_amount', 'double_amount'].forEach(f => {
+		frm.set_df_property(f, 'hidden', is_both ? 0 : 1);
+		frm.refresh_field(f);
+	});
+}
+
 frappe.ui.form.on("havano_employee", {
 	refresh(frm) {
 		update_net_income(frm);
@@ -20,13 +32,7 @@ frappe.ui.form.on("havano_employee", {
 				}
 			);
 		}
-		let is_both = frm.doc.overtime === 'Time & Half and Double Time';
-		['hours','overtime_amount'].forEach(f => {
-			$(cur_frm.fields_dict[f].wrapper).toggleClass('hide-control', is_both);
-		});
-		['hours_half','hours_double','half_amount','double_amount'].forEach(f => {
-			$(cur_frm.fields_dict[f].wrapper).toggleClass('hide-control', !is_both);
-		});
+		apply_overtime_visibility(frm);
 	},
 	total_leave_allocated(frm) {
 		// When user enters a value, create/update Havano Leave Balances
@@ -81,13 +87,7 @@ frappe.ui.form.on("havano_employee", {
 		calculate_totals_server(frm);
 	},
 	overtime(frm) {
-		let is_both = frm.doc.overtime === 'Time & Half and Double Time';
-		['hours','overtime_amount'].forEach(f => {
-			$(cur_frm.fields_dict[f].wrapper).toggleClass('hide-control', is_both);
-		});
-		['hours_half','hours_double','half_amount','double_amount'].forEach(f => {
-			$(cur_frm.fields_dict[f].wrapper).toggleClass('hide-control', !is_both);
-		});
+		apply_overtime_visibility(frm);
 		calculate_totals_server(frm);
 	},
 	hours(frm) {
@@ -178,19 +178,12 @@ function calculate_totals_server(frm) {
                                         ["employee_earnings", "employee_deductions"].forEach(function(table) {
                                                 if (r.message[table]) {
                                                         frm.doc[table] = r.message[table];
+                                                        frm.refresh_field(table);
                                                 }
                                         });
                                         frm.refresh_fields();
                                         // Re-apply overtime visibility after field refresh
-                                        let is_both = frm.doc.overtime === 'Time & Half and Double Time';
-                                        ['hours','overtime_amount'].forEach(f => {
-                                                frm.set_df_property(f, 'hidden', is_both ? 1 : 0);
-                                                frm.refresh_field(f);
-                                        });
-                                        ['hours_half','hours_double','half_amount','double_amount'].forEach(f => {
-                                                frm.set_df_property(f, 'hidden', is_both ? 0 : 1);
-                                                frm.refresh_field(f);
-                                        });
+                                        apply_overtime_visibility(frm);
                                 }
                         }
                 });

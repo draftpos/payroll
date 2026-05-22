@@ -1,5 +1,6 @@
 import frappe
 from frappe import _
+from frappe.utils import flt
 
 def on_submit(doc, method=None):
     """Subtract leave days from Havano Leave Balances on submission."""
@@ -51,5 +52,5 @@ def on_cancel(doc, method=None):
 def validate_leave_balance(doc, method=None):
     """Refuse to save if Annual Leave balance exceeds 90 days."""
     if doc.doctype == "Havano Leave Balances" and doc.havano_leave_type == "Annual Leave":
-        if doc.leave_balance > 90:
+        if flt(doc.leave_balance) > 90:
             frappe.throw(_("Maximum Annual Leave balance allowed is 90 days. You cannot save a balance of {0}.").format(doc.leave_balance))

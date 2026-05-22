@@ -291,7 +291,12 @@ def apply_overtime(self, basic_salary, default_currency_split):
         if (e.components or "") not in ("Overtime Double", "Overtime Short")
     ]
 
-    if not basic_salary or ot_hours <= 0 or not ot_type:
+    is_double_split = ot_type == 'Time & Half and Double Time'
+    if not basic_salary or not ot_type:
+        self.hourly_rate     = 0.0
+        self.overtime_amount = 0.0
+        return
+    if not is_double_split and ot_hours <= 0:
         self.hourly_rate     = 0.0
         self.overtime_amount = 0.0
         return
@@ -308,6 +313,24 @@ def apply_overtime(self, basic_salary, default_currency_split):
         ot_amount    = round(ot_hours * hourly_rate * 1.5, 2)
         comp_name    = "Overtime Short"
         is_taxable   = 0
+    elif ot_type == 'Time & Half and Double Time':
+        from frappe.utils import flt as _flt
+        half_hours   = _flt(getattr(self, 'hours_half', 0) or 0)
+        double_hours = _flt(getattr(self, 'hours_double', 0) or 0)
+        half_amount  = round(half_hours * hourly_rate * 1.5, 2)
+        double_amount = round(double_hours * hourly_rate * 2, 2)
+        self.half_amount   = half_amount
+        self.double_amount = double_amount
+        self.overtime_amount = half_amount + double_amount
+        if half_hours > 0:
+            a_usd = half_amount if default_currency_split == 'USD' else 0.0
+            a_zwg = half_amount if default_currency_split != 'USD' else 0.0
+            self.append('employee_earnings', {'components': 'Overtime Short', 'amount_usd': a_usd, 'amount_zwg': a_zwg, 'is_tax_applicable': 0})
+        if double_hours > 0:
+            a_usd = double_amount if default_currency_split == 'USD' else 0.0
+            a_zwg = double_amount if default_currency_split != 'USD' else 0.0
+            self.append('employee_earnings', {'components': 'Overtime Double', 'amount_usd': a_usd, 'amount_zwg': a_zwg, 'is_tax_applicable': 1})
+        return
     else:
         self.overtime_amount = 0.0
         return
@@ -329,9 +352,12 @@ def apply_overtime(self, basic_salary, default_currency_split):
 def apply_cash_in_lieu(self, basic_salary, default_currency_split):
     """
     Cash in Lieu of Leave:
-      Daily Rate = Basic Salary / 26
-      Amount     = Days to Sell * Daily Rate
+      Formula mode (enabled in Havano Payroll Settings):
+        Daily Rate = Basic Salary / 26
+        Amount     = Days to Sell * Daily Rate
+      Manual mode: use the entered cash_in_lieu_amount directly
     """
+    import frappe
     from frappe.utils import flt
 
     days_to_sell = flt(self.leave_days_to_sell) or 0.0
@@ -341,13 +367,19 @@ def apply_cash_in_lieu(self, basic_salary, default_currency_split):
         if (e.components or "") != "cash in lieu of leave"
     ]
 
-    if not basic_salary or days_to_sell <= 0:
-        self.cash_in_lieu_amount = 0.0
-        return
+    use_formula = frappe.db.get_single_value("Havano Payroll Settings", "use_formula_cash_in_lieu")
 
-    daily_rate = basic_salary / 26.0
-    amount = round(days_to_sell * daily_rate, 2)
-    self.cash_in_lieu_amount = amount
+    if use_formula:
+        if not basic_salary or days_to_sell <= 0:
+            self.cash_in_lieu_amount = 0.0
+            return
+        daily_rate = basic_salary / 26.0
+        amount = round(days_to_sell * daily_rate, 2)
+        self.cash_in_lieu_amount = amount
+    else:
+        amount = flt(self.cash_in_lieu_amount) or 0.0
+        if amount <= 0:
+            return
 
     amount_usd = amount if default_currency_split == "USD" else 0.0
     amount_zwg = amount if default_currency_split != "USD" else 0.0
