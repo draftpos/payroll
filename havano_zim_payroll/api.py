@@ -1,4 +1,5 @@
 import frappe
+from frappe.utils import flt
 from frappe.utils import nowdate, flt
 from datetime import date
 import calendar
@@ -206,6 +207,28 @@ def run_payroll(month, year, work_date, daily):
             frappe.log_error(f"Payroll Calc Error for {emp.name}: {e}")
             continue
 
+        # === Short Time Deduction (payslip only) ===
+        st_data = frappe.db.get_value("havano_employee", emp.name,
+            ["has_short_time", "short_time_days_worked", "basic_salary_calculated", "salary_currency"],
+            as_dict=True) or {}
+        if flt(st_data.get("has_short_time")):
+            st_days_worked = flt(st_data.get("short_time_days_worked", 0))
+            standard_days = 26.0
+            if 0 < st_days_worked < standard_days:
+                basic = flt(st_data.get("basic_salary_calculated", 0))
+                if basic > 0:
+                    daily_rate = basic / standard_days
+                    short_days = standard_days - st_days_worked
+                    short_amount = round(short_days * daily_rate, 2)
+                    is_usd = (st_data.get("salary_currency", "") == "USD")
+                    payroll.append("employee_earnings", {
+                        "components": "Short Time",
+                        "item_code": None,
+                        "amount_usd": -short_amount if is_usd else 0.0,
+                        "amount_zwg": -short_amount if not is_usd else 0.0,
+                    })
+                    emp_netpay -= short_amount
+
         # Copy Earnings
         if hasattr(emp_doc, "employee_earnings"):
             for e in emp_doc.employee_earnings:
@@ -242,6 +265,7 @@ def run_payroll(month, year, work_date, daily):
             ledger_doc.balance_added = emp_netpay   # x
             ledger_doc.current_balance_owing = (flt(ledger.get("current_balance_owing")) or 0) + flt(emp_netpay)
             ledger_doc.save(ignore_permissions=True)
+
 
         # Copy Deductions
         if hasattr(emp_doc, "employee_deductions"):
@@ -784,8 +808,10 @@ def create_payroll_report(
 
 from frappe.utils.pdf import get_pdf
 import frappe
+from frappe.utils import flt
 import os
 import frappe
+from frappe.utils import flt
 from frappe.utils.background_jobs import enqueue
 from weasyprint import HTML, CSS
 import os
@@ -1143,6 +1169,7 @@ def delete_havano_payroll_entries(period_str):
         message=f"Deleted {deleted} Havano Payroll Entry records for period {period_str}"
     )
 import frappe
+from frappe.utils import flt
 import os
 import json
 

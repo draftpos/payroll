@@ -63,6 +63,9 @@ def main(self):
     total_earnings_usd += flt(self.overtime_amount) if _ot_currency == "USD" else 0.0
     total_earnings_zwg += flt(self.overtime_amount) if _ot_currency != "USD" else 0.0
 
+    # --- SHORT TIME ---
+    apply_short_time(self, _ot_basic, _ot_currency)
+
     # 3. EXCHANGE RATE
     exchange_rate = flt(frappe.db.get_value("Currency Exchange", {"from_currency": "USD", "to_currency": ["in", ["ZWG", "ZWL"]]}, "exchange_rate") or 1)
 
@@ -426,3 +429,30 @@ def apply_motoring_benefit(self, default_currency, exchange_rate=1.0):
         "amount_zwg":        amount_zwg,
         "is_tax_applicable": 1,
     })
+
+
+def apply_short_time(self, basic_salary, default_currency_split):
+    """Short Time: removes row then re-adds with negative amount if has_short_time is checked."""
+    from frappe.utils import flt
+    self.employee_earnings = [
+        e for e in self.employee_earnings
+        if (e.components or "") != "Short Time"
+    ]
+    if not getattr(self, "has_short_time", 0):
+        return
+    days_worked = flt(getattr(self, "short_time_days_worked", 0))
+    standard_days = 26.0
+    if not basic_salary or not (0 < days_worked < standard_days):
+        return
+    short_days = standard_days - days_worked
+    daily_rate = basic_salary / standard_days
+    short_amount = round(daily_rate * short_days, 2)
+    amount_usd = -short_amount if default_currency_split == "USD" else 0.0
+    amount_zwg = -short_amount if default_currency_split != "USD" else 0.0
+    self.append("employee_earnings", {
+        "components":        "Short Time",
+        "amount_usd":        amount_usd,
+        "amount_zwg":        amount_zwg,
+        "is_tax_applicable": 0,
+    })
+    self.net_income = round(self.net_income - short_amount, 2)

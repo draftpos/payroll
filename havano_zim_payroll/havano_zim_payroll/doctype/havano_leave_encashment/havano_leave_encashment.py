@@ -37,10 +37,12 @@ class havano_leave_encashment(Document):
 		lb.leave_balance = float(lb.leave_balance or 0) - days
 		lb.save(ignore_permissions=True)
 
-		# 2. Update total_leave_allocated on havano_employee
+		# 2. Update total_leave_allocated and cash in lieu fields on havano_employee
 		if frappe.db.exists("havano_employee", self.employee):
 			emp = frappe.get_doc("havano_employee", self.employee)
 			emp.total_leave_allocated = float(emp.total_leave_allocated or 0) - days
+			emp.leave_days_to_sell = days
+			emp.cash_in_lieu_amount = float(self.encashment_amount or 0)
 			emp.save(ignore_permissions=True)
 
 		frappe.db.commit()
@@ -60,10 +62,12 @@ class havano_leave_encashment(Document):
 			lb.leave_balance = float(lb.leave_balance or 0) + days
 			lb.save(ignore_permissions=True)
 
-		# 2. Restore total_leave_allocated on havano_employee
+		# 2. Restore total_leave_allocated and clear cash in lieu fields on havano_employee
 		if frappe.db.exists("havano_employee", self.employee):
 			emp = frappe.get_doc("havano_employee", self.employee)
 			emp.total_leave_allocated = float(emp.total_leave_allocated or 0) + days
+			emp.leave_days_to_sell = 0
+			emp.cash_in_lieu_amount = 0
 			emp.save(ignore_permissions=True)
 
 		frappe.db.commit()

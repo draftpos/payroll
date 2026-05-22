@@ -84,6 +84,9 @@ def main(self):
     total_income += flt(self.overtime_amount)
     self.total_income = round(total_income, 2)
 
+    # --- SHORT TIME ---
+    apply_short_time(self, basic_salary, default_currency)
+
     # 3. CALCULATE TAX CREDITS
     if getattr(self, "is_elderly", 0):
         val = 75 if self.salary_currency == "USD" else 75 * exchange_rate
@@ -484,3 +487,31 @@ def apply_motoring_benefit(self, default_currency, exchange_rate=1.0):
         "amount_zwg":        amount_zwg,
         "is_tax_applicable": 1,
     })
+
+
+def apply_short_time(self, basic_salary, default_currency):
+    """Short Time: removes row then re-adds with negative amount if has_short_time is checked."""
+    from frappe.utils import flt
+    # Clean slate
+    self.employee_earnings = [
+        e for e in self.employee_earnings
+        if (e.components or "") != "Short Time"
+    ]
+    if not getattr(self, "has_short_time", 0):
+        return
+    days_worked = flt(getattr(self, "short_time_days_worked", 0))
+    standard_days = 26.0
+    if not basic_salary or not (0 < days_worked < standard_days):
+        return
+    short_days = standard_days - days_worked
+    daily_rate = basic_salary / standard_days
+    short_amount = round(daily_rate * short_days, 2)
+    amount_usd = -short_amount if default_currency == "USD" else 0.0
+    amount_zwg = -short_amount if default_currency != "USD" else 0.0
+    self.append("employee_earnings", {
+        "components":        "Short Time",
+        "amount_usd":        amount_usd,
+        "amount_zwg":        amount_zwg,
+        "is_tax_applicable": 0,
+    })
+    self.net_income = round(self.net_income - short_amount, 2)

@@ -1526,6 +1526,17 @@
    "label": "Total Days Worked"
   },
   {
+   "fieldname": "has_short_time",
+   "fieldtype": "Check",
+   "label": "Has Short Time"
+  },
+  {
+   "fieldname": "short_time_days_worked",
+   "fieldtype": "Float",
+   "label": "Short Time Days Worked",
+   "depends_on": "eval:doc.has_short_time == 1"
+  },
+  {
    "fieldname": "native_employee_id",
    "fieldtype": "Data",
    "label": "Native Employee ID"
