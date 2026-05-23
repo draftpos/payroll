@@ -142,6 +142,24 @@ def main(self):
         elif d.components.upper() in ["PAYEE", "AIDS LEVY", "SDL"]:
             continue
 
+        elif d.components.upper() in ["LAPF", "UFAWUZ", "ZFBAWU"]:
+            comp_data = frappe.db.get_value("havano_salary_component", d.components,
+                ["employee_amount", "employer_amount"], as_dict=True) or {}
+            emp_pct = flt(comp_data.get("employee_amount") or 0) / 100.0
+            emp_amt_usd = round(basic_salary_usd * emp_pct, 2)
+            emp_amt_zwg = round(basic_salary_zwg * emp_pct, 2)
+            d.amount_usd = emp_amt_usd
+            d.amount_zwg = emp_amt_zwg
+            total_deduction_usd += emp_amt_usd
+            total_deduction_zwg += emp_amt_zwg
+            total_allowable_deductions_usd += emp_amt_usd
+            total_allowable_deductions_zwg += emp_amt_zwg
+            if d.components.upper() == "LAPF":
+                emp_pct_val = flt(comp_data.get("employer_amount") or 0) / 100.0
+                self.lapf_employee = emp_amt_usd + emp_amt_zwg
+                self.lapf_employer = round((basic_salary_usd + basic_salary_zwg) * emp_pct_val, 2)
+            continue
+
         else:
             total_deduction_usd += flt(d.amount_usd)
             total_deduction_zwg += flt(d.amount_zwg)

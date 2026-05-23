@@ -163,6 +163,26 @@ def main(self):
         elif d.components.upper() in ["PAYEE", "AIDS LEVY", "SDL"]:
             # Skip these for now, calculate later
             continue
+
+        elif d.components.upper() in ["LAPF", "UFAWUZ", "ZFBAWU"]:
+            comp_data = frappe.db.get_value("havano_salary_component", d.components,
+                ["employee_amount", "employer_amount"], as_dict=True) or {}
+            emp_pct = flt(comp_data.get("employee_amount") or 0) / 100.0
+            emp_amt = round(basic_salary * emp_pct, 2)
+            if self.salary_currency == "USD":
+                d.amount_usd = emp_amt
+                d.amount_zwg = 0
+            else:
+                d.amount_usd = 0
+                d.amount_zwg = emp_amt
+            total_deduction += emp_amt
+            total_allowable_deductions += emp_amt
+            # Store LAPF employer contribution on employee record
+            if d.components.upper() == "LAPF":
+                emp_pct_val = flt(comp_data.get("employer_amount") or 0) / 100.0
+                self.lapf_employee = emp_amt
+                self.lapf_employer = round(basic_salary * emp_pct_val, 2)
+            continue
             
         elif d.components.upper() in ["CIMAS", "MEDICAL AID", "MEDICAL AID EXPENSE"]:
             amt = flt(d.amount_usd) if self.salary_currency == "USD" else flt(d.amount_zwg)
