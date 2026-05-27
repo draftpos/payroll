@@ -76,12 +76,12 @@ def main(self):
 
     # --- CASH IN LIEU OF LEAVE ---
     apply_cash_in_lieu(self, basic_salary, default_currency)
-    total_income += flt(self.cash_in_lieu_amount)
+    total_income += flt(getattr(self, "cash_in_lieu_amount", 0.0))
     self.total_income = round(total_income, 2)
 
     # --- OVERTIME ---
     apply_overtime(self, basic_salary, default_currency)
-    total_income += flt(self.overtime_amount)
+    total_income += flt(getattr(self, "overtime_amount", 0.0))
     self.total_income = round(total_income, 2)
 
     # --- SHORT TIME ---

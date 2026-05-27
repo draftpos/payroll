@@ -53,15 +53,15 @@ def main(self):
     _cil_basic    = basic_salary_usd if basic_salary_usd else basic_salary_zwg
     _cil_currency = "USD" if basic_salary_usd else "ZWG"
     apply_cash_in_lieu(self, _cil_basic, _cil_currency)
-    total_earnings_usd += flt(self.cash_in_lieu_amount) if _cil_currency == "USD" else 0.0
-    total_earnings_zwg += flt(self.cash_in_lieu_amount) if _cil_currency != "USD" else 0.0
+    total_earnings_usd += flt(getattr(self, "cash_in_lieu_amount", 0.0)) if _cil_currency == "USD" else 0.0
+    total_earnings_zwg += flt(getattr(self, "cash_in_lieu_amount", 0.0)) if _cil_currency != "USD" else 0.0
 
     # --- OVERTIME ---
     _ot_basic    = basic_salary_usd if basic_salary_usd else basic_salary_zwg
     _ot_currency = "USD" if basic_salary_usd else "ZWG"
     apply_overtime(self, _ot_basic, _ot_currency)
-    total_earnings_usd += flt(self.overtime_amount) if _ot_currency == "USD" else 0.0
-    total_earnings_zwg += flt(self.overtime_amount) if _ot_currency != "USD" else 0.0
+    total_earnings_usd += flt(getattr(self, "overtime_amount", 0.0)) if _ot_currency == "USD" else 0.0
+    total_earnings_zwg += flt(getattr(self, "overtime_amount", 0.0)) if _ot_currency != "USD" else 0.0
 
     # --- SHORT TIME ---
     apply_short_time(self, _ot_basic, _ot_currency)
