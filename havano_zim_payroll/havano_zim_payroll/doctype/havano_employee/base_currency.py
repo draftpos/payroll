@@ -439,7 +439,7 @@ def apply_cash_in_lieu(self, basic_salary, default_currency):
     import frappe
     from frappe.utils import flt
 
-    days_to_sell = flt(self.leave_days_to_sell) or 0.0
+    days_to_sell = flt(getattr(self, "leave_days_to_sell", 0.0)) or 0.0
 
     # Remove existing cash in lieu row (clean slate)
     self.employee_earnings = [
@@ -457,7 +457,7 @@ def apply_cash_in_lieu(self, basic_salary, default_currency):
         amount = round(days_to_sell * daily_rate, 2)
         self.cash_in_lieu_amount = amount
     else:
-        amount = flt(self.cash_in_lieu_amount) or 0.0
+        amount = flt(getattr(self, "cash_in_lieu_amount", 0.0)) or 0.0
         if amount <= 0:
             return
 
