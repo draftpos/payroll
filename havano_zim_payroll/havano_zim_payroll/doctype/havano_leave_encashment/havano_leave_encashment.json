@@ -75,7 +75,7 @@
    "fieldname": "leave_type",
    "fieldtype": "Link",
    "label": "Leave Type",
-   "options": "havano_leave_type",
+   "options": "Havano Leave Type",
    "reqd": 1
   },
   {
