@@ -142,18 +142,11 @@ def main(self):
             medical_credit_usd = round(emp_contribution_usd * 0.5, 2)
             self.medical_aid_tax_credit = medical_credit_usd
             
-            if emp_contribution_usd > 0:
-                display_amount = emp_contribution_usd
-                deduct_usd = emp_contribution_usd
-            else:
-                display_amount = cimas_full_amount
-                deduct_usd = 0.0
-
             # Update row amounts for UI and Payslip
-            d.amount_usd = display_amount
+            d.amount_usd = emp_contribution_usd
             d.amount_zwg = 0
 
-            total_deduction_usd += deduct_usd
+            total_deduction_usd += emp_contribution_usd
 
         elif d.components.upper() in ["PAYEE", "AIDS LEVY", "SDL"]:
             continue
@@ -177,6 +170,11 @@ def main(self):
             continue
 
         else:
+            # Other deductions (NEC, Pension, etc.)
+            # Skip PAYEE and AIDS LEVY here because they are added at the very end
+            if d.components.upper() in ["PAYEE", "AIDS LEVY", "SDL"]:
+                continue
+                
             total_deduction_usd += flt(d.amount_usd)
             total_deduction_zwg += flt(d.amount_zwg)
             if d.is_tax_applicable or (component_doc and component_doc.component_mode and "allowable" in component_doc.component_mode.lower()):

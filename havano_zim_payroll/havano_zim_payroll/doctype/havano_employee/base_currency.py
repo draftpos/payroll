@@ -190,27 +190,22 @@ def main(self):
             self.cimas_employee = emp_portion
             self.cimas_employer = employer_portion
             
-            # Logic: If employee pays a percentage, show calculated amount.
-            # If employer pays 100% (employee pays 0%), show the FULL amount but with NO EFFECT on total deductions.
-            if emp_portion > 0:
-                display_amount = emp_portion
-                deduction_effect = emp_portion
-            else:
-                display_amount = cimas_full_amount
-                deduction_effect = 0.0
-            
             # Update the row so the UI and payslip reflect the correct deduction
             if self.salary_currency == "USD":
-                d.amount_usd = display_amount
+                d.amount_usd = emp_portion
                 d.amount_zwg = 0
             else:
-                d.amount_zwg = display_amount
+                d.amount_zwg = emp_portion
                 d.amount_usd = 0
                 
-            total_deduction += deduction_effect
+            total_deduction += emp_portion
             
         else:
             # Other deductions (NEC, Pension, etc.)
+            # Skip PAYEE and AIDS LEVY here because they are added at the very end
+            if d.components.upper() in ["PAYEE", "AIDS LEVY", "SDL"]:
+                continue
+                
             amt = flt(d.amount_usd) if self.salary_currency == "USD" else flt(d.amount_zwg)
             
             # Special logic for NEC
