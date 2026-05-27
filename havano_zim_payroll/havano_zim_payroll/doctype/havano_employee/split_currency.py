@@ -128,29 +128,32 @@ def main(self):
             total_deduction_zwg += d.amount_zwg
 
         elif d.components.upper() in ["MEDICAL AID", "CIMAS", "MEDICAL AID EXPENSE"]:
-            # Initialize original amount if not set
-            if not getattr(d, "original_amount_usd", 0):
-                d.original_amount_usd = d.amount_usd
-                d.original_amount_zwg = d.amount_zwg
+            # Use the new cimas_amount field from the main document (assumed USD for split currency context)
+            cimas_full_amount = flt(getattr(self, "cimas_amount", 0.0))
+            emp_pct = flt(self.cimas_employee_) / 100.0
+            employer_pct = flt(self.cimas_employer_) / 100.0
             
-            emp_pct = flt(self.cimas_employee_) / 100
+            emp_contribution_usd = round(cimas_full_amount * emp_pct, 2)
+            employer_contribution_usd = round(cimas_full_amount * employer_pct, 2)
             
-            base_amt_usd = flt(d.original_amount_usd)
-            base_amt_zwg = flt(d.original_amount_zwg)
-            
-            emp_contribution_usd = round(base_amt_usd * emp_pct, 2)
-            emp_contribution_zwg = round(base_amt_zwg * emp_pct, 2)
+            self.cimas_employee = emp_contribution_usd
+            self.cimas_employer = employer_contribution_usd
 
             medical_credit_usd = round(emp_contribution_usd * 0.5, 2)
-            medical_credit_zwg = round(emp_contribution_zwg * 0.5, 2)
-            self.medical_aid_tax_credit = medical_credit_usd + medical_credit_zwg
+            self.medical_aid_tax_credit = medical_credit_usd
+            
+            if emp_contribution_usd > 0:
+                display_amount = emp_contribution_usd
+                deduct_usd = emp_contribution_usd
+            else:
+                display_amount = cimas_full_amount
+                deduct_usd = 0.0
 
             # Update row amounts for UI and Payslip
-            d.amount_usd = emp_contribution_usd
-            d.amount_zwg = emp_contribution_zwg
+            d.amount_usd = display_amount
+            d.amount_zwg = 0
 
-            total_deduction_usd += emp_contribution_usd
-            total_deduction_zwg += emp_contribution_zwg
+            total_deduction_usd += deduct_usd
 
         elif d.components.upper() in ["PAYEE", "AIDS LEVY", "SDL"]:
             continue

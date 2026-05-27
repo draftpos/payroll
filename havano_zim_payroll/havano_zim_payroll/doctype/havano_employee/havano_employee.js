@@ -74,6 +74,9 @@ frappe.ui.form.on("havano_employee", {
 	cimas_employee_(frm) {
 		calculate_totals_server(frm);
 	},
+	cimas_amount(frm) {
+		calculate_totals_server(frm);
+	},
 	is_blind(frm) {
 		calculate_totals_server(frm);
 	},
@@ -209,16 +212,10 @@ function update_net_income(frm) {
 function update_tax_credits(frm) {
 	// First, calculate Medical Aid Tax Credit
 	let medical_aid_credit = 0;
-	let cimas_row = (frm.doc.employee_deductions || []).find(d => 
-		["CIMAS", "MEDICAL AID"].includes((d.components || "").toUpperCase())
-	);
-	if (cimas_row) {
-		let orig_usd = flt(cimas_row.original_amount_usd) || flt(cimas_row.amount_usd);
-		let orig_zwg = flt(cimas_row.original_amount_zwg) || flt(cimas_row.amount_zwg);
-		let total_cimas = orig_usd + orig_zwg;
-		let employee_contribution = total_cimas * flt(frm.doc.cimas_employee_) / 100;
-		medical_aid_credit = employee_contribution * 0.5;
-	}
+	let cimas_full_amount = flt(frm.doc.cimas_amount);
+	let employee_contribution = cimas_full_amount * flt(frm.doc.cimas_employee_) / 100.0;
+	medical_aid_credit = employee_contribution * 0.5;
+	
 	frm.set_value("medical_aid_tax_credit", medical_aid_credit);
 
 	// Then, handle Blind, Disabled, Elderly credits

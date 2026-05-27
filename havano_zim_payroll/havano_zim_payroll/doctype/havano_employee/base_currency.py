@@ -110,19 +110,9 @@ def main(self):
         self.disabled = 0
 
     # Medical Aid Credit (50% of employee contribution)
-    cimas_employee_credit = 0
-    for d in self.employee_deductions:
-        if d.components.upper() in ["CIMAS", "MEDICAL AID", "MEDICAL AID EXPENSE"]:
-            # Initialize original amount if not set
-            if not getattr(d, "original_amount_usd", 0):
-                d.original_amount_usd = d.amount_usd
-                d.original_amount_zwg = d.amount_zwg
-            
-            base_amt = flt(d.original_amount_usd) if self.salary_currency == "USD" else flt(d.original_amount_zwg)
-            emp_portion = base_amt * flt(self.cimas_employee_) / 100
-            cimas_employee_credit = emp_portion * 0.5
-            break
-    
+    cimas_full_amount = flt(getattr(self, "cimas_amount", 0.0))
+    emp_portion = cimas_full_amount * flt(self.cimas_employee_) / 100.0
+    cimas_employee_credit = emp_portion * 0.5
     tax_credits += cimas_employee_credit
     self.medical_aid_tax_credit = cimas_employee_credit
     self.total_tax_credits = round(tax_credits, 2)
@@ -189,29 +179,35 @@ def main(self):
             continue
             
         elif d.components.upper() in ["CIMAS", "MEDICAL AID", "MEDICAL AID EXPENSE"]:
-            # Initialize original amount if not set
-            if not getattr(d, "original_amount_usd", 0):
-                d.original_amount_usd = d.amount_usd
-                d.original_amount_zwg = d.amount_zwg
+            # Use the new cimas_amount field from the main document
+            cimas_full_amount = flt(getattr(self, "cimas_amount", 0.0))
             
-            # Calculate from original full amount
-            base_amt_usd = flt(d.original_amount_usd)
-            base_amt_zwg = flt(d.original_amount_zwg)
+            # Calculate employee and employer portions
+            emp_portion = round(cimas_full_amount * flt(self.cimas_employee_) / 100.0, 2)
+            employer_portion = round(cimas_full_amount * flt(self.cimas_employer_) / 100.0, 2)
             
-            amt = base_amt_usd if self.salary_currency == "USD" else base_amt_zwg
+            # Save the calculated amounts to the main document for reference
+            self.cimas_employee = emp_portion
+            self.cimas_employer = employer_portion
             
-            # Employee pays 0 if employer pays 100%, else pays their percentage
-            emp_portion = round(amt * flt(self.cimas_employee_) / 100.0, 2)
+            # Logic: If employee pays a percentage, show calculated amount.
+            # If employer pays 100% (employee pays 0%), show the FULL amount but with NO EFFECT on total deductions.
+            if emp_portion > 0:
+                display_amount = emp_portion
+                deduction_effect = emp_portion
+            else:
+                display_amount = cimas_full_amount
+                deduction_effect = 0.0
             
             # Update the row so the UI and payslip reflect the correct deduction
             if self.salary_currency == "USD":
-                d.amount_usd = emp_portion
+                d.amount_usd = display_amount
                 d.amount_zwg = 0
             else:
-                d.amount_zwg = emp_portion
+                d.amount_zwg = display_amount
                 d.amount_usd = 0
                 
-            total_deduction += emp_portion
+            total_deduction += deduction_effect
             
         else:
             # Other deductions (NEC, Pension, etc.)

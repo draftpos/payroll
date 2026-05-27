@@ -1565,6 +1565,11 @@
    "label": "Funeral and CIMAS"
   },
   {
+   "fieldname": "cimas_amount",
+   "fieldtype": "Currency",
+   "label": "CIMAS Amount"
+  },
+  {
    "default": "0",
    "fieldname": "cimas_employer_",
    "fieldtype": "Float",
@@ -1658,7 +1663,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2026-03-25 08:51:10.401527",
+ "modified": "2026-05-27 15:00:00.000000",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_employee",
