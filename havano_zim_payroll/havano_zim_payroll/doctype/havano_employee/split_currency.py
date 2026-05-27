@@ -142,11 +142,18 @@ def main(self):
             medical_credit_usd = round(emp_contribution_usd * 0.5, 2)
             self.medical_aid_tax_credit = medical_credit_usd
             
+            if emp_contribution_usd > 0:
+                display_amount = emp_contribution_usd
+                deduct_usd = emp_contribution_usd
+            else:
+                display_amount = cimas_full_amount
+                deduct_usd = 0.0
+
             # Update row amounts for UI and Payslip
-            d.amount_usd = emp_contribution_usd
+            d.amount_usd = display_amount
             d.amount_zwg = 0
 
-            total_deduction_usd += emp_contribution_usd
+            total_deduction_usd += deduct_usd
 
         elif d.components.upper() in ["PAYEE", "AIDS LEVY", "SDL"]:
             continue
