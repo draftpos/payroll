@@ -74,6 +74,9 @@ frappe.ui.form.on("havano_employee", {
 	cimas_employee_(frm) {
 		calculate_totals_server(frm);
 	},
+	cimas_employer_(frm) {
+		calculate_totals_server(frm);
+	},
 	cimas_amount(frm) {
 		calculate_totals_server(frm);
 	},

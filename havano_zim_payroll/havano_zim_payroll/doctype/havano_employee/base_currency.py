@@ -320,7 +320,6 @@ def ensure_deductions(self):
 
     for comp in ["NSSA", "PAYEE", "AIDS LEVY", medical_aid_comp.upper()]:
         if comp not in existing:
-            # Only add if the salary component has always_calculate = 1
             comp_name = frappe.db.get_value(
                 "havano_salary_component",
                 {"salary_component": ["like", comp]},
@@ -330,6 +329,11 @@ def ensure_deductions(self):
                 always_calc = frappe.db.get_value(
                     "havano_salary_component", comp_name, "always_calculate"
                 )
+                
+                # Special case: If CIMAS amount is entered, force inclusion
+                if comp == medical_aid_comp.upper() and flt(getattr(self, "cimas_amount", 0.0)) > 0:
+                    always_calc = 1
+
                 if always_calc:
                     self.append("employee_deductions", {
                         "components": comp_name,
