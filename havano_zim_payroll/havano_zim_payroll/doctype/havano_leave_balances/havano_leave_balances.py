@@ -8,5 +8,5 @@ class HavanoLeaveBalances(Document):
 
     def validate_annual_leave_limit(self):
         if self.havano_leave_type == "Annual Leave":
-            if self.leave_balance > 90:
+            if frappe.utils.flt(self.leave_balance) > 90:
                 frappe.throw(_("Maximum Annual Leave balance allowed is 90 days. You cannot save a balance of {0}.").format(self.leave_balance))

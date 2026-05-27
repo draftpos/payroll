@@ -23,7 +23,7 @@ class havano_leave_application(Document):
                 "leave_balance")
             self.leave_balance = balance or 0
             
-            if self.total_leave_days > self.leave_balance:
+            if frappe.utils.flt(self.total_leave_days) > frappe.utils.flt(self.leave_balance):
                 # We can throw a warning or error here if we want to prevent negative balances
                 # For now just informational
                 pass
