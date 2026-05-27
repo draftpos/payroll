@@ -213,7 +213,9 @@ function update_tax_credits(frm) {
 		["CIMAS", "MEDICAL AID"].includes((d.components || "").toUpperCase())
 	);
 	if (cimas_row) {
-		let total_cimas = flt(cimas_row.amount_usd) + flt(cimas_row.amount_zwg);
+		let orig_usd = flt(cimas_row.original_amount_usd) || flt(cimas_row.amount_usd);
+		let orig_zwg = flt(cimas_row.original_amount_zwg) || flt(cimas_row.amount_zwg);
+		let total_cimas = orig_usd + orig_zwg;
 		let employee_contribution = total_cimas * flt(frm.doc.cimas_employee_) / 100;
 		medical_aid_credit = employee_contribution * 0.5;
 	}

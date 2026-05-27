@@ -113,9 +113,13 @@ def main(self):
     cimas_employee_credit = 0
     for d in self.employee_deductions:
         if d.components.upper() in ["CIMAS", "MEDICAL AID", "MEDICAL AID EXPENSE"]:
-            # If d.amount is the TOTAL, calculate employee portion
-            amt = flt(d.amount_usd) if self.salary_currency == "USD" else flt(d.amount_zwg)
-            emp_portion = amt * flt(self.cimas_employee_) / 100
+            # Initialize original amount if not set
+            if not getattr(d, "original_amount_usd", 0):
+                d.original_amount_usd = d.amount_usd
+                d.original_amount_zwg = d.amount_zwg
+            
+            base_amt = flt(d.original_amount_usd) if self.salary_currency == "USD" else flt(d.original_amount_zwg)
+            emp_portion = base_amt * flt(self.cimas_employee_) / 100
             cimas_employee_credit = emp_portion * 0.5
             break
     
@@ -185,8 +189,28 @@ def main(self):
             continue
             
         elif d.components.upper() in ["CIMAS", "MEDICAL AID", "MEDICAL AID EXPENSE"]:
-            amt = flt(d.amount_usd) if self.salary_currency == "USD" else flt(d.amount_zwg)
-            emp_portion = amt * flt(self.cimas_employee_) / 100
+            # Initialize original amount if not set
+            if not getattr(d, "original_amount_usd", 0):
+                d.original_amount_usd = d.amount_usd
+                d.original_amount_zwg = d.amount_zwg
+            
+            # Calculate from original full amount
+            base_amt_usd = flt(d.original_amount_usd)
+            base_amt_zwg = flt(d.original_amount_zwg)
+            
+            amt = base_amt_usd if self.salary_currency == "USD" else base_amt_zwg
+            
+            # Employee pays 0 if employer pays 100%, else pays their percentage
+            emp_portion = round(amt * flt(self.cimas_employee_) / 100.0, 2)
+            
+            # Update the row so the UI and payslip reflect the correct deduction
+            if self.salary_currency == "USD":
+                d.amount_usd = emp_portion
+                d.amount_zwg = 0
+            else:
+                d.amount_zwg = emp_portion
+                d.amount_usd = 0
+                
             total_deduction += emp_portion
             
         else:

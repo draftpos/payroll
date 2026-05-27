@@ -14,7 +14,9 @@
   "exchange_rate",
   "section_break_qrja",
   "column_break_cqgn",
-  "is_tax_applicable"
+  "is_tax_applicable",
+  "original_amount_usd",
+  "original_amount_zwg"
  ],
  "fields": [
   {
@@ -82,13 +84,25 @@
    "fieldname": "exchange_rate",
    "fieldtype": "Data",
    "label": "Exchange Rate"
+  },
+  {
+   "fieldname": "original_amount_usd",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Original Base Amount"
+  },
+  {
+   "fieldname": "original_amount_zwg",
+   "fieldtype": "Float",
+   "hidden": 1,
+   "label": "Original Foreign Amount"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-10-18 14:04:59.091208",
+ "modified": "2026-05-27 13:09:57.116710",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_payroll_earnings",
