@@ -177,8 +177,13 @@ def main(self):
                 self.lapf_employee = emp_amt
                 self.lapf_employer = round(basic_salary * emp_pct_val, 2)
             continue
+        # Find base component to use as fallback
+        base_comp_name = frappe.db.get_value("havano_salary_component", {"salary_component": ["like", "CIMAS"]}, "name")
+        if not base_comp_name:
+            base_comp_name = frappe.db.get_value("havano_salary_component", {"salary_component": ["like", "MEDICAL AID%"]}, "name")
+        
         # Determine the target Medical Aid label
-        medical_aid_label = (getattr(self, "medical_aid_display_name", "") or "").strip() or "Medical Aid"
+        medical_aid_label = (getattr(self, "medical_aid_display_name", "") or "").strip() or base_comp_name or "Medical Aid"
 
         # Check if this row is the Medical Aid row
         if d.components.upper() in ["CIMAS", "MEDICAL AID", "MEDICAL AID EXPENSE", medical_aid_label.upper()]:
@@ -212,23 +217,19 @@ def main(self):
             
             # Create the Salary Component dynamically if it doesn't exist, copying from base
             if not frappe.db.exists("havano_salary_component", medical_aid_label):
-                base_comp_name = frappe.db.get_value("havano_salary_component", {"salary_component": ["like", "CIMAS"]}, "name")
-                if not base_comp_name:
-                    base_comp_name = frappe.db.get_value("havano_salary_component", {"salary_component": ["like", "MEDICAL AID%"]}, "name")
-                
                 if base_comp_name:
                     base_doc = frappe.get_doc("havano_salary_component", base_comp_name)
                     comp_doc = frappe.copy_doc(base_doc)
                     comp_doc.salary_component = medical_aid_label
                     comp_doc.code = "" # Let it auto-generate or use name
-                    comp_doc.insert(ignore_permissions=True)
+                    comp_doc.insert(ignore_permissions=True, ignore_mandatory=True)
                 else:
                     # Fallback if no base component exists at all
                     comp_doc = frappe.new_doc("havano_salary_component")
                     comp_doc.salary_component = medical_aid_label
                     comp_doc.type = "Deduction"
                     comp_doc.always_calculate = 1
-                    comp_doc.insert(ignore_permissions=True)
+                    comp_doc.insert(ignore_permissions=True, ignore_mandatory=True)
                 
             # Update the component name and item code on the row
             d.components = medical_aid_label
