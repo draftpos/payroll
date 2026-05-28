@@ -142,7 +142,11 @@ def main(self):
             total_deduction_usd += d.amount_usd
             total_deduction_zwg += d.amount_zwg
 
-        elif d.components.upper() in ["MEDICAL AID", "CIMAS", "MEDICAL AID EXPENSE"]:
+        # Determine the target Medical Aid label
+        medical_aid_label = (getattr(self, "medical_aid_display_name", "") or "").strip() or "Medical Aid"
+
+        # Check if this row is the Medical Aid row
+        if d.components.upper() in ["MEDICAL AID", "CIMAS", "MEDICAL AID EXPENSE", medical_aid_label.upper()]:
             # Use the new cimas_amount field from the main document (assumed USD for split currency context)
             cimas_full_amount = flt(getattr(self, "cimas_amount", 0.0))
             emp_pct = flt(self.cimas_employee_) / 100.0
@@ -168,9 +172,17 @@ def main(self):
             d.amount_usd = display_amount
             d.amount_zwg = 0
 
-            # Set display label: custom name > "Medical Aid"
-            medical_aid_label = (getattr(self, "medical_aid_display_name", "") or "").strip() or "Medical Aid"
-            d.display_label = medical_aid_label
+            # Create the Salary Component dynamically if it doesn't exist
+            if not frappe.db.exists("havano_salary_component", medical_aid_label):
+                comp_doc = frappe.new_doc("havano_salary_component")
+                comp_doc.salary_component = medical_aid_label
+                comp_doc.type = "Deduction"
+                comp_doc.always_calculate = 1
+                comp_doc.insert(ignore_permissions=True)
+                
+            # Update the component name and item code on the row
+            d.components = medical_aid_label
+            d.item_code = frappe.db.get_value("havano_salary_component", medical_aid_label, "code") or medical_aid_label
 
             total_deduction_usd += deduct_usd
 
