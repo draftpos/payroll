@@ -90,6 +90,14 @@ def main(self):
     except Exception:
         pass
 
+    disable_foreign_deduction = 0
+    try:
+        disable_foreign_deduction = frappe.db.get_single_value("Havano Payroll Settings", "disable_deductions_on_foreign_amount") or 0
+    except Exception:
+        pass
+    
+    zero_out_zwg = (disable_foreign_deduction and total_earnings_zwg > 0)
+
     for d in self.employee_deductions:
         if not d.components:
             continue
@@ -110,6 +118,9 @@ def main(self):
             nssa_income_zwg = min(nssa_base_zwg, nssa_limit_zwg)
             d.amount_zwg = round(nssa_income_zwg * 0.045, 2)
 
+            if zero_out_zwg:
+                d.amount_zwg = 0.0
+
             # NSSA is allowable if NOT "Include NSSA in Taxable Income"
             if not include_nssa:
                 total_allowable_deductions_usd += d.amount_usd
@@ -122,6 +133,10 @@ def main(self):
             basic_zwg = sum(flt(e.amount_zwg) for e in self.employee_earnings if e.components == "Basic Salary")
             d.amount_usd = round(basic_usd * 0.015, 2)
             d.amount_zwg = round(basic_zwg * 0.015, 2)
+            
+            if zero_out_zwg:
+                d.amount_zwg = 0.0
+                
             total_allowable_deductions_usd += d.amount_usd
             total_allowable_deductions_zwg += d.amount_zwg
             total_deduction_usd += d.amount_usd
@@ -164,6 +179,10 @@ def main(self):
             emp_pct = flt(comp_data.get("employee_amount") or 0) / 100.0
             emp_amt_usd = round(basic_salary_usd * emp_pct, 2)
             emp_amt_zwg = round(basic_salary_zwg * emp_pct, 2)
+            
+            if zero_out_zwg:
+                emp_amt_zwg = 0.0
+                
             d.amount_usd = emp_amt_usd
             d.amount_zwg = emp_amt_zwg
             total_deduction_usd += emp_amt_usd
@@ -181,6 +200,9 @@ def main(self):
             # Skip PAYEE and AIDS LEVY here because they are added at the very end
             if d.components.upper() in ["PAYEE", "AIDS LEVY", "SDL"]:
                 continue
+                
+            if zero_out_zwg:
+                d.amount_zwg = 0.0
                 
             total_deduction_usd += flt(d.amount_usd)
             total_deduction_zwg += flt(d.amount_zwg)
@@ -212,6 +234,10 @@ def main(self):
 
     aids_levy_usd = round(final_payee_usd * 0.03, 2)
     aids_levy_zwg = round(final_payee_zwg * 0.03, 2)
+    
+    if zero_out_zwg:
+        final_payee_zwg = 0.0
+        aids_levy_zwg = 0.0
 
     # 8. UPDATE DEDUCTION TABLE
     for d in self.employee_deductions:
@@ -227,6 +253,8 @@ def main(self):
         elif d.components.upper() == "SDL":
             d.amount_usd = round(total_earnings_usd * 0.05, 2)
             d.amount_zwg = round(total_earnings_zwg * 0.05, 2)
+            if zero_out_zwg:
+                d.amount_zwg = 0.0
 
     # 9. FINAL SUMMARY
     existing = [(d.components or "").upper() for d in self.employee_deductions]

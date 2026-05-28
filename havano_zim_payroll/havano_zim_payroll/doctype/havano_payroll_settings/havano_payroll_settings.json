@@ -14,7 +14,8 @@
   "medical_aid_section",
   "medical_aid_component_name",
   "section_break_qmwu",
-  "components_for_reporting"
+  "components_for_reporting",
+  "disable_deductions_on_foreign_amount"
  ],
  "fields": [
   {
@@ -77,6 +78,12 @@
    "fieldtype": "Select",
    "label": "Medical Aid Component Name",
    "options": "CIMAS\nMedical Aid Expense"
+  },
+  {
+   "default": "0",
+   "fieldname": "disable_deductions_on_foreign_amount",
+   "fieldtype": "Check",
+   "label": "Disable deductions on foreign amount"
   }
  ],
  "grid_page_length": 50,
