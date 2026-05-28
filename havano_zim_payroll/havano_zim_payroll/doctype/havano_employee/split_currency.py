@@ -146,7 +146,7 @@ def main(self):
                 display_amount = emp_contribution_usd
                 deduct_usd = emp_contribution_usd
             else:
-                display_amount = cimas_full_amount
+                display_amount = 0.0
                 deduct_usd = 0.0
 
             # Update row amounts for UI and Payslip

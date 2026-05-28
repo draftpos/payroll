@@ -191,12 +191,12 @@ def main(self):
             self.cimas_employer = employer_portion
             
             # Logic: If employee pays a percentage, show calculated amount.
-            # If employer pays 100% (employee pays 0%), show the FULL amount but with NO EFFECT on total deductions.
+            # If employer pays 100% (employee pays 0%), show 0.0 deduction.
             if emp_portion > 0:
                 display_amount = emp_portion
                 deduction_effect = emp_portion
             else:
-                display_amount = cimas_full_amount
+                display_amount = 0.0
                 deduction_effect = 0.0
 
             # Update the row so the UI and payslip reflect the correct deduction
