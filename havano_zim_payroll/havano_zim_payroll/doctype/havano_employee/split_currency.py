@@ -319,13 +319,21 @@ def ensure_deductions(self):
     """Ensures statutory rows exist in employee_deductions ONLY if always_calculate is checked."""
     existing = [(d.components or "").upper() for d in self.employee_deductions]
     
-    medical_aid_comp = "CIMAS"
-    try:
-        medical_aid_comp = frappe.db.get_single_value("Havano Payroll Settings", "medical_aid_component_name") or "CIMAS"
-    except Exception:
-        pass
+    # Auto-detect the medical aid component from known names
+    medical_aid_comp = None
+    for candidate in ["CIMAS", "MEDICAL AID", "MEDICAL AID EXPENSE"]:
+        comp_name = frappe.db.get_value(
+            "havano_salary_component",
+            {"salary_component": ["like", candidate]},
+            "salary_component"
+        )
+        if comp_name:
+            medical_aid_comp = comp_name.upper()
+            break
+    if not medical_aid_comp:
+        medical_aid_comp = "CIMAS"
 
-    for comp in ["NSSA", "PAYEE", "AIDS LEVY", medical_aid_comp.upper()]:
+    for comp in ["NSSA", "PAYEE", "AIDS LEVY", medical_aid_comp]:
         if comp not in existing:
             comp_name = frappe.db.get_value(
                 "havano_salary_component",
@@ -338,7 +346,7 @@ def ensure_deductions(self):
                 )
                 
                 # Special case: If CIMAS amount is entered, force inclusion
-                if comp == medical_aid_comp.upper() and flt(getattr(self, "cimas_amount", 0.0)) > 0:
+                if comp == medical_aid_comp and flt(getattr(self, "cimas_amount", 0.0)) > 0:
                     always_calc = 1
                     
                 if always_calc:
