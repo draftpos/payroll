@@ -153,6 +153,7 @@ def main(self):
             if not include_nssa:
                 total_allowable_deductions += nssa_amt
             total_deduction += nssa_amt
+            continue
 
         elif d.components.upper() in ["PAYEE", "AIDS LEVY", "SDL"]:
             # Skip these for now, calculate later

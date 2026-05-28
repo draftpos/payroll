@@ -80,10 +80,7 @@ frappe.ui.form.on("havano_employee", {
 	cimas_amount(frm) {
 		calculate_totals_server(frm);
 	},
-	medical_aid_display_name(frm) {
-		// Re-run calculation so display_label gets updated on all deduction rows
-		calculate_totals_server(frm);
-	},
+
 	is_blind(frm) {
 		calculate_totals_server(frm);
 	},
