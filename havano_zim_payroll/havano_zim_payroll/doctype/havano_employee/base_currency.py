@@ -177,13 +177,13 @@ def main(self):
                 self.lapf_employee = emp_amt
                 self.lapf_employer = round(basic_salary * emp_pct_val, 2)
             continue
-        # Find base component to use as fallback
+        # Find base component to use as template
         base_comp_name = frappe.db.get_value("havano_salary_component", {"salary_component": ["like", "CIMAS"]}, "name")
         if not base_comp_name:
             base_comp_name = frappe.db.get_value("havano_salary_component", {"salary_component": ["like", "MEDICAL AID%"]}, "name")
         
         # Determine the target Medical Aid label
-        medical_aid_label = (getattr(self, "medical_aid_display_name", "") or "").strip() or base_comp_name or "Medical Aid"
+        medical_aid_label = (getattr(self, "medical_aid_display_name", "") or "").strip() or "Medical Aid"
 
         # Check if this row is the Medical Aid row
         if d.components.upper() in ["CIMAS", "MEDICAL AID", "MEDICAL AID EXPENSE", medical_aid_label.upper()]:
@@ -348,7 +348,7 @@ def ensure_deductions(self):
     if not base_comp_name:
         base_comp_name = frappe.db.get_value("havano_salary_component", {"salary_component": ["like", "MEDICAL AID%"]}, "name")
         
-    medical_aid_label = (getattr(self, "medical_aid_display_name", "") or "").strip() or base_comp_name or "Medical Aid"
+    medical_aid_label = (getattr(self, "medical_aid_display_name", "") or "").strip() or "Medical Aid"
     
     # Check if we already have a medical aid row
     has_medical_aid = any(x in ["CIMAS", "MEDICAL AID", "MEDICAL AID EXPENSE", medical_aid_label.upper()] for x in existing)
