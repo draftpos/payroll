@@ -45,6 +45,9 @@ def main(self):
     self.total_income = self.total_earnings_usd + self.total_earnings_zwg
     self.basic_salary_calculated = basic_salary_usd + basic_salary_zwg
 
+    # EXCHANGE RATE
+    exchange_rate = flt(frappe.db.get_value("Currency Exchange", {"from_currency": "USD", "to_currency": ["in", ["ZWG", "ZWL"]]}, "exchange_rate") or 1)
+
     # --- MOTORING BENEFIT ---
     _mot_currency = "USD" if basic_salary_usd else "ZWG"
     apply_motoring_benefit(self, _mot_currency, exchange_rate)
