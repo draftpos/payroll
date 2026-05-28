@@ -206,8 +206,13 @@ def main(self):
             else:
                 d.amount_zwg = display_amount
                 d.amount_usd = 0
+            
+            # Set display label: custom name > "Medical Aid"
+            medical_aid_label = (getattr(self, "medical_aid_display_name", "") or "").strip() or "Medical Aid"
+            d.display_label = medical_aid_label
                 
             total_deduction += deduction_effect
+
             
         else:
             # Other deductions (NEC, Pension, etc.)
