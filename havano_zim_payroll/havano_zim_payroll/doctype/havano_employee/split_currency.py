@@ -172,13 +172,25 @@ def main(self):
             d.amount_usd = display_amount
             d.amount_zwg = 0
 
-            # Create the Salary Component dynamically if it doesn't exist
+            # Create the Salary Component dynamically if it doesn't exist, copying from base
             if not frappe.db.exists("havano_salary_component", medical_aid_label):
-                comp_doc = frappe.new_doc("havano_salary_component")
-                comp_doc.salary_component = medical_aid_label
-                comp_doc.type = "Deduction"
-                comp_doc.always_calculate = 1
-                comp_doc.insert(ignore_permissions=True)
+                base_comp_name = frappe.db.get_value("havano_salary_component", {"salary_component": ["like", "CIMAS"]}, "name")
+                if not base_comp_name:
+                    base_comp_name = frappe.db.get_value("havano_salary_component", {"salary_component": ["like", "MEDICAL AID%"]}, "name")
+                
+                if base_comp_name:
+                    base_doc = frappe.get_doc("havano_salary_component", base_comp_name)
+                    comp_doc = frappe.copy_doc(base_doc)
+                    comp_doc.salary_component = medical_aid_label
+                    comp_doc.code = "" # Let it auto-generate or use name
+                    comp_doc.insert(ignore_permissions=True)
+                else:
+                    # Fallback if no base component exists at all
+                    comp_doc = frappe.new_doc("havano_salary_component")
+                    comp_doc.salary_component = medical_aid_label
+                    comp_doc.type = "Deduction"
+                    comp_doc.always_calculate = 1
+                    comp_doc.insert(ignore_permissions=True)
                 
             # Update the component name and item code on the row
             d.components = medical_aid_label

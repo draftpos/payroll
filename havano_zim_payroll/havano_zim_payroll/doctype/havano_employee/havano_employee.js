@@ -204,7 +204,9 @@ function update_tax_credits_if_needed(frm, cdt, cdn) {
 	let row = locals[cdt][cdn];
 	if (row.parentfield === "employee_deductions") {
 		const comp = (row.components || "").toUpperCase();
-		if (comp === "CIMAS" || comp === "MEDICAL AID") {
+		const custom_medical_aid = (frm.doc.medical_aid_display_name || "Medical Aid").toUpperCase();
+		
+		if (comp === "CIMAS" || comp === "MEDICAL AID" || comp === "MEDICAL AID EXPENSE" || comp === custom_medical_aid) {
 			update_tax_credits(frm);
 		}
 	}
