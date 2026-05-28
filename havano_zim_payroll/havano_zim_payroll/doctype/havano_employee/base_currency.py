@@ -343,21 +343,17 @@ def ensure_deductions(self):
     """Ensures statutory rows exist in employee_deductions ONLY if always_calculate is checked."""
     existing = [(d.components or "").upper() for d in self.employee_deductions]
     
-    # Auto-detect the medical aid component from known names
-    medical_aid_comp = None
-    for candidate in ["CIMAS", "MEDICAL AID", "MEDICAL AID EXPENSE"]:
-        comp_name = frappe.db.get_value(
-            "havano_salary_component",
-            {"salary_component": ["like", candidate]},
-            "salary_component"
-        )
-        if comp_name:
-            medical_aid_comp = comp_name.upper()
-            break
-    if not medical_aid_comp:
-        medical_aid_comp = "CIMAS"
+    # Auto-detect the medical aid target label
+    base_comp_name = frappe.db.get_value("havano_salary_component", {"salary_component": ["like", "CIMAS"]}, "name")
+    if not base_comp_name:
+        base_comp_name = frappe.db.get_value("havano_salary_component", {"salary_component": ["like", "MEDICAL AID%"]}, "name")
+        
+    medical_aid_label = (getattr(self, "medical_aid_display_name", "") or "").strip() or base_comp_name or "Medical Aid"
+    
+    # Check if we already have a medical aid row
+    has_medical_aid = any(x in ["CIMAS", "MEDICAL AID", "MEDICAL AID EXPENSE", medical_aid_label.upper()] for x in existing)
 
-    for comp in ["NSSA", "PAYEE", "AIDS LEVY", medical_aid_comp]:
+    for comp in ["NSSA", "PAYEE", "AIDS LEVY"]:
         if comp not in existing:
             comp_name = frappe.db.get_value(
                 "havano_salary_component",
@@ -368,10 +364,6 @@ def ensure_deductions(self):
                 always_calc = frappe.db.get_value(
                     "havano_salary_component", comp_name, "always_calculate"
                 )
-                
-                # Special case: If CIMAS amount is entered, force inclusion
-                if comp == medical_aid_comp and flt(getattr(self, "cimas_amount", 0.0)) > 0:
-                    always_calc = 1
 
                 if always_calc:
                     self.append("employee_deductions", {
@@ -379,6 +371,24 @@ def ensure_deductions(self):
                         "amount_usd": 0,
                         "amount_zwg": 0
                     })
+                    
+    # Separately ensure Medical Aid
+    if not has_medical_aid:
+        always_calc = 0
+        if frappe.db.exists("havano_salary_component", medical_aid_label):
+            always_calc = frappe.db.get_value("havano_salary_component", medical_aid_label, "always_calculate")
+        else:
+            always_calc = 1 # We will create it on the fly later, so assume it should be there
+            
+        if flt(getattr(self, "cimas_amount", 0.0)) > 0:
+            always_calc = 1
+            
+        if always_calc:
+            self.append("employee_deductions", {
+                "components": medical_aid_label,
+                "amount_usd": 0,
+                "amount_zwg": 0
+            })
 
 
 def payee_against_slab(amount, mode="Monthly", currency="USD"):
