@@ -127,6 +127,7 @@ def main(self):
                 total_allowable_deductions_zwg += d.amount_zwg
             total_deduction_usd += d.amount_usd
             total_deduction_zwg += d.amount_zwg
+            continue
 
         elif d.components.upper() == "NEC":
             basic_usd = sum(flt(e.amount_usd) for e in self.employee_earnings if e.components == "Basic Salary")
@@ -141,6 +142,7 @@ def main(self):
             total_allowable_deductions_zwg += d.amount_zwg
             total_deduction_usd += d.amount_usd
             total_deduction_zwg += d.amount_zwg
+            continue
 
         # Find base component to use as fallback
         base_comp_name = frappe.db.get_value("havano_salary_component", {"salary_component": ["like", "CIMAS"]}, "name")
