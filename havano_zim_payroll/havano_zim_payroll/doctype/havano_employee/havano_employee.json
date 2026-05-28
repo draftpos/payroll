@@ -112,6 +112,7 @@
   "engine_capacity",
   "funeral_and_cimas_section",
   "cimas_amount",
+  "medical_aid_display_name",
   "cimas_employer_",
   "cimas_employee_",
   "column_break_dqsm",
@@ -1563,24 +1564,30 @@
   {
    "fieldname": "funeral_and_cimas_section",
    "fieldtype": "Section Break",
-   "label": "Funeral and CIMAS"
+   "label": "Funeral and Medical Aid"
   },
   {
    "fieldname": "cimas_amount",
    "fieldtype": "Currency",
-   "label": "CIMAS Amount"
+   "label": "Medical Aid Amount"
+  },
+  {
+   "fieldname": "medical_aid_display_name",
+   "fieldtype": "Data",
+   "label": "Medical Aid Display Name",
+   "description": "Leave blank to show 'Medical Aid'. Enter a custom name to display it on the deductions table and payslip (e.g. First Mutual, CIMAS)."
   },
   {
    "default": "0",
    "fieldname": "cimas_employer_",
    "fieldtype": "Float",
-   "label": "CIMAS EMPLOYER %"
+   "label": "Medical Aid EMPLOYER %"
   },
   {
    "default": "0",
    "fieldname": "cimas_employee_",
    "fieldtype": "Float",
-   "label": "CIMAS EMPLOYEE %"
+   "label": "Medical Aid EMPLOYEE %"
   },
   {
    "fieldname": "column_break_dqsm",

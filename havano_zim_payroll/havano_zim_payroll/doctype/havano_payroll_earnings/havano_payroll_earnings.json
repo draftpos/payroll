@@ -30,6 +30,17 @@
    "options": "havano_salary_component"
   },
   {
+   "fetch_from": "components.code",
+   "fieldname": "item_code",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Item Code",
+   "read_only": 1
+  },
+  {
    "fieldname": "column_break_dqdc",
    "fieldtype": "Column Break"
   },
@@ -50,17 +61,6 @@
    "in_preview": 1,
    "in_standard_filter": 1,
    "label": "Base Amount"
-  },
-  {
-   "fetch_from": "components.code",
-   "fieldname": "item_code",
-   "fieldtype": "Data",
-   "in_filter": 1,
-   "in_list_view": 1,
-   "in_preview": 1,
-   "in_standard_filter": 1,
-   "label": "Item Code",
-   "read_only": 1
   },
   {
    "fieldname": "section_break_qrja",
