@@ -170,23 +170,55 @@ def run_payroll(month, year, work_date, daily):
         
         # Dealing with employee loan and deduction
         employee_loan_record = get_employee_loan(emp['name'])
+        
+        loan_amount_earning = 0
+        loan_repayment_deduction = 0
 
         if employee_loan_record:
-            # Get monthly deduction safely
-            monthly_amount_to_be_paid = getattr(employee_loan_record, "monthly_amount_to_be_paid", 0)
+            from datetime import datetime
+            payslip_period_str = f"{month_name} {year}"
             
-            # Update loan fields
-            employee_loan_record.loan_paid = (getattr(employee_loan_record, "loan_paid", 0) or 0) + monthly_amount_to_be_paid
-            employee_loan_record.current_loan_balance = (getattr(employee_loan_record, "current_loan_balance", 0) or 0) - monthly_amount_to_be_paid
+            def parse_period(p):
+                if not p:
+                    return None
+                try:
+                    return datetime.strptime(p.strip(), "%B %Y")
+                except:
+                    return None
             
-            # Save changes
-            employee_loan_record.save(ignore_permissions=True)
+            payslip_dt = parse_period(payslip_period_str)
             
-            # Log the deduction
-            frappe.log_error(
-                message=f"Employee: {emp['name']}, Monthly Loan Deduction: {monthly_amount_to_be_paid}, Loan Paid: {employee_loan_record.loan_paid}, Current Balance: {employee_loan_record.current_loan_balance}",
-                title="Payroll Monthly Loan Update"
-            )
+            disbursement_str = getattr(employee_loan_record, "current_payroll_period", "")
+            disbursement_dt = parse_period(disbursement_str) if disbursement_str else None
+            
+            repayment_start_str = getattr(employee_loan_record, "repayment_start_date", "")
+            repayment_start_dt = parse_period(repayment_start_str) if repayment_start_str else None
+
+            # Phase 3: Earnings
+            if disbursement_dt and payslip_dt:
+                if payslip_dt.year == disbursement_dt.year and payslip_dt.month == disbursement_dt.month:
+                    loan_amount_earning = getattr(employee_loan_record, "loan_principal_amount", 0)
+                
+            # Phase 3: Deductions
+            current_balance = getattr(employee_loan_record, "current_loan_balance", 0)
+            
+            is_after_repayment = False
+            if repayment_start_dt and payslip_dt:
+                is_after_repayment = payslip_dt.year > repayment_start_dt.year or (payslip_dt.year == repayment_start_dt.year and payslip_dt.month >= repayment_start_dt.month)
+                
+            if is_after_repayment and current_balance > 0:
+                monthly_deduct = getattr(employee_loan_record, "monthly_amount_to_be_paid", 0)
+                loan_repayment_deduction = min(current_balance, monthly_deduct)
+                
+                # Update loan fields
+                employee_loan_record.loan_paid = (getattr(employee_loan_record, "loan_paid", 0) or 0) + loan_repayment_deduction
+                employee_loan_record.current_loan_balance = current_balance - loan_repayment_deduction
+                employee_loan_record.save(ignore_permissions=True)
+                
+                frappe.log_error(
+                    message=f"Employee: {emp['name']}, Monthly Loan Deduction: {loan_repayment_deduction}, Loan Paid: {employee_loan_record.loan_paid}, Current Balance: {employee_loan_record.current_loan_balance}",
+                    title="Payroll Monthly Loan Update"
+                )
 
         # Create new Payroll Entry
         payroll = frappe.new_doc("Havano Payroll Entry")
@@ -242,6 +274,20 @@ def run_payroll(month, year, work_date, daily):
                     "amount_zwg": e.amount_zwg
                 })
 
+        # Add Loan Earnings (informational)
+        if loan_amount_earning > 0:
+            is_usd = (emp_doc.salary_currency == "USD")
+            payroll.append("employee_earnings", {
+                "components": "Loan Amount",
+                "item_code": None,
+                "amount_usd": loan_amount_earning if is_usd else 0.0,
+                "amount_zwg": loan_amount_earning if not is_usd else 0.0,
+            })
+
+        # Deduct Loan Repayment from Net Pay
+        if loan_repayment_deduction > 0:
+            emp_netpay -= loan_repayment_deduction
+
         # Fetch the ledger for the employee
         ledger = frappe.db.get_value(
             "Employee Ledger",
@@ -283,6 +329,16 @@ def run_payroll(month, year, work_date, daily):
                     "amount_usd": d.amount_usd,
                     "amount_zwg": d.amount_zwg
                 })
+
+        # Add Loan Repayment Deduction
+        if loan_repayment_deduction > 0:
+            is_usd = (emp_doc.salary_currency == "USD")
+            payroll.append("employee_deductions", {
+                "components": "Loan Repayment",
+                "item_code": None,
+                "amount_usd": loan_repayment_deduction if is_usd else 0.0,
+                "amount_zwg": loan_repayment_deduction if not is_usd else 0.0,
+            })
 
         payroll.insert(ignore_permissions=True)
         frappe.db.commit()

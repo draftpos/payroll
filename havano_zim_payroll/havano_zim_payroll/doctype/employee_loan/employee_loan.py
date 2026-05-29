@@ -6,17 +6,14 @@ from frappe.model.document import Document
 
 class EmployeeLoan(Document):
     def before_save(self):
-        # effective interest rate for employee-friendly loan
-        interest_amount = max(self.current_bank_interest_rate - self.company_interest_rate, 0)
+        # total amount to be paid without interest
+        self.total_amount_to_be_paid = self.loan_principal_amount
 
-        # total amount with monthly 
-        self.total_amount_to_be_paid = self.loan_principal_amount + (self.loan_principal_amount * interest_amount * self.payment_span / 100)
-
-        # total interest only
-        self.total_interest_earning_amount = self.total_amount_to_be_paid - self.loan_principal_amount
-
-        # monthly interest
-        self.montly_loan_interest = self.total_interest_earning_amount / (self.payment_span * 12)
+        # calculate monthly amount to be paid
+        if self.payment_span:
+            self.monthly_amount_to_be_paid = self.loan_principal_amount / (self.payment_span * 12)
+        else:
+            self.monthly_amount_to_be_paid = 0
 
         employee = self.employee
 
@@ -41,31 +38,6 @@ class EmployeeLoan(Document):
                 "components": "Loan Repayment",
                 "amount_usd": self.monthly_amount_to_be_paid if self.currency == "USD" else 0,
                 "amount_zwg": self.monthly_amount_to_be_paid if self.currency != "USD" else 0
-            })
-
-        # Save employee doc so changes persist
-        emp_doc.save()
-
-
-        earning_found = False
-        for e in emp_doc.employee_earnings:
-            if e.components == "Loan Interest":
-                earning_found = True
-                # Update amounts based on currency
-                if self.currency == "USD":
-                    e.amount_usd = self.montly_loan_interest
-                    e.amount_zwg = 0
-                else:
-                    e.amount_zwg = self.montly_loan_interest
-                    e.amount_usd = 0
-                break
-
-        # If no existing deduction, append a new row
-        if not earning_found:
-            emp_doc.append("employee_earnings", {
-                "components": "Loan Interest",
-                "amount_usd": self.montly_loan_interest if self.currency == "USD" else 0,
-                "amount_zwg": self.montly_loan_interest if self.currency != "USD" else 0
             })
 
         # Save employee doc so changes persist
