@@ -42,26 +42,6 @@ class EmployeeLoan(Document):
                     "amount_usd": self.loan_principal_amount if self.currency == "USD" else 0,
                     "amount_zwg": self.loan_principal_amount if self.currency != "USD" else 0
                 })
-                
-            # 2. Handle Loan Repayment (Deductions)
-            deduction_found = False
-            for ded in getattr(emp_doc, "employee_deductions", []):
-                if ded.components == "Loan Repayment":
-                    deduction_found = True
-                    if self.currency == "USD":
-                        ded.amount_usd = self.monthly_amount_to_be_paid
-                        ded.amount_zwg = 0
-                    else:
-                        ded.amount_zwg = self.monthly_amount_to_be_paid
-                        ded.amount_usd = 0
-                    break
-
-            if not deduction_found:
-                emp_doc.append("employee_deductions", {
-                    "components": "Loan Repayment",
-                    "amount_usd": self.monthly_amount_to_be_paid if self.currency == "USD" else 0,
-                    "amount_zwg": self.monthly_amount_to_be_paid if self.currency != "USD" else 0
-                })
 
             # Save employee doc so changes persist
             emp_doc.save(ignore_permissions=True)
