@@ -20,7 +20,7 @@ class EmployeeLoan(Document):
             self.current_loan_balance = self.loan_principal_amount
 
         # Update Employee Master Record
-        if self.employee:
+        if self.employee and not getattr(self.flags, "ignore_employee_update", False):
             emp_doc = frappe.get_doc("havano_employee", self.employee)
             
             # 1. Handle Loan Amount (Earnings)

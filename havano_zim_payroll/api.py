@@ -213,6 +213,7 @@ def run_payroll(month, year, work_date, daily):
                     # Update loan fields permanently
                     employee_loan_record.loan_paid = (getattr(employee_loan_record, "loan_paid", 0) or 0) + loan_repayment_deduction
                     employee_loan_record.current_loan_balance = current_balance - loan_repayment_deduction
+                    employee_loan_record.flags.ignore_employee_update = True
                     employee_loan_record.save(ignore_permissions=True)
                 
                     frappe.log_error(
