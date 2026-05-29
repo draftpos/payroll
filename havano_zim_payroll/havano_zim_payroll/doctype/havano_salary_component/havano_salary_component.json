@@ -164,7 +164,7 @@
    "fieldname": "nec_percentage",
    "fieldtype": "Float",
    "label": "NEC Percentage",
-   "depends_on": "eval:doc.salary_component == 'NEC'"
+   "depends_on": "eval:doc.salary_component && doc.salary_component.toUpperCase() === 'NEC'"
   }
  ],
  "grid_page_length": 50,
