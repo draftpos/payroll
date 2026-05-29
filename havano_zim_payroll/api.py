@@ -264,6 +264,8 @@ def run_payroll(month, year, work_date, daily):
         # Copy Earnings
         if hasattr(emp_doc, "employee_earnings"):
             for e in emp_doc.employee_earnings:
+                if e.components == "Loan Amount":
+                    continue
 
                 if e.components == "Backpay":
                     emp_netpay -= flt(e.amount_usd)
@@ -316,6 +318,9 @@ def run_payroll(month, year, work_date, daily):
         # Copy Deductions
         if hasattr(emp_doc, "employee_deductions"):
             for d in emp_doc.employee_deductions:
+                if d.components == "Loan Repayment":
+                    continue
+                    
                 if d.components == "NSSA":
                     try:
                         create_payroll_report(emp_doc.first_name,emp_doc.last_name, d.amount_zwg,0,d.amount_usd,0,f"{month_name} {year}",emp_doc.wcif_usd,emp_doc.wcif_zwg)
