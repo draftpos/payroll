@@ -16,6 +16,7 @@
   "enabled",
   "always_calculate",
   "nssa_calculation_basis",
+  "nec_percentage",
   "section_break_mgmx",
   "employee_amount",
   "column_break_navt",
@@ -158,6 +159,12 @@
    "label": "NSSA Calculation Basis",
    "options": "Gross Salary\nBasic Only",
    "description": "Choose whether NSSA is calculated on the full gross salary or on basic salary only."
+  },
+  {
+   "fieldname": "nec_percentage",
+   "fieldtype": "Float",
+   "label": "NEC Percentage",
+   "depends_on": "eval:doc.salary_component && doc.salary_component.toUpperCase() === 'NEC'"
   }
  ],
  "grid_page_length": 50,

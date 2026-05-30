@@ -36,7 +36,7 @@ def main(self):
             taxable_earnings_usd += flt(e.amount_usd)
             taxable_earnings_zwg += flt(e.amount_zwg)
 
-        if (e.components or "") == "Basic Salary":
+        if (e.components or "").strip().title() == "Basic Salary":
             basic_salary_usd = flt(e.amount_usd)
             basic_salary_zwg = flt(e.amount_zwg)
 
@@ -133,10 +133,13 @@ def main(self):
             continue
 
         elif d.components.upper() == "NEC":
-            basic_usd = sum(flt(e.amount_usd) for e in self.employee_earnings if e.components == "Basic Salary")
-            basic_zwg = sum(flt(e.amount_zwg) for e in self.employee_earnings if e.components == "Basic Salary")
-            d.amount_usd = round(basic_usd * 0.015, 2)
-            d.amount_zwg = round(basic_zwg * 0.015, 2)
+            nec_pct = frappe.db.get_value("havano_salary_component", d.components, "nec_percentage")
+            nec_multiplier = flt(nec_pct) / 100.0 if flt(nec_pct) > 0 else 0.015
+
+            basic_usd = sum(flt(e.amount_usd) for e in self.employee_earnings if (e.components or "").strip().title() == "Basic Salary")
+            basic_zwg = sum(flt(e.amount_zwg) for e in self.employee_earnings if (e.components or "").strip().title() == "Basic Salary")
+            d.amount_usd = round(basic_usd * nec_multiplier, 2)
+            d.amount_zwg = round(basic_zwg * nec_multiplier, 2)
             
             if zero_out_zwg:
                 d.amount_zwg = 0.0

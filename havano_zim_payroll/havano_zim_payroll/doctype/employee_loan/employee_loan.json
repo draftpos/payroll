@@ -8,7 +8,6 @@
  "field_order": [
   "employee",
   "current_payroll_period",
-  "current_bank_interest_rate",
   "current_loan_balance",
   "total_amount_to_be_paid",
   "currency",
@@ -17,12 +16,10 @@
   "column_break_kbwb",
   "employee_name",
   "payment_span",
-  "company_interest_rate",
+  "repayment_start_date",
   "loan_principal_amount",
   "monthly_amount_to_be_paid",
   "loan_paid",
-  "total_interest_earning_amount",
-  "montly_loan_interest",
   "employee_debtor"
  ],
  "fields": [
@@ -36,6 +33,7 @@
    "fetch_from": "employee.first_name",
    "fieldname": "employee_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Employee Name"
   },
   {
@@ -45,11 +43,20 @@
   {
    "fieldname": "current_loan_balance",
    "fieldtype": "Float",
-   "label": "Current Loan Balance "
+   "in_list_view": 1,
+   "label": "Current Loan Balance ",
+   "read_only": 1
+  },
+  {
+   "fieldname": "repayment_start_date",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Repayment Start Date"
   },
   {
    "fieldname": "loan_principal_amount",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Loan Principal Amount"
   },
   {
@@ -60,17 +67,8 @@
   {
    "fieldname": "loan_paid",
    "fieldtype": "Float",
-   "label": "Loan Paid"
-  },
-  {
-   "fieldname": "current_bank_interest_rate",
-   "fieldtype": "Float",
-   "label": "Current Bank Interest Rate"
-  },
-  {
-   "fieldname": "company_interest_rate",
-   "fieldtype": "Float",
-   "label": "Company Interest Rate"
+   "label": "Loan Paid",
+   "read_only": 1
   },
   {
    "fieldname": "total_interest_deduction_amount",
@@ -90,14 +88,11 @@
    "options": "Currency"
   },
   {
-   "fieldname": "total_interest_earning_amount",
-   "fieldtype": "Float",
-   "label": "Total Interest Earning Amount"
-  },
-  {
    "fieldname": "monthly_amount_to_be_paid",
    "fieldtype": "Float",
-   "label": "Monthly Amount To Be Paid"
+   "in_list_view": 1,
+   "label": "Monthly Amount To Be Paid",
+   "read_only": 1
   },
   {
    "fieldname": "payment_span",
@@ -116,11 +111,6 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Employee Debtor"
-  },
-  {
-   "fieldname": "montly_loan_interest",
-   "fieldtype": "Float",
-   "label": "Montly Loan Interest"
   }
  ],
  "grid_page_length": 50,
@@ -152,6 +142,7 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
+ "title_field": "employee_name",
  "track_changes": 1,
  "track_seen": 1,
  "track_views": 1
