@@ -12,8 +12,17 @@
   "supplier",
   "include_nssa_in_taxable_income",
   "section_break_qmwu",
+  "use_formula_cash_in_lieu",
   "components_for_reporting",
-  "disable_deductions_on_foreign_amount"
+  "disable_deductions_on_foreign_amount",
+  "maximum_leave_days_section",
+  "max_annual_leave_days",
+  "max_sick_leave_days",
+  "max_maternity_leave_days",
+  "column_break_leave_days",
+  "max_study_leave_days",
+  "max_special_leave_days",
+  "max_bereavement_leave_days"
  ],
  "fields": [
   {
@@ -69,6 +78,51 @@
    "fieldname": "disable_deductions_on_foreign_amount",
    "fieldtype": "Check",
    "label": "Disable deductions on foreign amount"
+  },
+  {
+   "fieldname": "maximum_leave_days_section",
+   "fieldtype": "Section Break",
+   "label": "Maximum Leave Days"
+  },
+  {
+   "default": "90",
+   "fieldname": "max_annual_leave_days",
+   "fieldtype": "Float",
+   "label": "Max Annual Leave Days"
+  },
+  {
+   "default": "90",
+   "fieldname": "max_sick_leave_days",
+   "fieldtype": "Float",
+   "label": "Max Sick Leave Days"
+  },
+  {
+   "default": "90",
+   "fieldname": "max_maternity_leave_days",
+   "fieldtype": "Float",
+   "label": "Max Maternity Leave Days"
+  },
+  {
+   "fieldname": "column_break_leave_days",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "10",
+   "fieldname": "max_study_leave_days",
+   "fieldtype": "Float",
+   "label": "Max Study Leave Days"
+  },
+  {
+   "default": "12",
+   "fieldname": "max_special_leave_days",
+   "fieldtype": "Float",
+   "label": "Max Special Leave Days"
+  },
+  {
+   "default": "12",
+   "fieldname": "max_bereavement_leave_days",
+   "fieldtype": "Float",
+   "label": "Max Bereavement Leave Days"
   }
  ],
  "grid_page_length": 50,

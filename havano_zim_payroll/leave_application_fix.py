@@ -50,7 +50,24 @@ def on_cancel(doc, method=None):
             frappe.msgprint(_("Havano Leave Balance restored. New balance: {0}").format(new_balance))
 
 def validate_leave_balance(doc, method=None):
-    """Refuse to save if Annual Leave balance exceeds 90 days."""
-    if doc.doctype == "Havano Leave Balances" and doc.havano_leave_type == "Annual Leave":
-        if flt(doc.leave_balance) > 90:
-            frappe.throw(_("Maximum Annual Leave balance allowed is 90 days. You cannot save a balance of {0}.").format(doc.leave_balance))
+    """Refuse to save if leave balance exceeds configured maximum."""
+    if doc.doctype == "Havano Leave Balances":
+        settings = frappe.get_single("Havano Payroll Settings")
+        max_days = None
+        leave_type_lower = doc.havano_leave_type.lower() if doc.havano_leave_type else ""
+        
+        if "annual" in leave_type_lower:
+            max_days = flt(settings.max_annual_leave_days) or 90.0
+        elif "sick" in leave_type_lower:
+            max_days = flt(settings.max_sick_leave_days) or 90.0
+        elif "maternity" in leave_type_lower:
+            max_days = flt(settings.max_maternity_leave_days) or 90.0
+        elif "study" in leave_type_lower:
+            max_days = flt(settings.max_study_leave_days) or 10.0
+        elif "special" in leave_type_lower:
+            max_days = flt(settings.max_special_leave_days) or 12.0
+        elif "bereavement" in leave_type_lower:
+            max_days = flt(settings.max_bereavement_leave_days) or 12.0
+            
+        if max_days is not None and flt(doc.leave_balance) > max_days:
+            frappe.throw(_("Maximum {0} balance allowed is {1} days. You cannot save a balance of {2}.").format(doc.havano_leave_type, max_days, doc.leave_balance))

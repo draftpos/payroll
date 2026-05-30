@@ -628,14 +628,22 @@ def update_havano_leave_balances(employee):
     If a type exists, skip it — except 'Annual Leave', which always increases by 2.5 days.
     """
 
+    settings = frappe.get_single("Havano Payroll Settings")
+    max_annual = flt(settings.max_annual_leave_days) or 90.0
+    max_study = flt(settings.max_study_leave_days) or 10.0
+    max_special = flt(settings.max_special_leave_days) or 12.0
+    max_bereavement = flt(settings.max_bereavement_leave_days) or 12.0
+    max_sick = flt(settings.max_sick_leave_days) or 90.0
+    max_maternity = flt(settings.max_maternity_leave_days) or 90.0
+
     # Define the default leave types and their default balances
     default_leave_types = {
         "Annual Leave": 2.5,
-        "Study Leave": 10.0,
-        "Special Leave": 12.0,
-        "Bereavement Leave": 12.0,
-        "Sick Leave": 90.0,
-        "Maternity Leave": 90.0
+        "Study Leave": max_study,
+        "Special Leave": max_special,
+        "Bereavement Leave": max_bereavement,
+        "Sick Leave": max_sick,
+        "Maternity Leave": max_maternity
     }
 
     # Get employee details
@@ -664,16 +672,16 @@ def update_havano_leave_balances(employee):
                 current_balance = flt(frappe.db.get_value("Havano Leave Balances", existing_record, "leave_balance") or 0)
                 new_balance = current_balance + 2.5
                 
-                # Cap at 90 days
-                if new_balance > 90:
-                    new_balance = 90
+                # Cap at max_annual days
+                if new_balance > max_annual:
+                    new_balance = max_annual
                 
                 # Update using set_value for direct DB update
                 frappe.db.set_value("Havano Leave Balances", existing_record, "leave_balance", new_balance)
                 frappe.db.commit()
                 
                 frappe.log_error(f"Updated Annual Leave for {emp.name}: {current_balance} -> {new_balance}", "Leave Update")
-                frappe.logger().info(f"Updated Annual Leave for {emp.name} to {new_balance} (capped at 90)")
+                frappe.logger().info(f"Updated Annual Leave for {emp.name} to {new_balance} (capped at {max_annual})")
             else:
                 frappe.logger().info(f"{leave_type} already exists for {emp.name}, skipped.")
         else:
