@@ -159,7 +159,7 @@ def main(self):
         medical_aid_label = (getattr(self, "medical_aid_display_name", "") or "").strip() or "Medical Aid"
 
         # Determine the target Funeral Policy label
-        funeral_policy_label = (getattr(self, "funeral_display_name", "") or "").strip() or "Funeral Policy"
+        funeral_policy_label = "Funeral Policy"
 
         # Check if this row is the Medical Aid row
         if d.components.upper() in ["MEDICAL AID", "CIMAS", "MEDICAL AID EXPENSE", medical_aid_label.upper()]:
@@ -400,7 +400,7 @@ def ensure_deductions(self):
         
     medical_aid_label = (getattr(self, "medical_aid_display_name", "") or "").strip() or "Medical Aid"
     
-    funeral_policy_label = (getattr(self, "funeral_display_name", "") or "").strip() or "Funeral Policy"
+    funeral_policy_label = "Funeral Policy"
     
     # Check if we already have a medical aid row
     has_medical_aid = any(x in ["CIMAS", "MEDICAL AID", "MEDICAL AID EXPENSE", medical_aid_label.upper()] for x in existing)
