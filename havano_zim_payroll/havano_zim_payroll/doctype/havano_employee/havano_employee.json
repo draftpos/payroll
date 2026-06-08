@@ -116,6 +116,8 @@
   "cimas_employer_",
   "cimas_employee_",
   "column_break_dqsm",
+  "funeral_amount",
+  "funeral_display_name",
   "funeral_policy_employer_",
   "funeral_policy_employee_",
   "earnings",
@@ -1592,6 +1594,17 @@
   {
    "fieldname": "column_break_dqsm",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "funeral_amount",
+   "fieldtype": "Currency",
+   "label": "Funeral Policy Amount"
+  },
+  {
+   "fieldname": "funeral_display_name",
+   "fieldtype": "Data",
+   "label": "Funeral Policy Display Name",
+   "description": "Leave blank to show 'Funeral Policy'. Enter a custom name to display it on the deductions table and payslip."
   },
   {
    "default": "0",

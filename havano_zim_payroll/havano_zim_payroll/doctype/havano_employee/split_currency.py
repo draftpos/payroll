@@ -158,6 +158,9 @@ def main(self):
         # Determine the target Medical Aid label
         medical_aid_label = (getattr(self, "medical_aid_display_name", "") or "").strip() or "Medical Aid"
 
+        # Determine the target Funeral Policy label
+        funeral_policy_label = (getattr(self, "funeral_display_name", "") or "").strip() or "Funeral Policy"
+
         # Check if this row is the Medical Aid row
         if d.components.upper() in ["MEDICAL AID", "CIMAS", "MEDICAL AID EXPENSE", medical_aid_label.upper()]:
             # Use the new cimas_amount field from the main document (assumed USD for split currency context)
@@ -201,6 +204,47 @@ def main(self):
             # Update the component name and item code on the row
             d.components = medical_aid_label
             d.item_code = frappe.db.get_value("havano_salary_component", medical_aid_label, "code") or medical_aid_label
+
+            total_deduction_usd += deduct_usd
+
+        elif d.components.upper() in ["FUNERAL POLICY", "FUNERAL", funeral_policy_label.upper()]:
+            funeral_full_amount = flt(getattr(self, "funeral_amount", 0.0))
+            emp_pct = flt(self.funeral_policy_employee_) / 100.0
+            employer_pct = flt(self.funeral_policy_employer_) / 100.0
+            
+            emp_contribution_usd = round(funeral_full_amount * emp_pct, 2)
+            employer_contribution_usd = round(funeral_full_amount * employer_pct, 2)
+            
+            self.funeral_employee = emp_contribution_usd
+            self.funeral_employer = employer_contribution_usd
+
+            if emp_contribution_usd > 0:
+                display_amount = emp_contribution_usd
+                deduct_usd = emp_contribution_usd
+            else:
+                display_amount = 0.0
+                deduct_usd = 0.0
+
+            # Update row amounts for UI and Payslip
+            d.amount_usd = display_amount
+            d.amount_zwg = 0
+
+            # Create the Salary Component dynamically if it doesn't exist
+            if not frappe.db.exists("havano_salary_component", funeral_policy_label):
+                comp_doc = frappe.new_doc("havano_salary_component")
+                comp_doc.salary_component = funeral_policy_label
+                comp_doc.type = "Deduction"
+                comp_doc.always_calculate = 1
+                if base_comp_name:
+                    base_doc = frappe.get_doc("havano_salary_component", base_comp_name)
+                    comp_doc.is_tax_applicable = base_doc.is_tax_applicable
+                    comp_doc.track_nassa = getattr(base_doc, "track_nassa", 0)
+                comp_doc.code = "" 
+                comp_doc.insert(ignore_permissions=True, ignore_mandatory=True)
+                
+            # Update the component name and item code on the row
+            d.components = funeral_policy_label
+            d.item_code = frappe.db.get_value("havano_salary_component", funeral_policy_label, "code") or funeral_policy_label
 
             total_deduction_usd += deduct_usd
 
@@ -356,8 +400,13 @@ def ensure_deductions(self):
         
     medical_aid_label = (getattr(self, "medical_aid_display_name", "") or "").strip() or "Medical Aid"
     
+    funeral_policy_label = (getattr(self, "funeral_display_name", "") or "").strip() or "Funeral Policy"
+    
     # Check if we already have a medical aid row
     has_medical_aid = any(x in ["CIMAS", "MEDICAL AID", "MEDICAL AID EXPENSE", medical_aid_label.upper()] for x in existing)
+    
+    # Check if we already have a funeral policy row
+    has_funeral_policy = any(x in ["FUNERAL POLICY", "FUNERAL", funeral_policy_label.upper()] for x in existing)
 
     for comp in ["NSSA", "PAYEE", "AIDS LEVY"]:
         if comp not in existing:
@@ -392,6 +441,24 @@ def ensure_deductions(self):
         if always_calc:
             self.append("employee_deductions", {
                 "components": medical_aid_label,
+                "amount_usd": 0,
+                "amount_zwg": 0
+            })
+
+    # Separately ensure Funeral Policy
+    if not has_funeral_policy:
+        always_calc = 0
+        if frappe.db.exists("havano_salary_component", funeral_policy_label):
+            always_calc = frappe.db.get_value("havano_salary_component", funeral_policy_label, "always_calculate")
+        else:
+            always_calc = 1 # We will create it on the fly later, so assume it should be there
+            
+        if flt(getattr(self, "funeral_amount", 0.0)) > 0:
+            always_calc = 1
+            
+        if always_calc:
+            self.append("employee_deductions", {
+                "components": funeral_policy_label,
                 "amount_usd": 0,
                 "amount_zwg": 0
             })

@@ -80,6 +80,15 @@ frappe.ui.form.on("havano_employee", {
 	cimas_amount(frm) {
 		calculate_totals_server(frm);
 	},
+	funeral_policy_employee_(frm) {
+		calculate_totals_server(frm);
+	},
+	funeral_policy_employer_(frm) {
+		calculate_totals_server(frm);
+	},
+	funeral_amount(frm) {
+		calculate_totals_server(frm);
+	},
 
 	is_blind(frm) {
 		calculate_totals_server(frm);
@@ -171,6 +180,7 @@ function calculate_totals_server(frm) {
                                                 "total_deduction_usd", "total_deduction_zwg",
                                                 "total_net_income_usd", "total_net_income_zwg",
                                                 "blind", "disabled", "elderly", "medical_aid_tax_credit",
+                                                "cimas_employee", "cimas_employer", "funeral_employee", "funeral_employer",
                                                 "ensuarable_earnings", "allowable_deductions", "basic_salary_calculated",
                                                 "overtime_amount", "hourly_rate", "cash_in_lieu_amount", "half_amount", "double_amount", "hours_half", "hours_double",
                                                 "total_taxable_income", "total_taxable_income_usd", "total_taxable_income_zwg",
