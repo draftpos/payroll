@@ -206,7 +206,29 @@ function calculate_totals_server(frm) {
                                         // Reload child tables from server response
                                         ["employee_earnings", "employee_deductions"].forEach(function(table) {
                                                 if (r.message[table]) {
-                                                        frm.doc[table] = r.message[table];
+                                                        let server_rows = r.message[table];
+                                                        let server_names = server_rows.map(row => row.name);
+                                                        
+                                                        // Remove rows not present in server response
+                                                        let i = frm.doc[table].length;
+                                                        while (i--) {
+                                                                if (!server_names.includes(frm.doc[table][i].name)) {
+                                                                        frappe.model.clear_doc(frm.doc[table][i].doctype, frm.doc[table][i].name);
+                                                                        frm.doc[table].splice(i, 1);
+                                                                }
+                                                        }
+                                                        
+                                                        // Add or update rows
+                                                        server_rows.forEach(row_data => {
+                                                                let existing = frm.doc[table].find(r => r.name === row_data.name);
+                                                                if (existing) {
+                                                                        Object.assign(existing, row_data);
+                                                                } else {
+                                                                        let new_row = frappe.model.add_child(frm.doc, table);
+                                                                        Object.assign(new_row, row_data);
+                                                                }
+                                                        });
+                                                        
                                                         frm.refresh_field(table);
                                                 }
                                         });
