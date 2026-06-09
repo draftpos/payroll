@@ -12,10 +12,4 @@ class havano_salary_component(Document):
 		if self.type == "Deduction" and self.track_nassa:
 			frappe.throw("NASSA cannot be tracked on Deduction components.")
 
-	def on_update(self):
-		if self.is_tax_applicable is not None:
-			frappe.db.sql("""
-				UPDATE `tabhavano_payroll_earnings`
-				SET is_tax_applicable = %s
-				WHERE components = %s
-			""", (self.is_tax_applicable, self.salary_component))
+
