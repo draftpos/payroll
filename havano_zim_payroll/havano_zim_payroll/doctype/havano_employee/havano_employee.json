@@ -99,6 +99,8 @@
   "bank_ac_no",
   "iban",
   "total_days_worked",
+  "has_short_time",
+  "short_time_days_worked",
   "hourly_rate",
   "bank_account",
   "salary_structures_section",

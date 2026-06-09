@@ -213,10 +213,13 @@ function calculate_totals_server(frm) {
                                                         }
                                                         
                                                         // Add or update rows
+                                                        // IMPORTANT: preserve user-set is_tax_applicable — never let server overwrite it
                                                         server_rows.forEach(row_data => {
                                                                 let existing = frm.doc[table].find(r => r.name === row_data.name);
                                                                 if (existing) {
+                                                                        let saved_tax = existing.is_tax_applicable;
                                                                         Object.assign(existing, row_data);
+                                                                        existing.is_tax_applicable = saved_tax;
                                                                 } else {
                                                                         let new_row = frappe.model.add_child(frm.doc, table);
                                                                         Object.assign(new_row, row_data);
