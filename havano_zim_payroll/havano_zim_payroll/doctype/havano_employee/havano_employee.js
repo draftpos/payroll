@@ -140,15 +140,7 @@ frappe.ui.form.on("havano_payroll_earnings", {
 		}
 	},
 	is_tax_applicable(frm, cdt, cdn) {
-		let row = locals[cdt][cdn];
-		if (row.components) {
-			frappe.db.set_value('havano_salary_component', row.components, 'is_tax_applicable', row.is_tax_applicable)
-				.then(() => {
-					calculate_totals_server(frm);
-				});
-		} else {
-			calculate_totals_server(frm);
-		}
+		calculate_totals_server(frm);
 	},
 	employee_earnings_remove(frm) {
 		calculate_totals_server(frm);
@@ -178,15 +170,7 @@ frappe.ui.form.on("havano_payroll_deductions", {
 		}
 	},
 	is_tax_applicable(frm, cdt, cdn) {
-		let row = locals[cdt][cdn];
-		if (row.components) {
-			frappe.db.set_value('havano_salary_component', row.components, 'is_tax_applicable', row.is_tax_applicable)
-				.then(() => {
-					calculate_totals_server(frm);
-				});
-		} else {
-			calculate_totals_server(frm);
-		}
+		calculate_totals_server(frm);
 	},
 	employee_deductions_remove(frm) {
 		calculate_totals_server(frm);
