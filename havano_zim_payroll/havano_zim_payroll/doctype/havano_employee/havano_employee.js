@@ -139,9 +139,6 @@ frappe.ui.form.on("havano_payroll_earnings", {
 			calculate_totals_server(frm);
 		}
 	},
-	is_tax_applicable(frm, cdt, cdn) {
-		calculate_totals_server(frm);
-	},
 	employee_earnings_remove(frm) {
 		calculate_totals_server(frm);
 	}
@@ -168,9 +165,6 @@ frappe.ui.form.on("havano_payroll_deductions", {
 		} else {
 			calculate_totals_server(frm);
 		}
-	},
-	is_tax_applicable(frm, cdt, cdn) {
-		calculate_totals_server(frm);
 	},
 	employee_deductions_remove(frm) {
 		calculate_totals_server(frm);
