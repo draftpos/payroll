@@ -173,6 +173,16 @@ frappe.ui.form.on("havano_payroll_deductions", {
 
 function calculate_totals_server(frm) {
         if (frm.doc.company) {
+                // Sync is_tax_applicable from locals into frm.doc before sending to server
+                // (Child table edits live in locals[] not frm.doc until grid blur)
+                ["employee_earnings", "employee_deductions"].forEach(function(table) {
+                        (frm.doc[table] || []).forEach(function(row) {
+                                if (locals[row.doctype] && locals[row.doctype][row.name]) {
+                                        row.is_tax_applicable = locals[row.doctype][row.name].is_tax_applicable;
+                                }
+                        });
+                });
+
                 frappe.call({
                         doc: frm.doc,
                         method: "calculate_totals",
@@ -212,14 +222,20 @@ function calculate_totals_server(frm) {
                                                                 }
                                                         }
                                                         
-                                                        // Add or update rows
+                                                        // Add or update rows, preserving the user's is_tax_applicable
                                                         // IMPORTANT: preserve user-set is_tax_applicable — never let server overwrite it
                                                         server_rows.forEach(row_data => {
                                                                 let existing = frm.doc[table].find(r => r.name === row_data.name);
                                                                 if (existing) {
-                                                                        let saved_tax = existing.is_tax_applicable;
+                                                                        // Grab value from locals (what user actually has ticked)
+                                                                        let live_tax = (locals[existing.doctype] && locals[existing.doctype][existing.name])
+                                                                                ? locals[existing.doctype][existing.name].is_tax_applicable
+                                                                                : existing.is_tax_applicable;
                                                                         Object.assign(existing, row_data);
-                                                                        existing.is_tax_applicable = saved_tax;
+                                                                        existing.is_tax_applicable = live_tax;
+                                                                        if (locals[existing.doctype] && locals[existing.doctype][existing.name]) {
+                                                                                locals[existing.doctype][existing.name].is_tax_applicable = live_tax;
+                                                                        }
                                                                 } else {
                                                                         let new_row = frappe.model.add_child(frm.doc, table);
                                                                         Object.assign(new_row, row_data);
