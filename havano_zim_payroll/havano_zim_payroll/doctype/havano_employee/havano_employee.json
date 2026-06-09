@@ -1531,7 +1531,8 @@
   {
    "fieldname": "has_short_time",
    "fieldtype": "Check",
-   "label": "Has Short Time"
+   "label": "Has Short Time",
+   "track_changes": 1
   },
   {
    "fieldname": "short_time_days_worked",

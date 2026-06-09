@@ -490,11 +490,10 @@ def apply_overtime(self, basic_salary, default_currency):
     ot_hours    = flt(self.hours) or 0.0
     ot_type     = (self.overtime or "").strip()
 
-    # Always remove both overtime rows first (clean slate)
-    self.employee_earnings = [
-        e for e in self.employee_earnings
-        if (e.components or "") not in ("Overtime Double", "Overtime Short")
-    ]
+    # Always remove both overtime rows first
+    to_remove = [e for e in self.employee_earnings if (e.components or "") in ("Overtime Double", "Overtime Short")]
+    for r in to_remove:
+        self.employee_earnings.remove(r)
 
     is_double_split = ot_type == 'Time & Half and Double Time'
     if not basic_salary or not ot_type:
@@ -578,11 +577,10 @@ def apply_cash_in_lieu(self, basic_salary, default_currency):
 
     days_to_sell = flt(getattr(self, "leave_days_to_sell", 0.0)) or 0.0
 
-    # Remove existing cash in lieu row (clean slate)
-    self.employee_earnings = [
-        e for e in self.employee_earnings
-        if (e.components or "") != "cash in lieu of leave"
-    ]
+    # Remove existing cash in lieu row
+    to_remove = [e for e in self.employee_earnings if (e.components or "") == "cash in lieu of leave"]
+    for r in to_remove:
+        self.employee_earnings.remove(r)
 
     use_formula = frappe.db.get_single_value("Havano Payroll Settings", "use_formula_cash_in_lieu")
 
@@ -618,11 +616,10 @@ def apply_motoring_benefit(self, default_currency, exchange_rate=1.0):
     import frappe
     from frappe.utils import flt
 
-    # Always remove existing row first (clean slate)
-    self.employee_earnings = [
-        e for e in self.employee_earnings
-        if (e.components or "").upper() != "MOTORING BENEFIT"
-    ]
+    # Always remove existing row
+    to_remove = [e for e in self.employee_earnings if (e.components or "").upper() == "MOTORING BENEFIT"]
+    for r in to_remove:
+        self.employee_earnings.remove(r)
 
     if not getattr(self, "has_motoring_benefit", 0) or not getattr(self, "engine_capacity", None):
         return
@@ -649,11 +646,9 @@ def apply_motoring_benefit(self, default_currency, exchange_rate=1.0):
 def apply_short_time(self, basic_salary, default_currency):
     """Short Time: removes row then re-adds with negative amount if has_short_time is checked."""
     from frappe.utils import flt
-    # Clean slate
-    self.employee_earnings = [
-        e for e in self.employee_earnings
-        if (e.components or "") != "Short Time"
-    ]
+    to_remove = [e for e in self.employee_earnings if (e.components or "") == "Short Time"]
+    for r in to_remove:
+        self.employee_earnings.remove(r)
     if not getattr(self, "has_short_time", 0):
         return
     days_worked = flt(getattr(self, "short_time_days_worked", 0))

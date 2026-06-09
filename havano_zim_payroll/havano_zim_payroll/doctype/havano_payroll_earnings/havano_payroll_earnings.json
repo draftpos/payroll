@@ -74,7 +74,8 @@
    "in_list_view": 1,
    "in_preview": 1,
    "in_standard_filter": 1,
-   "label": "is_tax_applicable"
+   "label": "is_tax_applicable",
+   "track_changes": 1
   },
   {
    "fieldname": "column_break_cqgn",
