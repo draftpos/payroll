@@ -19,3 +19,9 @@ class havano_salary_component(Document):
 				SET is_tax_applicable = %s
 				WHERE components = %s
 			""", (self.is_tax_applicable, self.salary_component))
+			
+			frappe.db.sql("""
+				UPDATE `tabhavano_payroll_deductions`
+				SET is_tax_applicable = %s
+				WHERE components = %s
+			""", (self.is_tax_applicable, self.salary_component))

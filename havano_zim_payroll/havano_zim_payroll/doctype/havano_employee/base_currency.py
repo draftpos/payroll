@@ -23,6 +23,14 @@ def main(self):
         or 1
     )
 
+    # 1.5. SYNC IS_TAX_APPLICABLE FROM COMPONENTS
+    for table in ["employee_earnings", "employee_deductions"]:
+        for row in getattr(self, table, []):
+            if row.components:
+                is_tax = frappe.db.get_value("havano_salary_component", row.components, "is_tax_applicable")
+                if is_tax is not None:
+                    row.is_tax_applicable = is_tax
+
     # 2. CALCULATE EARNINGS (GROSS SALARY)
     basic_salary = 0
     taxable_earnings = 0.0
