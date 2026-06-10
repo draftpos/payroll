@@ -154,17 +154,17 @@
   },
   {
    "default": "Gross Salary",
+   "description": "Choose whether NSSA is calculated on the full gross salary or on basic salary only.",
    "fieldname": "nssa_calculation_basis",
    "fieldtype": "Select",
    "label": "NSSA Calculation Basis",
-   "options": "Gross Salary\nBasic Only",
-   "description": "Choose whether NSSA is calculated on the full gross salary or on basic salary only."
+   "options": "Gross Salary\nBasic Only"
   },
   {
+   "depends_on": "eval:doc.salary_component && doc.salary_component.toUpperCase() === 'NEC'",
    "fieldname": "nec_percentage",
    "fieldtype": "Float",
-   "label": "NEC Percentage",
-   "depends_on": "eval:doc.salary_component && doc.salary_component.toUpperCase() === 'NEC'"
+   "label": "NEC Percentage"
   }
  ],
  "grid_page_length": 50,

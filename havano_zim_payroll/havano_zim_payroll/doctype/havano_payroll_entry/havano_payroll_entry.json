@@ -7,6 +7,8 @@
  "field_order": [
   "first_name",
   "surname",
+  "leave_balances",
+  "total_leave_taken",
   "column_break_psrt",
   "payroll_period",
   "date",
@@ -30,6 +32,16 @@
    "in_list_view": 1,
    "label": "Surname",
    "reqd": 1
+  },
+  {
+   "fieldname": "leave_balances",
+   "fieldtype": "Data",
+   "label": "Leave Balances"
+  },
+  {
+   "fieldname": "total_leave_taken",
+   "fieldtype": "Data",
+   "label": "Total Leave Taken"
   },
   {
    "fieldname": "section_break_mwio",
