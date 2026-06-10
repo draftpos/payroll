@@ -6,7 +6,7 @@ function fetch_leave_data(frm) {
 		frappe.call({
 			method: "frappe.client.get_list",
 			args: {
-				doctype: "Havano Employee",
+				doctype: "havano_employee",
 				filters: {
 					first_name: frm.doc.first_name
 				},
