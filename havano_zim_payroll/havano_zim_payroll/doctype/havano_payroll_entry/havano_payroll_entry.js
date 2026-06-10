@@ -1,26 +1,50 @@
 // Copyright (c) 2025, Havano and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on("Havano Payroll Entry", {
-	employee: function(frm) {
-		if (frm.doc.employee) {
-			frappe.call({
-				method: "frappe.client.get_value",
-				args: {
-					doctype: "Havano Leave Balances",
-					filters: { "employee": frm.doc.employee },
-					fieldname: "leave_balance"
+function fetch_leave_data(frm) {
+	if (frm.doc.first_name && frm.doc.last_name) {
+		frappe.call({
+			method: "frappe.client.get_list",
+			args: {
+				doctype: "Havano Employee",
+				filters: {
+					first_name: frm.doc.first_name,
+					last_name: frm.doc.last_name
 				},
-				callback: function(r) {
-					if (r.message && r.message.leave_balance !== undefined) {
-						frm.set_value('leave_balances', r.message.leave_balance);
-					} else {
-						frm.set_value('leave_balances', 0);
-					}
+				fields: ["name", "total_leave_taken"]
+			},
+			callback: function(r) {
+				if (r.message && r.message.length > 0) {
+					let emp = r.message[0];
+					frm.set_value('total_leave_taken', emp.total_leave_taken);
+					
+					frappe.call({
+						method: "frappe.client.get_value",
+						args: {
+							doctype: "Havano Leave Balances",
+							filters: { "employee": emp.name },
+							fieldname: "leave_balance"
+						},
+						callback: function(res) {
+							if (res.message && res.message.leave_balance !== undefined) {
+								frm.set_value('leave_balances', res.message.leave_balance);
+							}
+						}
+					});
 				}
-			});
-		} else {
-			frm.set_value('leave_balances', 0);
-		}
+			}
+		});
+	}
+}
+
+frappe.ui.form.on("Havano Payroll Entry", {
+	refresh: function(frm) {
+		fetch_leave_data(frm);
+	},
+	first_name: function(frm) {
+		fetch_leave_data(frm);
+	},
+	last_name: function(frm) {
+		fetch_leave_data(frm);
 	}
 });

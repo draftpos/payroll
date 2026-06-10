@@ -5,7 +5,6 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "employee",
   "first_name",
   "middle_name",
   "last_name",
@@ -22,51 +21,34 @@
  ],
  "fields": [
   {
-   "fieldname": "employee",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Employee",
-   "options": "havano_employee",
-   "reqd": 1
-  },
-  {
-   "fetch_from": "employee.first_name",
    "fieldname": "first_name",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "First Name",
-   "read_only": 1,
    "reqd": 1
   },
   {
    "allow_in_quick_entry": 1,
-   "fetch_from": "employee.middle_name",
    "fieldname": "middle_name",
    "fieldtype": "Data",
-   "label": "Middle Name",
-   "read_only": 1
+   "label": "Middle Name"
   },
   {
    "allow_in_quick_entry": 1,
-   "fetch_from": "employee.last_name",
    "fieldname": "last_name",
    "fieldtype": "Data",
    "label": "Last Name",
-   "read_only": 1,
    "reqd": 1
   },
   {
    "fieldname": "leave_balances",
    "fieldtype": "Data",
-   "label": "Leave Balances",
-   "read_only": 1
+   "label": "Leave Balances"
   },
   {
-   "fetch_from": "employee.total_leave_taken",
    "fieldname": "total_leave_taken",
    "fieldtype": "Data",
-   "label": "Total Leave Taken",
-   "read_only": 1
+   "label": "Total Leave Taken"
   },
   {
    "fieldname": "section_break_mwio",
