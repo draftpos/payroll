@@ -2,20 +2,21 @@
 // For license information, please see license.txt
 
 function fetch_leave_data(frm) {
-	if (frm.doc.first_name && frm.doc.last_name) {
+	if (frm.doc.first_name) {
 		frappe.call({
 			method: "frappe.client.get_list",
 			args: {
 				doctype: "Havano Employee",
 				filters: {
-					first_name: frm.doc.first_name,
-					last_name: frm.doc.last_name
+					first_name: frm.doc.first_name
 				},
-				fields: ["name", "total_leave_taken"]
+				fields: ["name", "middle_name", "last_name", "total_leave_taken"]
 			},
 			callback: function(r) {
 				if (r.message && r.message.length > 0) {
 					let emp = r.message[0];
+					if (emp.middle_name) frm.set_value('middle_name', emp.middle_name);
+					if (emp.last_name) frm.set_value('last_name', emp.last_name);
 					frm.set_value('total_leave_taken', emp.total_leave_taken);
 					
 					frappe.call({
