@@ -6,7 +6,8 @@
  "engine": "InnoDB",
  "field_order": [
   "first_name",
-  "surname",
+  "middle_name",
+  "last_name",
   "leave_balances",
   "total_leave_taken",
   "column_break_psrt",
@@ -27,10 +28,16 @@
    "reqd": 1
   },
   {
-   "fieldname": "surname",
+   "allow_in_quick_entry": 1,
+   "fieldname": "middle_name",
    "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Surname",
+   "label": "Middle Name"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "last_name",
+   "fieldtype": "Data",
+   "label": "Last Name",
    "reqd": 1
   },
   {
