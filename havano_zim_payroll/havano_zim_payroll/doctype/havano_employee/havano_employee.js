@@ -130,7 +130,8 @@ frappe.ui.form.on("havano_payroll_earnings", {
 			frappe.db.get_value('havano_salary_component', row.components, 'is_tax_applicable')
 				.then(r => {
 					if (r && r.message && r.message.is_tax_applicable !== undefined && r.message.is_tax_applicable !== row.is_tax_applicable) {
-						frappe.model.set_value(cdt, cdn, 'is_tax_applicable', r.message.is_tax_applicable);
+						frappe.model.set_value(cdt, cdn, 'is_tax_applicable', r.message.is_tax_applicable)
+							.then(() => calculate_totals_server(frm));
 					} else {
 						calculate_totals_server(frm);
 					}
@@ -138,6 +139,9 @@ frappe.ui.form.on("havano_payroll_earnings", {
 		} else {
 			calculate_totals_server(frm);
 		}
+	},
+	is_tax_applicable(frm, cdt, cdn) {
+		calculate_totals_server(frm);
 	},
 	employee_earnings_remove(frm) {
 		calculate_totals_server(frm);
@@ -157,7 +161,8 @@ frappe.ui.form.on("havano_payroll_deductions", {
 			frappe.db.get_value('havano_salary_component', row.components, 'is_tax_applicable')
 				.then(r => {
 					if (r && r.message && r.message.is_tax_applicable !== undefined && r.message.is_tax_applicable !== row.is_tax_applicable) {
-						frappe.model.set_value(cdt, cdn, 'is_tax_applicable', r.message.is_tax_applicable);
+						frappe.model.set_value(cdt, cdn, 'is_tax_applicable', r.message.is_tax_applicable)
+							.then(() => calculate_totals_server(frm));
 					} else {
 						calculate_totals_server(frm);
 					}
@@ -165,6 +170,9 @@ frappe.ui.form.on("havano_payroll_deductions", {
 		} else {
 			calculate_totals_server(frm);
 		}
+	},
+	is_tax_applicable(frm, cdt, cdn) {
+		calculate_totals_server(frm);
 	},
 	employee_deductions_remove(frm) {
 		calculate_totals_server(frm);
@@ -231,6 +239,7 @@ function calculate_totals_server(frm) {
                                                                         let live_tax = (locals[existing.doctype] && locals[existing.doctype][existing.name])
                                                                                 ? locals[existing.doctype][existing.name].is_tax_applicable
                                                                                 : existing.is_tax_applicable;
+                                                                        live_tax = live_tax ? 1 : 0;
                                                                         Object.assign(existing, row_data);
                                                                         existing.is_tax_applicable = live_tax;
                                                                         if (locals[existing.doctype] && locals[existing.doctype][existing.name]) {
