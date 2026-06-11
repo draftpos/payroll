@@ -15,6 +15,7 @@
   "use_formula_cash_in_lieu",
   "components_for_reporting",
   "disable_deductions_on_foreign_amount",
+  "nssa_on_gross_if_other_earnings_exceed_basic",
   "maximum_leave_days_section",
   "max_annual_leave_days",
   "max_sick_leave_days",
@@ -78,6 +79,12 @@
    "fieldname": "disable_deductions_on_foreign_amount",
    "fieldtype": "Check",
    "label": "Disable deductions on foreign amount"
+  },
+  {
+   "default": "0",
+   "fieldname": "nssa_on_gross_if_other_earnings_exceed_basic",
+   "fieldtype": "Check",
+   "label": "Calculate NSSA on Gross if Other Earnings >= Basic Salary"
   },
   {
    "fieldname": "maximum_leave_days_section",

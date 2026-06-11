@@ -139,6 +139,16 @@ def main(self):
             nssa_basis = frappe.db.get_value("havano_salary_component", d.components, "nssa_calculation_basis") or "Gross Salary"
             # Use basic salary or gross income depending on setting
             nssa_base_income = basic_salary if nssa_basis == "Basic Only" else total_income
+            
+            try:
+                nssa_dynamic = frappe.db.get_single_value("Havano Payroll Settings", "nssa_on_gross_if_other_earnings_exceed_basic") or 0
+                if nssa_dynamic:
+                    other_earnings = total_income - basic_salary
+                    if other_earnings >= basic_salary:
+                        nssa_base_income = total_income
+            except Exception:
+                pass
+            
             nssa_limit = 700 if self.salary_currency == "USD" else 700 * exchange_rate
             nssa_income = min(nssa_base_income, nssa_limit)
             nssa_amt = nssa_income * 0.045
