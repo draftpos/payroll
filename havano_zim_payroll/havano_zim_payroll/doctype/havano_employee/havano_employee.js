@@ -219,12 +219,27 @@ function calculate_totals_server(frm) {
                                         ["employee_earnings", "employee_deductions"].forEach(function(table) {
                                                 if (r.message[table]) {
                                                         let server_rows = r.message[table];
-                                                        let server_names = server_rows.map(row => row.name);
+                                                        
+                                                        // Fallback mapping for temporary rows: if server wiped the "new-..." name,
+                                                        // map it back using the component name so we don't unnecessarily delete and recreate the row.
+                                                        server_rows.forEach(s_row => {
+                                                                if (!s_row.name || s_row.name.startsWith('new-')) {
+                                                                        let match = frm.doc[table].find(c_row => 
+                                                                                c_row.name && c_row.name.startsWith('new-') && 
+                                                                                c_row.components === s_row.components
+                                                                        );
+                                                                        if (match) {
+                                                                                s_row.name = match.name;
+                                                                        }
+                                                                }
+                                                        });
+
+                                                        let server_names = server_rows.map(row => row.name).filter(Boolean);
                                                         
                                                         // Remove rows not present in server response
                                                         let i = frm.doc[table].length;
                                                         while (i--) {
-                                                                if (!server_names.includes(frm.doc[table][i].name)) {
+                                                                if (frm.doc[table][i].name && !server_names.includes(frm.doc[table][i].name)) {
                                                                         frappe.model.clear_doc(frm.doc[table][i].doctype, frm.doc[table][i].name);
                                                                         frm.doc[table].splice(i, 1);
                                                                 }
@@ -233,7 +248,7 @@ function calculate_totals_server(frm) {
                                                         // Add or update rows, preserving the user's is_tax_applicable
                                                         // IMPORTANT: preserve user-set is_tax_applicable — never let server overwrite it
                                                         server_rows.forEach(row_data => {
-                                                                let existing = frm.doc[table].find(r => r.name === row_data.name);
+                                                                let existing = row_data.name ? frm.doc[table].find(r => r.name === row_data.name) : null;
                                                                 if (existing) {
                                                                         // Grab value from locals (what user actually has ticked)
                                                                         let live_tax = (locals[existing.doctype] && locals[existing.doctype][existing.name])
@@ -248,6 +263,9 @@ function calculate_totals_server(frm) {
                                                                 } else {
                                                                         let new_row = frappe.model.add_child(frm.doc, table);
                                                                         Object.assign(new_row, row_data);
+                                                                        if (new_row.is_tax_applicable !== undefined) {
+                                                                                new_row.is_tax_applicable = new_row.is_tax_applicable ? 1 : 0;
+                                                                        }
                                                                 }
                                                         });
                                                         

@@ -26,6 +26,7 @@
    "in_list_view": 1,
    "in_preview": 1,
    "in_standard_filter": 1,
+   "columns": 3,
    "label": "Components",
    "options": "havano_salary_component"
   },
@@ -37,6 +38,7 @@
    "in_list_view": 1,
    "in_preview": 1,
    "in_standard_filter": 1,
+   "columns": 2,
    "label": "Item Code",
    "read_only": 1
   },
@@ -51,6 +53,7 @@
    "in_list_view": 1,
    "in_preview": 1,
    "in_standard_filter": 1,
+   "columns": 2,
    "label": "Foreign Amount"
   },
   {
@@ -60,6 +63,7 @@
    "in_list_view": 1,
    "in_preview": 1,
    "in_standard_filter": 1,
+   "columns": 2,
    "label": "Base Amount"
   },
   {
@@ -74,7 +78,8 @@
    "in_list_view": 1,
    "in_preview": 1,
    "in_standard_filter": 1,
-   "label": "is_tax_applicable",
+   "columns": 1,
+   "label": "Is Tax Applicable",
    "track_changes": 1
   },
   {
