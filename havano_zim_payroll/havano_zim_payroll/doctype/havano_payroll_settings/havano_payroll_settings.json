@@ -10,6 +10,9 @@
   "payroll_salary_slip_location",
   "column_break_rxep",
   "supplier",
+  "journal_entry_section",
+  "create_journal_entry",
+  "default_payroll_payable_account",
   "include_nssa_in_taxable_income",
   "section_break_qmwu",
   "use_formula_cash_in_lieu",
@@ -50,6 +53,23 @@
   {
    "fieldname": "section_break_qmwu",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "journal_entry_section",
+   "fieldtype": "Section Break",
+   "label": "Journal Entry Settings"
+  },
+  {
+   "default": "0",
+   "fieldname": "create_journal_entry",
+   "fieldtype": "Check",
+   "label": "Create Payroll Journal Entry on Run"
+  },
+  {
+   "fieldname": "default_payroll_payable_account",
+   "fieldtype": "Link",
+   "label": "Default Payroll Payable Account",
+   "options": "Account"
   },
   {
    "fieldname": "use_formula_cash_in_lieu",

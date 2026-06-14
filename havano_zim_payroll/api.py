@@ -102,6 +102,22 @@ def run_payroll(month, year, work_date, daily):
     settin=get_payroll_settings()
     setting_cost_center=settin["cost_center"]
     setting_supplier=settin["supplier"]
+    create_journal_entry = flt(settin.get("create_journal_entry"))
+    default_payable_account = settin.get("default_payroll_payable_account")
+    
+    je_data = {}
+    
+    account_cache = {}
+    def get_account(component, company):
+        key = (component, company)
+        if key in account_cache:
+            return account_cache[key]
+        acc = frappe.db.get_value("havano_salary_accounts", 
+            {"parent": component, "parenttype": "havano_salary_component", "company": company}, 
+            "account")
+        account_cache[key] = acc
+        return acc
+
     """Runs payroll for all employees immediately (synchronous)."""
     # Cast parameters to ensure correct type
     from frappe.utils import cint
@@ -360,7 +376,58 @@ def run_payroll(month, year, work_date, daily):
 
         update_employee_annual_leave(emp.name, payroll_period=f"{month_name} {year}")
         update_havano_leave_balances(emp.name)
+        
+        # --- Journal Entry Aggregation ---
+        if create_journal_entry and default_payable_account:
+            emp_company = emp_doc.company
+            currency = emp_doc.salary_currency or frappe.get_cached_value("Company", emp_company, "default_currency")
+            je_key = (emp_company, currency)
+            if je_key not in je_data:
+                je_data[je_key] = {"entries": [], "net_pay": 0}
+            
+            # Earnings (Debits)
+            if hasattr(emp_doc, "employee_earnings"):
+                for e in emp_doc.employee_earnings:
+                    amt = flt(e.amount_usd) if currency == "USD" else flt(e.amount_zwg)
+                    if amt:
+                        acc = get_account(e.components, emp_company)
+                        if acc:
+                            je_data[je_key]["entries"].append({
+                                "account": acc, "debit": amt, "credit": 0, "cost_center": setting_cost_center
+                            })
+            
+            # Deductions (Credits)
+            if hasattr(emp_doc, "employee_deductions"):
+                for d in emp_doc.employee_deductions:
+                    amt = flt(d.amount_usd) if currency == "USD" else flt(d.amount_zwg)
+                    if amt:
+                        acc = get_account(d.components, emp_company)
+                        if acc:
+                            je_data[je_key]["entries"].append({
+                                "account": acc, "debit": 0, "credit": amt, "cost_center": setting_cost_center
+                            })
+            
+            # Net Pay (Credit)
+            je_data[je_key]["net_pay"] += flt(emp_netpay)
+        
         frappe.db.commit()
+    # Create Journal Entries
+    if create_journal_entry and default_payable_account:
+        for (comp, cur), data in je_data.items():
+            if data["net_pay"] > 0:
+                data["entries"].append({
+                    "account": default_payable_account,
+                    "debit": 0,
+                    "credit": data["net_pay"],
+                    "cost_center": setting_cost_center
+                })
+            if data["entries"]:
+                create_journal_entry_safe(
+                    company=comp,
+                    posting_date=work_date or nowdate(),
+                    entries=data["entries"],
+                    voucher_type="Journal Entry"
+                )
 
     if acc:
         try:
@@ -618,7 +685,9 @@ def get_payroll_settings():
                      title="Incomplete Settings")
     return {
         "supplier": settings.supplier,
-        "cost_center": settings.cost_center
+        "cost_center": settings.cost_center,
+        "create_journal_entry": getattr(settings, "create_journal_entry", 0),
+        "default_payroll_payable_account": getattr(settings, "default_payroll_payable_account", None)
     }
 
 @frappe.whitelist()
