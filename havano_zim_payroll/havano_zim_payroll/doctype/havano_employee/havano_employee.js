@@ -8,9 +8,13 @@ function apply_overtime_visibility(frm) {
 	let overtime = frm.doc.overtime || '';
 	let is_both = overtime.indexOf('and') !== -1;
 	let is_single = overtime !== '' && !is_both;
+	console.log("OVERTIME SCRIPT RUNNING: v5", "is_single:", is_single, "is_both:", is_both, "value:", overtime);
 
-	frm.toggle_display(['hours', 'overtime_amount'], is_single);
-	frm.toggle_display(['hours_half', 'hours_double', 'half_amount', 'double_amount'], is_both);
+	let single_fields = ['hours', 'overtime_amount'];
+	let both_fields = ['hours_half', 'hours_double', 'half_amount', 'double_amount'];
+
+	single_fields.forEach(f => frm.set_df_property(f, 'hidden', is_single ? 0 : 1));
+	both_fields.forEach(f => frm.set_df_property(f, 'hidden', is_both ? 0 : 1));
 }
 
 
@@ -273,7 +277,8 @@ function calculate_totals_server(frm) {
                                                 }
                                         });
                                         frm.refresh_fields();
-                                        // Re-apply overtime visibility natively handled via depends_on
+                                        // Re-apply overtime visibility
+                                        apply_overtime_visibility(frm);
                                 }
                         }
                 });
