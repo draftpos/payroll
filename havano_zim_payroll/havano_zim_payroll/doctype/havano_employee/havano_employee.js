@@ -179,12 +179,16 @@ frappe.ui.form.on("havano_payroll_deductions", {
 
 function calculate_totals_server(frm) {
         if (frm.doc.company) {
-                // Sync is_tax_applicable from locals into frm.doc before sending to server
+                // Sync fields from locals into frm.doc before sending to server
                 // (Child table edits live in locals[] not frm.doc until grid blur)
                 ["employee_earnings", "employee_deductions"].forEach(function(table) {
                         (frm.doc[table] || []).forEach(function(row) {
                                 if (locals[row.doctype] && locals[row.doctype][row.name]) {
-                                        row.is_tax_applicable = locals[row.doctype][row.name].is_tax_applicable;
+                                        let l = locals[row.doctype][row.name];
+                                        row.is_tax_applicable = l.is_tax_applicable;
+                                        if (l.amount_usd !== undefined) row.amount_usd = l.amount_usd;
+                                        if (l.amount_zwg !== undefined) row.amount_zwg = l.amount_zwg;
+                                        if (l.components !== undefined) row.components = l.components;
                                 }
                         });
                 });
@@ -219,12 +223,12 @@ function calculate_totals_server(frm) {
                                                         let server_rows = r.message[table];
                                                         
                                                         // Fallback mapping for temporary rows: if server wiped the "new-..." name,
-                                                        // map it back using the component name so we don't unnecessarily delete and recreate the row.
+                                                        // map it back using the component name or row idx so we don't unnecessarily delete and recreate the row.
                                                         server_rows.forEach(s_row => {
                                                                 if (!s_row.name || s_row.name.startsWith('new-')) {
                                                                         let match = frm.doc[table].find(c_row => 
                                                                                 c_row.name && c_row.name.startsWith('new-') && 
-                                                                                c_row.components === s_row.components
+                                                                                ((c_row.components || "") === (s_row.components || "") || c_row.idx === s_row.idx)
                                                                         );
                                                                         if (match) {
                                                                                 s_row.name = match.name;
