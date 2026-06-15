@@ -577,27 +577,27 @@
    "fieldname": "hours_half",
    "fieldtype": "Float",
    "label": "Time & Half Hours",
-   "depends_on": "eval:doc.overtime === 'Time & Half and Double Time'"
+   "depends_on": "eval:in_list(['Time & Half and Double Time'], doc.overtime)"
   },
   {
    "fieldname": "hours_double",
    "fieldtype": "Float",
    "label": "Double Time Hours",
-   "depends_on": "eval:doc.overtime === 'Time & Half and Double Time'"
+   "depends_on": "eval:in_list(['Time & Half and Double Time'], doc.overtime)"
   },
   {
    "fieldname": "half_amount",
    "fieldtype": "Float",
    "label": "Time & Half Amount",
    "read_only": 0,
-   "depends_on": "eval:doc.overtime === 'Time & Half and Double Time'"
+   "depends_on": "eval:in_list(['Time & Half and Double Time'], doc.overtime)"
   },
   {
    "fieldname": "double_amount",
    "fieldtype": "Float",
    "label": "Double Time Amount",
    "read_only": 0,
-   "depends_on": "eval:doc.overtime === 'Time & Half and Double Time'"
+   "depends_on": "eval:in_list(['Time & Half and Double Time'], doc.overtime)"
   },
   {
    "fieldname": "overtime_amount",
