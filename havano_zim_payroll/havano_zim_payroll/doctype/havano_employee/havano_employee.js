@@ -4,13 +4,7 @@
 // Components that are controlled by "Always Calculate" checkbox on havano_salary_component
 const ALWAYS_CALC_COMPONENTS = ["NSSA", "PAYEE", "AIDS LEVY"];
 
-function apply_overtime_visibility(frm) {
-	let is_both = frm.doc.overtime === 'Time & Half and Double Time';
-	let has_overtime = frm.doc.overtime ? true : false;
 
-	frm.toggle_display(['hours', 'overtime_amount'], has_overtime && !is_both);
-	frm.toggle_display(['hours_half', 'hours_double', 'half_amount', 'double_amount'], is_both);
-}
 
 frappe.ui.form.on("havano_employee", {
 	refresh(frm) {
@@ -26,7 +20,6 @@ frappe.ui.form.on("havano_employee", {
 				}
 			);
 		}
-		apply_overtime_visibility(frm);
 	},
 	total_leave_allocated(frm) {
 		// When user enters a value, create/update Havano Leave Balances
@@ -97,7 +90,6 @@ frappe.ui.form.on("havano_employee", {
 		calculate_totals_server(frm);
 	},
 	overtime(frm) {
-		apply_overtime_visibility(frm);
 		calculate_totals_server(frm);
 	},
 	hours(frm) {
@@ -271,8 +263,7 @@ function calculate_totals_server(frm) {
                                                 }
                                         });
                                         frm.refresh_fields();
-                                        // Re-apply overtime visibility after field refresh
-                                        apply_overtime_visibility(frm);
+                                        // Re-apply overtime visibility natively handled via depends_on
                                 }
                         }
                 });
