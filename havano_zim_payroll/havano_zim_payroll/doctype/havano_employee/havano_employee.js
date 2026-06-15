@@ -7,12 +7,10 @@ const ALWAYS_CALC_COMPONENTS = ["NSSA", "PAYEE", "AIDS LEVY"];
 function apply_overtime_visibility(frm) {
 	let is_both = frm.doc.overtime === 'Time & Half and Double Time';
 	['hours', 'overtime_amount'].forEach(f => {
-		frm.set_df_property(f, 'hidden', is_both ? 1 : 0);
-		frm.refresh_field(f);
+		frm.toggle_display(f, !is_both);
 	});
 	['hours_half', 'hours_double', 'half_amount', 'double_amount'].forEach(f => {
-		frm.set_df_property(f, 'hidden', is_both ? 0 : 1);
-		frm.refresh_field(f);
+		frm.toggle_display(f, is_both);
 	});
 }
 
@@ -226,10 +224,10 @@ function calculate_totals_server(frm) {
                                                         // map it back using the component name or row idx so we don't unnecessarily delete and recreate the row.
                                                         server_rows.forEach(s_row => {
                                                                 if (!s_row.name || s_row.name.startsWith('new-')) {
-                                                                        let match = frm.doc[table].find(c_row => 
-                                                                                c_row.name && c_row.name.startsWith('new-') && 
-                                                                                ((c_row.components || "") === (s_row.components || "") || c_row.idx === s_row.idx)
-                                                                        );
+                                                                                let match = frm.doc[table].find(c_row => 
+                                                                                        c_row.name && c_row.name.startsWith('new-') && 
+                                                                                        ((c_row.components && c_row.components === s_row.components) || (!c_row.components && !s_row.components && c_row.idx === s_row.idx))
+                                                                                );
                                                                         if (match) {
                                                                                 s_row.name = match.name;
                                                                         }
