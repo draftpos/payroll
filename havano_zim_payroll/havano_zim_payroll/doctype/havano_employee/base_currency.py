@@ -502,7 +502,9 @@ def apply_overtime(self, basic_salary, default_currency):
 
     # Always remove both overtime rows first
     to_remove = [e for e in self.employee_earnings if (e.components or "") in ("Overtime Double", "Overtime Short")]
+    existing_data = {}
     for r in to_remove:
+        existing_data[r.components] = {"name": r.name, "is_tax_applicable": getattr(r, "is_tax_applicable", 0)}
         self.employee_earnings.remove(r)
 
     is_double_split = ot_type == 'Time & Half and Double Time'
@@ -522,11 +524,9 @@ def apply_overtime(self, basic_salary, default_currency):
     if ot_type == "Double Time":
         ot_amount    = round(ot_hours * hourly_rate * 2, 2)
         comp_name    = "Overtime Double"
-        is_taxable   = 1
     elif ot_type == "Time & Half":
         ot_amount    = round(ot_hours * hourly_rate * 1.5, 2)
         comp_name    = "Overtime Short"
-        is_taxable   = 0
     elif ot_type == 'Time & Half and Double Time':
         half_hours   = flt(getattr(self, 'hours_half', 0) or 0)
         double_hours = flt(getattr(self, 'hours_double', 0) or 0)
@@ -540,21 +540,32 @@ def apply_overtime(self, basic_salary, default_currency):
         if half_hours > 0:
             amount_usd = half_amount if default_currency == 'USD' else 0.0
             amount_zwg = half_amount if default_currency != 'USD' else 0.0
-            self.append('employee_earnings', {
+            row_data = {
                 'components': 'Overtime Short',
                 'amount_usd': amount_usd,
                 'amount_zwg': amount_zwg,
-                'is_tax_applicable': 0,
-            })
+            }
+            if 'Overtime Short' in existing_data:
+                row_data['name'] = existing_data['Overtime Short']['name']
+                row_data['is_tax_applicable'] = existing_data['Overtime Short']['is_tax_applicable']
+            else:
+                row_data['is_tax_applicable'] = frappe.db.get_value("havano_salary_component", "Overtime Short", "is_tax_applicable") or 0
+            self.append('employee_earnings', row_data)
+            
         if double_hours > 0:
             amount_usd = double_amount if default_currency == 'USD' else 0.0
             amount_zwg = double_amount if default_currency != 'USD' else 0.0
-            self.append('employee_earnings', {
+            row_data = {
                 'components': 'Overtime Double',
                 'amount_usd': amount_usd,
                 'amount_zwg': amount_zwg,
-                'is_tax_applicable': 1,
-            })
+            }
+            if 'Overtime Double' in existing_data:
+                row_data['name'] = existing_data['Overtime Double']['name']
+                row_data['is_tax_applicable'] = existing_data['Overtime Double']['is_tax_applicable']
+            else:
+                row_data['is_tax_applicable'] = frappe.db.get_value("havano_salary_component", "Overtime Double", "is_tax_applicable") or 0
+            self.append('employee_earnings', row_data)
         return
     else:
         self.overtime_amount = 0.0
@@ -566,12 +577,17 @@ def apply_overtime(self, basic_salary, default_currency):
     amount_usd = ot_amount if default_currency == "USD" else 0.0
     amount_zwg = ot_amount if default_currency != "USD" else 0.0
 
-    self.append("employee_earnings", {
+    row_data = {
         "components":        comp_name,
         "amount_usd":        amount_usd,
         "amount_zwg":        amount_zwg,
-        "is_tax_applicable": is_taxable,
-    })
+    }
+    if comp_name in existing_data:
+        row_data['name'] = existing_data[comp_name]['name']
+        row_data['is_tax_applicable'] = existing_data[comp_name]['is_tax_applicable']
+    else:
+        row_data['is_tax_applicable'] = frappe.db.get_value("havano_salary_component", comp_name, "is_tax_applicable") or 0
+    self.append("employee_earnings", row_data)
 
 
 def apply_cash_in_lieu(self, basic_salary, default_currency):
@@ -588,8 +604,10 @@ def apply_cash_in_lieu(self, basic_salary, default_currency):
     days_to_sell = flt(getattr(self, "leave_days_to_sell", 0.0)) or 0.0
 
     # Remove existing cash in lieu row
-    to_remove = [e for e in self.employee_earnings if (e.components or "") == "cash in lieu of leave"]
+    to_remove = [e for e in self.employee_earnings if (e.components or "").upper() == "CASH IN LIEU OF LEAVE"]
+    existing_data = {}
     for r in to_remove:
+        existing_data["cash in lieu of leave"] = {"name": r.name, "is_tax_applicable": getattr(r, "is_tax_applicable", 0)}
         self.employee_earnings.remove(r)
 
     use_formula = frappe.db.get_single_value("Havano Payroll Settings", "use_formula_cash_in_lieu")
@@ -609,12 +627,18 @@ def apply_cash_in_lieu(self, basic_salary, default_currency):
     amount_usd = amount if default_currency == "USD" else 0.0
     amount_zwg = amount if default_currency != "USD" else 0.0
 
-    self.append("employee_earnings", {
+    row_data = {
         "components":        "cash in lieu of leave",
         "amount_usd":        amount_usd,
         "amount_zwg":        amount_zwg,
-        "is_tax_applicable": 0,
-    })
+    }
+    if "cash in lieu of leave" in existing_data:
+        row_data['name'] = existing_data["cash in lieu of leave"]['name']
+        row_data['is_tax_applicable'] = existing_data["cash in lieu of leave"]['is_tax_applicable']
+    else:
+        row_data['is_tax_applicable'] = frappe.db.get_value("havano_salary_component", "cash in lieu of leave", "is_tax_applicable") or 0
+        
+    self.append("employee_earnings", row_data)
 
 
 def apply_motoring_benefit(self, default_currency, exchange_rate=1.0):
@@ -628,7 +652,9 @@ def apply_motoring_benefit(self, default_currency, exchange_rate=1.0):
 
     # Always remove existing row
     to_remove = [e for e in self.employee_earnings if (e.components or "").upper() == "MOTORING BENEFIT"]
+    existing_data = {}
     for r in to_remove:
+        existing_data["Motoring Benefit"] = {"name": r.name, "is_tax_applicable": getattr(r, "is_tax_applicable", 0)}
         self.employee_earnings.remove(r)
 
     if not getattr(self, "has_motoring_benefit", 0) or not getattr(self, "engine_capacity", None):
@@ -645,19 +671,27 @@ def apply_motoring_benefit(self, default_currency, exchange_rate=1.0):
         amount_usd = 0.0
         amount_zwg = round(deemed_usd * flt(exchange_rate), 2)
 
-    self.append("employee_earnings", {
+    row_data = {
         "components":        "Motoring Benefit",
         "amount_usd":        amount_usd,
         "amount_zwg":        amount_zwg,
-        "is_tax_applicable": 1,
-    })
+    }
+    if "Motoring Benefit" in existing_data:
+        row_data['name'] = existing_data["Motoring Benefit"]['name']
+        row_data['is_tax_applicable'] = existing_data["Motoring Benefit"]['is_tax_applicable']
+    else:
+        row_data['is_tax_applicable'] = frappe.db.get_value("havano_salary_component", "Motoring Benefit", "is_tax_applicable") or 0
+
+    self.append("employee_earnings", row_data)
 
 
 def apply_short_time(self, basic_salary, default_currency):
     """Short Time: removes row then re-adds with negative amount if has_short_time is checked."""
     from frappe.utils import flt
-    to_remove = [e for e in self.employee_earnings if (e.components or "") == "Short Time"]
+    to_remove = [e for e in self.employee_earnings if (e.components or "").upper() == "SHORT TIME"]
+    existing_data = {}
     for r in to_remove:
+        existing_data["Short Time"] = {"name": r.name, "is_tax_applicable": getattr(r, "is_tax_applicable", 0)}
         self.employee_earnings.remove(r)
     if not getattr(self, "has_short_time", 0):
         return
@@ -670,10 +704,17 @@ def apply_short_time(self, basic_salary, default_currency):
     short_amount = round(daily_rate * short_days, 2)
     amount_usd = -short_amount if default_currency == "USD" else 0.0
     amount_zwg = -short_amount if default_currency != "USD" else 0.0
-    self.append("employee_earnings", {
+    
+    row_data = {
         "components":        "Short Time",
         "amount_usd":        amount_usd,
         "amount_zwg":        amount_zwg,
-        "is_tax_applicable": 0,
-    })
+    }
+    if "Short Time" in existing_data:
+        row_data['name'] = existing_data["Short Time"]['name']
+        row_data['is_tax_applicable'] = existing_data["Short Time"]['is_tax_applicable']
+    else:
+        row_data['is_tax_applicable'] = frappe.db.get_value("havano_salary_component", "Short Time", "is_tax_applicable") or 0
+
+    self.append("employee_earnings", row_data)
     self.net_income = round(self.net_income - short_amount, 2)
