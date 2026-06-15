@@ -1,6 +1,13 @@
 frappe.query_reports["Payroll Summary"] = {
 	"filters": [
 		{
+			"fieldname": "group_by",
+			"label": __("Group By"),
+			"fieldtype": "Select",
+			"options": "Employee\nSalary Component",
+			"default": "Employee"
+		},
+		{
 			"fieldname": "employee_id",
 			"label": __("Employee"),
 			"fieldtype": "Link",

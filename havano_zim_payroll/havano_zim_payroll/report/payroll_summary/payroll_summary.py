@@ -2,11 +2,23 @@ import frappe
 from frappe import _
 
 def execute(filters=None):
-	columns = get_columns()
+	columns = get_columns(filters)
 	data = get_data(filters)
 	return columns, data
 
-def get_columns():
+def get_columns(filters=None):
+	group_by = filters.get("group_by") if filters else "Employee"
+
+	if group_by == "Salary Component":
+		columns = [
+			{"label": _("Salary Component"), "fieldname": "salary_component", "fieldtype": "Link", "options": "havano_salary_component", "width": 250},
+			{"label": _("Type"), "fieldname": "type", "fieldtype": "Data", "width": 120},
+			{"label": _("Total Amount (USD)"), "fieldname": "amount_usd", "fieldtype": "Currency", "width": 150},
+			{"label": _("Total Amount (ZWG)"), "fieldname": "amount_zwg", "fieldtype": "Currency", "width": 150},
+		]
+		return columns
+
+	# Default view: Grouped by Employee (Original Code)
 	columns = [
 		{"label": _("Employee ID"), "fieldname": "employee_id", "fieldtype": "Link", "options": "havano_employee", "width": 120},
 		{"label": _("First Name"), "fieldname": "first_name", "fieldtype": "Data", "width": 120},
@@ -44,6 +56,12 @@ def get_columns():
 	return columns
 
 def get_data(filters):
+	group_by = filters.get("group_by") if filters else "Employee"
+	
+	if group_by == "Salary Component":
+		return get_data_by_component(filters)
+
+	# Default view: Grouped by Employee (Original Code)
 	data = []
 	
 	query_filters = {"status": "Active"}
@@ -86,5 +104,52 @@ def get_data(filters):
 			row[field_zwg] = row.get(field_zwg, 0) + (d.amount_zwg or 0)
 
 		data.append(row)
+
+	return data
+
+def get_data_by_component(filters):
+	data = []
+	totals = {}
+	
+	query_filters = {"status": "Active"}
+	if filters and filters.get("employee_id"):
+		query_filters["name"] = filters.get("employee_id")
+
+	# Fetch all matching employees
+	employees = frappe.get_all(
+		"havano_employee",
+		filters=query_filters,
+		pluck="name"
+	)
+
+	for emp_name in employees:
+		doc = frappe.get_doc("havano_employee", emp_name)
+		
+		for e in doc.employee_earnings:
+			if not e.components: continue
+			comp = e.components
+			if comp not in totals:
+				totals[comp] = {"type": "Earning", "usd": 0.0, "zwg": 0.0}
+			totals[comp]["usd"] += (e.amount_usd or 0.0)
+			totals[comp]["zwg"] += (e.amount_zwg or 0.0)
+
+		for d in doc.employee_deductions:
+			if not d.components: continue
+			comp = d.components
+			if comp not in totals:
+				totals[comp] = {"type": "Deduction", "usd": 0.0, "zwg": 0.0}
+			totals[comp]["usd"] += (d.amount_usd or 0.0)
+			totals[comp]["zwg"] += (d.amount_zwg or 0.0)
+
+	# Sort earnings first, then deductions, then alphabetically by component name
+	sorted_comps = sorted(totals.keys(), key=lambda x: (1 if totals[x]["type"] == "Deduction" else 0, x))
+	
+	for comp in sorted_comps:
+		data.append({
+			"salary_component": comp,
+			"type": totals[comp]["type"],
+			"amount_usd": totals[comp]["usd"],
+			"amount_zwg": totals[comp]["zwg"]
+		})
 
 	return data
