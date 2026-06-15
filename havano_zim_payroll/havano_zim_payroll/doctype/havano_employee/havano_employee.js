@@ -181,12 +181,16 @@ frappe.ui.form.on("havano_payroll_deductions", {
 
 function calculate_totals_server(frm) {
         if (frm.doc.company) {
-                // Sync is_tax_applicable from locals into frm.doc before sending to server
+                // Sync fields from locals into frm.doc before sending to server
                 // (Child table edits live in locals[] not frm.doc until grid blur)
                 ["employee_earnings", "employee_deductions"].forEach(function(table) {
                         (frm.doc[table] || []).forEach(function(row) {
                                 if (locals[row.doctype] && locals[row.doctype][row.name]) {
-                                        row.is_tax_applicable = locals[row.doctype][row.name].is_tax_applicable;
+                                        let local_row = locals[row.doctype][row.name];
+                                        row.is_tax_applicable = local_row.is_tax_applicable;
+                                        row.amount_usd = local_row.amount_usd;
+                                        row.amount_zwg = local_row.amount_zwg;
+                                        row.components = local_row.components;
                                 }
                         });
                 });

@@ -429,7 +429,7 @@ def run_payroll(month, year, work_date, daily):
                     voucher_type="Journal Entry"
                 )
 
-    if acc:
+    if acc and not (create_journal_entry and default_payable_account):
         try:
             c = create_salary_purchase_invoice(
                 item_name=acc.get("item", "Payroll Item"),
