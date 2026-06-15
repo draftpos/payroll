@@ -577,27 +577,27 @@
    "fieldname": "hours_half",
    "fieldtype": "Float",
    "label": "Time & Half Hours",
-   "hidden": 1
+   "hidden": 0
   },
   {
    "fieldname": "hours_double",
    "fieldtype": "Float",
    "label": "Double Time Hours",
-   "hidden": 1
+   "hidden": 0
   },
   {
    "fieldname": "half_amount",
    "fieldtype": "Float",
    "label": "Time & Half Amount",
    "read_only": 0,
-   "hidden": 1
+   "hidden": 0
   },
   {
    "fieldname": "double_amount",
    "fieldtype": "Float",
    "label": "Double Time Amount",
    "read_only": 0,
-   "hidden": 1
+   "hidden": 0
   },
   {
    "fieldname": "overtime_amount",
