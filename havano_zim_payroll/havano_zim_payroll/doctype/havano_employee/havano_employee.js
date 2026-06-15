@@ -18,8 +18,6 @@ function apply_overtime_visibility(frm) {
 
 frappe.ui.form.on("havano_employee", {
 	refresh(frm) {
-		update_net_income(frm);
-		update_tax_credits(frm);
 		sync_always_calculate_deductions(frm);
 		// Fetch Leave Balance from Havano Leave Balances
 		if (frm.doc.name) {
@@ -181,16 +179,12 @@ frappe.ui.form.on("havano_payroll_deductions", {
 
 function calculate_totals_server(frm) {
         if (frm.doc.company) {
-                // Sync fields from locals into frm.doc before sending to server
+                // Sync is_tax_applicable from locals into frm.doc before sending to server
                 // (Child table edits live in locals[] not frm.doc until grid blur)
                 ["employee_earnings", "employee_deductions"].forEach(function(table) {
                         (frm.doc[table] || []).forEach(function(row) {
                                 if (locals[row.doctype] && locals[row.doctype][row.name]) {
-                                        let local_row = locals[row.doctype][row.name];
-                                        row.is_tax_applicable = local_row.is_tax_applicable;
-                                        row.amount_usd = local_row.amount_usd;
-                                        row.amount_zwg = local_row.amount_zwg;
-                                        row.components = local_row.components;
+                                        row.is_tax_applicable = locals[row.doctype][row.name].is_tax_applicable;
                                 }
                         });
                 });
@@ -298,22 +292,10 @@ function update_tax_credits_if_needed(frm, cdt, cdn) {
 }
 
 function update_net_income(frm) {
-	const total_earnings = flt(frm.doc.total_income);
-	const total_deductions = flt(frm.doc.total_deductions);
-	frm.set_value("net_income", total_earnings - total_deductions);
+	// Let the server handle this during calculate_totals
 }
 
 function update_tax_credits(frm) {
-	// First, calculate Medical Aid Tax Credit
-	let medical_aid_credit = 0;
-	let cimas_full_amount = flt(frm.doc.cimas_amount);
-	let employee_contribution = cimas_full_amount * flt(frm.doc.cimas_employee_) / 100.0;
-	medical_aid_credit = employee_contribution * 0.5;
-	
-	frm.set_value("medical_aid_tax_credit", medical_aid_credit);
-
-	// Then, handle Blind, Disabled, Elderly credits
-	// Use frappe.call to get exchange rate for ZWG or ZWL
 	let target_currency = "ZWG"; 
 	
 	frappe.call({
