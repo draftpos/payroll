@@ -7,12 +7,14 @@ const ALWAYS_CALC_COMPONENTS = ["NSSA", "PAYEE", "AIDS LEVY"];
 function apply_overtime_visibility(frm) {
 	let is_both = frm.doc.overtime === 'Time & Half and Double Time';
 	['hours', 'overtime_amount'].forEach(f => {
-		frm.set_df_property(f, 'hidden', is_both ? 1 : 0);
-		frm.refresh_field(f);
+		if (frm.fields_dict[f]) {
+			$(frm.fields_dict[f].wrapper).toggleClass('hide-control', is_both);
+		}
 	});
 	['hours_half', 'hours_double', 'half_amount', 'double_amount'].forEach(f => {
-		frm.set_df_property(f, 'hidden', is_both ? 0 : 1);
-		frm.refresh_field(f);
+		if (frm.fields_dict[f]) {
+			$(frm.fields_dict[f].wrapper).toggleClass('hide-control', !is_both);
+		}
 	});
 }
 
