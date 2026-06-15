@@ -6,16 +6,10 @@ const ALWAYS_CALC_COMPONENTS = ["NSSA", "PAYEE", "AIDS LEVY"];
 
 function apply_overtime_visibility(frm) {
 	let is_both = frm.doc.overtime === 'Time & Half and Double Time';
-	['hours', 'overtime_amount'].forEach(f => {
-		if (frm.fields_dict[f]) {
-			$(frm.fields_dict[f].wrapper).toggleClass('hide-control', is_both);
-		}
-	});
-	['hours_half', 'hours_double', 'half_amount', 'double_amount'].forEach(f => {
-		if (frm.fields_dict[f]) {
-			$(frm.fields_dict[f].wrapper).toggleClass('hide-control', !is_both);
-		}
-	});
+	let has_overtime = frm.doc.overtime ? true : false;
+
+	frm.toggle_display(['hours', 'overtime_amount'], has_overtime && !is_both);
+	frm.toggle_display(['hours_half', 'hours_double', 'half_amount', 'double_amount'], is_both);
 }
 
 frappe.ui.form.on("havano_employee", {
