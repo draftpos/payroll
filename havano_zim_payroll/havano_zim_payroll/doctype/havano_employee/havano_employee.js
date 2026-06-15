@@ -6,8 +6,9 @@ const ALWAYS_CALC_COMPONENTS = ["NSSA", "PAYEE", "AIDS LEVY"];
 
 function apply_overtime_visibility(frm) {
 	let overtime = frm.doc.overtime || '';
-	let is_both = (overtime === 'Time & Half and Double Time');
-	let is_single = (overtime === 'Time & Half' || overtime === 'Double Time');
+	// Use .includes to bypass any HTML encoding bugs (e.g. &amp;)
+	let is_both = overtime.includes('and');
+	let is_single = (overtime !== '') && !is_both;
 
 	frm.set_df_property('hours', 'hidden', is_single ? 0 : 1);
 	frm.set_df_property('overtime_amount', 'hidden', is_single ? 0 : 1);
