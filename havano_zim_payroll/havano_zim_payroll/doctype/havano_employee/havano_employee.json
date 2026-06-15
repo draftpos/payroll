@@ -568,42 +568,42 @@
    "options": "\nTime & Half\nDouble Time\nTime & Half and Double Time"
   },
   {
-   "depends_on": "eval:doc.overtime && !doc.overtime.includes('and')",
    "fieldname": "hours",
    "fieldtype": "Float",
-   "label": "Overtime Hours"
+   "label": "Overtime Hours",
+   "hidden": 0
   },
   {
-   "depends_on": "eval:doc.overtime && doc.overtime.includes('and')",
    "fieldname": "hours_half",
    "fieldtype": "Float",
-   "label": "Time & Half Hours"
+   "label": "Time & Half Hours",
+   "hidden": 1
   },
   {
-   "depends_on": "eval:doc.overtime && doc.overtime.includes('and')",
    "fieldname": "hours_double",
    "fieldtype": "Float",
-   "label": "Double Time Hours"
+   "label": "Double Time Hours",
+   "hidden": 1
   },
   {
-   "depends_on": "eval:doc.overtime && doc.overtime.includes('and')",
    "fieldname": "half_amount",
    "fieldtype": "Float",
    "label": "Time & Half Amount",
-   "read_only": 0
+   "read_only": 0,
+   "hidden": 1
   },
   {
-   "depends_on": "eval:doc.overtime && doc.overtime.includes('and')",
    "fieldname": "double_amount",
    "fieldtype": "Float",
    "label": "Double Time Amount",
-   "read_only": 0
+   "read_only": 0,
+   "hidden": 1
   },
   {
-   "depends_on": "eval:doc.overtime && !doc.overtime.includes('and')",
    "fieldname": "overtime_amount",
    "fieldtype": "Float",
-   "label": "Overtime Amount"
+   "label": "Overtime Amount",
+   "hidden": 0
   },
   {
    "collapsible": 1,
