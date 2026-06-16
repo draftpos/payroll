@@ -342,11 +342,38 @@ def run_payroll(month, year, work_date, daily):
             for d in emp_doc.employee_deductions:
                 if d.components == "NSSA":
                     try:
-                        create_payroll_report(emp_doc.first_name,emp_doc.last_name, d.amount_zwg,0,d.amount_usd,0,f"{month_name} {year}",emp_doc.wcif_usd,emp_doc.wcif_zwg)
+                        nssa_rep_name = f"NSSA-EMP-{emp.name}-{month_name}-{year}"
+                        create_payroll_report(emp_doc.first_name,emp_doc.last_name, d.amount_zwg,0,d.amount_usd,0,f"{month_name} {year}",emp_doc.wcif_usd,emp_doc.wcif_zwg, nssa_rep_name)
                     except Exception as e:
                         frappe.log_error(f"NSSA Report Error for {emp.name}: {e}")
                     nssa_usd = d.amount_usd
                     nssa_zwg = d.amount_zwg
+
+                if d.components and "NEC" in d.components.upper():
+                    try:
+                        nec_rep_name = f"NEC-{emp.name}-{month_name}-{year}"
+                        from datetime import date
+                        import calendar
+                        start_dt, end_dt = get_month_range(year, month_int)
+                        # We assume employer matches employee
+                        employer_usd = d.amount_usd or 0
+                        employer_zwg = d.amount_zwg or 0
+                        total_usd = (d.amount_usd or 0) + employer_usd
+                        create_nec_report(
+                            surname=emp_doc.last_name,
+                            first_name=emp_doc.first_name,
+                            start_date=start_dt,
+                            end_date=end_dt,
+                            grade=getattr(emp_doc, "grade", ""),
+                            nec_earnings_usd=emp_doc.total_taxable_income_usd,
+                            employer_contribution_usd=employer_usd,
+                            employer_contribution_zwg=employer_zwg,
+                            total_nec_usd=total_usd,
+                            name=nec_rep_name
+                        )
+                    except Exception as e:
+                        frappe.log_error(f"NEC Report Error for {emp.name}: {e}")
+
                 payroll.append("employee_deductions", {
                     "components": d.components,
                     "item_code": d.item_code,
@@ -360,23 +387,34 @@ def run_payroll(month, year, work_date, daily):
         # Generate Statutory Reports (ZIMRA, SDL)
         try:
             # Handle all currency modes (Base and Split)
+            p4_name = f"NSSA-P4-{emp.name}-{month_name}-{year}"
+            p2_name = f"ZIMRA-P2-{emp.name}-{month_name}-{year}"
+            itf16_name = f"ZIMRA-ITF16-{emp.name}-{month_name}-{year}"
+            sdl_name = f"SDL-{emp.name}-{month_name}-{year}"
+
             if emp_doc.salary_currency == "USD" or flt(emp_doc.total_income_usd) > 0:
-                create_nssa_p4_report_store(surname=emp_doc.last_name, first_name=emp_doc.first_name, total_insuarable_earnings_zwg=0, total_insuarable_earnings_usd=emp_doc.total_taxable_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_taxable_income_usd, current_contributions_usd=nssa_usd, current_contributions_zwg=0, total_payment_usd=nssa_usd, total_payment_zwg=0)
-                create_zimra_p2form(employer_name="DPT", trade_name="DPT", tax_period=f"{month_name} {year}", total_renumeration=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_usd, gross_paye=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_usd, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_usd, total_tax_due=flt(emp_doc.aids_levy or 0) + flt(emp_doc.payee or 0) if emp_doc.payslip_type == "Base Currency" else flt(emp_doc.aids_levy_usd or 0) + flt(emp_doc.payee_usd or 0), currency="USD")
-                create_zimra_itf16(surname=emp_doc.last_name, first_name=emp_doc.first_name, employee_id=emp_doc.name, gross_paye=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_usd, payee=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_usd, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_usd, currency="USD", dob=emp_doc.date_of_birth, start_date=emp_doc.final_confirmation_date, end_date=emp_doc.contract_end_date)
-                add_sdl_report(employee=emp_doc.name, date=f"{month_name} {year}", amount=flt(emp_doc.total_income) * 0.05)
+                create_nssa_p4_report_store(surname=emp_doc.last_name, first_name=emp_doc.first_name, total_insuarable_earnings_zwg=0, total_insuarable_earnings_usd=emp_doc.total_taxable_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_taxable_income_usd, current_contributions_usd=nssa_usd, current_contributions_zwg=0, total_payment_usd=nssa_usd, total_payment_zwg=0, name=p4_name)
+                create_zimra_p2form(employer_name="DPT", trade_name="DPT", tax_period=f"{month_name} {year}", total_renumeration=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_usd, gross_paye=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_usd, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_usd, total_tax_due=flt(emp_doc.aids_levy or 0) + flt(emp_doc.payee or 0) if emp_doc.payslip_type == "Base Currency" else flt(emp_doc.aids_levy_usd or 0) + flt(emp_doc.payee_usd or 0), currency="USD", name=p2_name)
+                create_zimra_itf16(surname=emp_doc.last_name, first_name=emp_doc.first_name, employee_id=emp_doc.name, gross_paye=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_usd, payee=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_usd, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_usd, currency="USD", dob=emp_doc.date_of_birth, start_date=emp_doc.final_confirmation_date, end_date=emp_doc.contract_end_date, name=itf16_name)
+                add_sdl_report(employee=emp_doc.name, date=f"{month_name} {year}", amount=flt(emp_doc.total_income) * 0.05, name=sdl_name)
             
             elif emp_doc.salary_currency in ["ZWL", "ZWG"] or flt(emp_doc.total_income_zwg) > 0:
-                create_nssa_p4_report_store(surname=emp_doc.last_name, first_name=emp_doc.first_name, total_insuarable_earnings_zwg=emp_doc.total_taxable_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_taxable_income_zwg, total_insuarable_earnings_usd=0, current_contributions_usd=0, current_contributions_zwg=nssa_zwg, total_payment_usd=0, total_payment_zwg=nssa_zwg)
-                create_zimra_p2form(employer_name="DPT", trade_name="DPT", tax_period=f"{month_name} {year}", total_renumeration=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_zwg, gross_paye=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_zwg, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_zwg, total_tax_due=flt(emp_doc.aids_levy or 0) + flt(emp_doc.payee or 0) if emp_doc.payslip_type == "Base Currency" else flt(emp_doc.aids_levy_zwg or 0) + flt(emp_doc.payee_zwg or 0), currency="ZWG")
-                create_zimra_itf16(surname=emp_doc.last_name, first_name=emp_doc.first_name, employee_id=emp_doc.name, gross_paye=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_zwg, payee=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_zwg, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_zwg, currency="ZWG", dob=emp_doc.date_of_birth, start_date=emp_doc.final_confirmation_date, end_date=emp_doc.contract_end_date)
-                add_sdl_report(employee=emp_doc.name, date=f"{month_name} {year}", amount=flt(emp_doc.total_income) * 0.05)
+                create_nssa_p4_report_store(surname=emp_doc.last_name, first_name=emp_doc.first_name, total_insuarable_earnings_zwg=emp_doc.total_taxable_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_taxable_income_zwg, total_insuarable_earnings_usd=0, current_contributions_usd=0, current_contributions_zwg=nssa_zwg, total_payment_usd=0, total_payment_zwg=nssa_zwg, name=p4_name)
+                create_zimra_p2form(employer_name="DPT", trade_name="DPT", tax_period=f"{month_name} {year}", total_renumeration=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_zwg, gross_paye=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_zwg, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_zwg, total_tax_due=flt(emp_doc.aids_levy or 0) + flt(emp_doc.payee or 0) if emp_doc.payslip_type == "Base Currency" else flt(emp_doc.aids_levy_zwg or 0) + flt(emp_doc.payee_zwg or 0), currency="ZWG", name=p2_name)
+                create_zimra_itf16(surname=emp_doc.last_name, first_name=emp_doc.first_name, employee_id=emp_doc.name, gross_paye=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_zwg, payee=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_zwg, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_zwg, currency="ZWG", dob=emp_doc.date_of_birth, start_date=emp_doc.final_confirmation_date, end_date=emp_doc.contract_end_date, name=itf16_name)
+                add_sdl_report(employee=emp_doc.name, date=f"{month_name} {year}", amount=flt(emp_doc.total_income) * 0.05, name=sdl_name)
         except Exception as e:
             frappe.log_error(f"Statutory Report Error for {emp.name}: {e}")
 
-        update_employee_annual_leave(emp.name, payroll_period=f"{month_name} {year}")
-        update_havano_leave_balances(emp.name)
-        
+        try:
+            update_employee_annual_leave(emp.name, payroll_period=f"{month_name} {year}")
+        except Exception as e:
+            frappe.log_error(f"Error updating annual leave allocation for {emp.name}: {str(e)}", "Payroll Error")
+
+        try:
+            update_havano_leave_balances(emp.name)
+        except Exception as e:
+            frappe.log_error(f"Error updating leave balances for {emp.name}: {str(e)}", "Payroll Error")        
         # --- Journal Entry Aggregation ---
         if create_journal_entry and default_payable_account:
             emp_company = emp_doc.company
@@ -546,7 +584,7 @@ def get_employee_loan(employee_id):
     return loan_doc
 
 @frappe.whitelist()
-def add_sdl_report(employee=None,date=None, amount=None):
+def add_sdl_report(employee=None,date=None, amount=None, name=None):
     """
     Adds an SDL Report record if one for the same employee and date doesn't exist.
     
@@ -555,6 +593,7 @@ def add_sdl_report(employee=None,date=None, amount=None):
         employee_name (str): Employee full name
         date (str): Month-Year format, e.g., "June 2026"
         amount (float): SDL amount
+        name (str): Doc name
     Returns:
         str: Name of the created SDL Report or a message if skipped
     """
@@ -573,6 +612,8 @@ def add_sdl_report(employee=None,date=None, amount=None):
         "date": date,
         "amount": amount
     })
+    if name:
+        doc.name = name
     doc.insert(ignore_permissions=True)
     frappe.db.commit()  # optional, forces immediate save
 
@@ -649,23 +690,22 @@ def update_employee_annual_leave(employee, days_to_add=2.5, payroll_period=None)
     # Check if allocation exists
     existing_allocation = frappe.db.get_value(
         "Havano Annual Leave Allocation",
-        {"employee": emp.name},
+        {"employee": employee},
         ["name", "total_days"],
         as_dict=True
     )
 
     if existing_allocation:
         # Add to total_days
-        new_total = (existing_allocation["total_days"] or 0) + float(days_to_add)
-        frappe.db.set_value("Havano Annual Leave Allocation", existing_allocation["name"], "total_days", new_total)
+        new_total = (existing_allocation.get("total_days") or 0) + float(days_to_add)
+        frappe.db.set_value("Havano Annual Leave Allocation", existing_allocation.get("name"), "total_days", new_total)
         frappe.db.commit()
         return new_total
     else:
         # Create new record
         new_doc = frappe.get_doc({
             "doctype": "Havano Annual Leave Allocation",
-            "employee": emp.name,
-            "havano_employee": emp.employee_name,
+            "employee": employee,
             "total_days": float(days_to_add),
             "payment_period": payroll_period
         })
@@ -781,7 +821,8 @@ def create_zimra_itf16(*,
     basic_pension=None,
     payee=None,
     aids_levy=None,
-    currency=None
+    currency=None,
+    name=None
 ):
 
     try:
@@ -806,6 +847,8 @@ def create_zimra_itf16(*,
             "aids_levy": aids_levy,
             "currency":currency
         })
+        if name:
+            doc.name = name
         doc.insert(ignore_permissions=True)
         frappe.db.commit()
         return {"status": "success", "name": doc.name}
@@ -824,7 +867,8 @@ def create_zimra_p2form(*,
     gross_paye=None,
     aids_levy=None,
     total_tax_due=None,
-    currency=None
+    currency=None,
+    name=None
 ):
     """Create a new ZIMRA P2FORM document using named parameters with defaults"""
     try:
@@ -840,6 +884,8 @@ def create_zimra_p2form(*,
             "total_tax_due": total_tax_due,
             "currency": currency
         })
+        if name:
+            doc.name = name
         doc.insert(ignore_permissions=True)
         frappe.db.commit()
         return {"status": "success", "name": doc.name}
@@ -866,7 +912,8 @@ def create_nssa_p4_report_store(
     surchage_zwg=None,
     total_payment_usd=None,
     total_payment_zwg=None,
-    prepayments_zwg_column=None
+    prepayments_zwg_column=None,
+    name=None
 ):
     """Create a new record in NSSA P4 Report Store"""
     try:
@@ -890,6 +937,8 @@ def create_nssa_p4_report_store(
             "prepayments_zwg_column": prepayments_zwg_column,
         })
         
+        if name:
+            doc.name = name
         doc.insert(ignore_permissions=True)
         frappe.db.commit()
 
@@ -910,7 +959,8 @@ def create_payroll_report(
     nssa_usd_employer,
     payroll_period,
     wcif_usd,
-    wcif_zwg
+    wcif_zwg,
+    name=None
 ):
     """
     Creates a new Payroll Summary record in the system.
@@ -927,6 +977,8 @@ def create_payroll_report(
         doc.wcif_usd = wcif_usd
         doc.wcif_zwg = wcif_zwg
 
+        if name:
+            doc.name = name
         doc.insert(ignore_permissions=True)
         frappe.db.commit()
 
@@ -934,6 +986,45 @@ def create_payroll_report(
 
     except Exception as e:
         frappe.log_error(message=frappe.get_traceback(), title="Payroll Summary Creation Failed")
+        return {"status": "error", "message": str(e)}
+
+@frappe.whitelist()
+def create_nec_report(
+    surname=None,
+    first_name=None,
+    start_date=None,
+    end_date=None,
+    grade=None,
+    nec_earnings_usd=None,
+    employer_contribution_usd=None,
+    employer_contribution_zwg=None,
+    total_nec_usd=None,
+    name=None
+):
+    """Create a new record in NEC Report"""
+    try:
+        doc = frappe.get_doc({
+            "doctype": "NEC Report",
+            "surname": surname,
+            "first_name": first_name,
+            "start_date": start_date,
+            "end_date": end_date,
+            "grade": grade,
+            "nec_earnings_usd": nec_earnings_usd,
+            "employer_contribution_usd": employer_contribution_usd,
+            "employer_contribution_zwg": employer_contribution_zwg,
+            "total_nec_usd": total_nec_usd
+        })
+        
+        if name:
+            doc.name = name
+        doc.insert(ignore_permissions=True)
+        frappe.db.commit()
+
+        return {"status": "success", "message": "NEC Record created successfully", "name": doc.name}
+
+    except Exception as e:
+        frappe.log_error(message=str(e), title="NEC Report Error")
         return {"status": "error", "message": str(e)}
 
 

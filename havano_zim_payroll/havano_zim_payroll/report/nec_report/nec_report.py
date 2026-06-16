@@ -1,5 +1,7 @@
 import frappe
 from frappe import _
+from datetime import date
+import calendar
 
 def execute(filters=None):
 	columns = get_columns()
@@ -8,17 +10,14 @@ def execute(filters=None):
 
 def get_columns():
 	columns = [
-		{"label": _("Employee ID"), "fieldname": "employee_id", "fieldtype": "Link", "options": "havano_employee", "width": 120},
-		{"label": _("First Name"), "fieldname": "first_name", "fieldtype": "Data", "width": 120},
-		{"label": _("Last Name"), "fieldname": "last_name", "fieldtype": "Data", "width": 120},
-		
-		{"label": _("Basic Salary (USD)"), "fieldname": "basic_usd", "fieldtype": "Currency", "width": 130},
-		{"label": _("NEC Employee (USD)"), "fieldname": "nec_employee_usd", "fieldtype": "Currency", "width": 140},
-		{"label": _("NEC Employer (USD)"), "fieldname": "nec_employer_usd", "fieldtype": "Currency", "width": 140},
-
-		{"label": _("Basic Salary (ZWG)"), "fieldname": "basic_zwg", "fieldtype": "Currency", "width": 130},
-		{"label": _("NEC Employee (ZWG)"), "fieldname": "nec_employee_zwg", "fieldtype": "Currency", "width": 140},
-		{"label": _("NEC Employer (ZWG)"), "fieldname": "nec_employer_zwg", "fieldtype": "Currency", "width": 140},
+		{"label": _("Surname"), "fieldname": "surname", "fieldtype": "Data", "width": 120},
+		{"label": _("First Names"), "fieldname": "first_names", "fieldtype": "Data", "width": 120},
+		{"label": _("Start Date"), "fieldname": "start_date", "fieldtype": "Date", "width": 120},
+		{"label": _("End Date"), "fieldname": "end_date", "fieldtype": "Date", "width": 120},
+		{"label": _("NEC Earnings (USD)"), "fieldname": "nec_earnings_usd", "fieldtype": "Currency", "width": 150},
+		{"label": _("Employee Contribution (USD)"), "fieldname": "employee_contribution_usd", "fieldtype": "Currency", "width": 200},
+		{"label": _("Employer Contribution (USD)"), "fieldname": "employer_contribution_usd", "fieldtype": "Currency", "width": 200},
+		{"label": _("Total NEC (USD)"), "fieldname": "total_nec_usd", "fieldtype": "Currency", "width": 150},
 	]
 	return columns
 
@@ -33,41 +32,36 @@ def get_data(filters):
 		"havano_employee",
 		filters=query_filters,
 		fields=[
-			"name", "first_name", "last_name"
+			"name", "first_name", "last_name", "total_taxable_income_usd"
 		]
 	)
+
+	today = date.today()
+	_, last_day = calendar.monthrange(today.year, today.month)
+	start_dt = date(today.year, today.month, 1)
+	end_dt = date(today.year, today.month, last_day)
 
 	for emp in employees:
 		doc = frappe.get_doc("havano_employee", emp.name)
 		
 		nec_usd = 0.0
-		nec_zwg = 0.0
-		basic_usd = 0.0
-		basic_zwg = 0.0
-
-		for e in doc.employee_earnings:
-			if e.components and "basic" in e.components.lower():
-				basic_usd += flt(e.amount_usd)
-				basic_zwg += flt(e.amount_zwg)
 
 		for d in doc.employee_deductions:
 			if d.components and "nec" in d.components.lower():
 				nec_usd += flt(d.amount_usd)
-				nec_zwg += flt(d.amount_zwg)
 
 		row = {
-			"employee_id": emp.name,
-			"first_name": emp.first_name,
-			"last_name": emp.last_name,
-			"basic_usd": basic_usd,
-			"nec_employee_usd": nec_usd,
-			"nec_employer_usd": nec_usd,  # Employer matches employee
-			"basic_zwg": basic_zwg,
-			"nec_employee_zwg": nec_zwg,
-			"nec_employer_zwg": nec_zwg,
+			"surname": emp.last_name,
+			"first_names": emp.first_name,
+			"start_date": start_dt,
+			"end_date": end_dt,
+			"nec_earnings_usd": flt(emp.total_taxable_income_usd),
+			"employee_contribution_usd": nec_usd,
+			"employer_contribution_usd": nec_usd,  # Assuming match
+			"total_nec_usd": nec_usd * 2,
 		}
 		
-		if basic_usd > 0 or basic_zwg > 0 or nec_usd > 0 or nec_zwg > 0:
+		if nec_usd > 0:
 			data.append(row)
 
 	return data

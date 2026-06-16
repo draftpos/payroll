@@ -1,5 +1,7 @@
 import frappe
 from frappe import _
+from datetime import date
+import calendar
 
 def execute(filters=None):
 	columns = get_columns()
@@ -8,17 +10,13 @@ def execute(filters=None):
 
 def get_columns():
 	columns = [
-		{"label": _("Employee ID"), "fieldname": "employee_id", "fieldtype": "Link", "options": "havano_employee", "width": 120},
 		{"label": _("First Name"), "fieldname": "first_name", "fieldtype": "Data", "width": 120},
-		{"label": _("Last Name"), "fieldname": "last_name", "fieldtype": "Data", "width": 120},
-		
-		{"label": _("Gross Salary (USD)"), "fieldname": "gross_usd", "fieldtype": "Currency", "width": 130},
-		{"label": _("NSSA Employee (USD)"), "fieldname": "nssa_employee_usd", "fieldtype": "Currency", "width": 140},
-		{"label": _("NSSA Employer (USD)"), "fieldname": "nssa_employer_usd", "fieldtype": "Currency", "width": 140},
-
-		{"label": _("Gross Salary (ZWG)"), "fieldname": "gross_zwg", "fieldtype": "Currency", "width": 130},
-		{"label": _("NSSA Employee (ZWG)"), "fieldname": "nssa_employee_zwg", "fieldtype": "Currency", "width": 140},
-		{"label": _("NSSA Employer (ZWG)"), "fieldname": "nssa_employer_zwg", "fieldtype": "Currency", "width": 140},
+		{"label": _("Surname"), "fieldname": "surname", "fieldtype": "Data", "width": 120},
+		{"label": _("Payroll Period"), "fieldname": "payroll_period", "fieldtype": "Data", "width": 140},
+		{"label": _("NSSA (ZIG) Employee"), "fieldname": "nssa_zig_employee", "fieldtype": "Currency", "width": 160},
+		{"label": _("NSSA (ZIG) Employer"), "fieldname": "nssa_zig_employer", "fieldtype": "Currency", "width": 160},
+		{"label": _("NSSA (USD) Employee"), "fieldname": "nssa_usd_employee", "fieldtype": "Currency", "width": 160},
+		{"label": _("NSSA (USD) Employer"), "fieldname": "nssa_usd_employer", "fieldtype": "Currency", "width": 160},
 	]
 	return columns
 
@@ -33,10 +31,13 @@ def get_data(filters):
 		"havano_employee",
 		filters=query_filters,
 		fields=[
-			"name", "first_name", "last_name", 
-			"total_earnings_usd", "total_earnings_zwg"
+			"name", "first_name", "last_name"
 		]
 	)
+
+	today = date.today()
+	month_name = calendar.month_name[today.month]
+	payroll_period = f"{month_name} {today.year}"
 
 	for emp in employees:
 		doc = frappe.get_doc("havano_employee", emp.name)
@@ -50,19 +51,16 @@ def get_data(filters):
 				nssa_zwg += flt(d.amount_zwg)
 
 		row = {
-			"employee_id": emp.name,
 			"first_name": emp.first_name,
-			"last_name": emp.last_name,
-			"gross_usd": emp.total_earnings_usd,
-			"nssa_employee_usd": nssa_usd,
-			"nssa_employer_usd": nssa_usd,  # In Zim, Employer contribution matches Employee
-			"gross_zwg": emp.total_earnings_zwg,
-			"nssa_employee_zwg": nssa_zwg,
-			"nssa_employer_zwg": nssa_zwg,
+			"surname": emp.last_name,
+			"payroll_period": payroll_period,
+			"nssa_zig_employee": nssa_zwg,
+			"nssa_zig_employer": nssa_zwg,
+			"nssa_usd_employee": nssa_usd,
+			"nssa_usd_employer": nssa_usd,
 		}
 		
-		# Only include employees who actually have NSSA or Gross
-		if row["gross_usd"] > 0 or row["gross_zwg"] > 0 or row["nssa_employee_usd"] > 0 or row["nssa_employee_zwg"] > 0:
+		if nssa_usd > 0 or nssa_zwg > 0:
 			data.append(row)
 
 	return data
