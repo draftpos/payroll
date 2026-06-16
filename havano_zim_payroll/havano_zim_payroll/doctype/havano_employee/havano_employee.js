@@ -224,17 +224,31 @@ function calculate_totals_server(frm) {
                                                 if (r.message[table]) {
                                                         let server_rows = r.message[table];
                                                         
+                                                        // Keep track of matched local names so we don't reuse them
+                                                        let matched_local_names = [];
+                                                        
                                                         // Fallback mapping for temporary rows: if server wiped the "new-..." name,
+                                                        // or assigned a random name to an unsaved row,
                                                         // map it back using the component name or row idx so we don't unnecessarily delete and recreate the row.
                                                         server_rows.forEach(s_row => {
-                                                                if (!s_row.name || s_row.name.startsWith('new-')) {
-                                                                                let match = frm.doc[table].find(c_row => 
-                                                                                        c_row.name && c_row.name.startsWith('new-') && 
-                                                                                        ((c_row.components && c_row.components === s_row.components) || (!c_row.components && !s_row.components && c_row.idx === s_row.idx))
-                                                                                );
+                                                                let exactly_matches = frm.doc[table].find(c_row => c_row.name === s_row.name);
+                                                                
+                                                                if (!exactly_matches) {
+                                                                        let match = frm.doc[table].find(c_row => 
+                                                                                c_row.name && c_row.name.startsWith('new-') && 
+                                                                                !matched_local_names.includes(c_row.name) &&
+                                                                                ((c_row.components && c_row.components === s_row.components) || (!c_row.components && !s_row.components && c_row.idx === s_row.idx))
+                                                                        );
                                                                         if (match) {
                                                                                 s_row.name = match.name;
+                                                                                matched_local_names.push(match.name);
+                                                                        } else {
+                                                                                // If no match is found, it's genuinely a new row added by python.
+                                                                                // Delete the python-generated name so add_child can make a correct local 'new-...' name.
+                                                                                delete s_row.name;
                                                                         }
+                                                                } else {
+                                                                        matched_local_names.push(exactly_matches.name);
                                                                 }
                                                         });
 
@@ -266,6 +280,8 @@ function calculate_totals_server(frm) {
                                                                         }
                                                                 } else {
                                                                         let new_row = frappe.model.add_child(frm.doc, table);
+                                                                        // Clean up row_data.name if it exists so we don't overwrite new_row.name and break the grid
+                                                                        delete row_data.name;
                                                                         Object.assign(new_row, row_data);
                                                                         if (new_row.is_tax_applicable !== undefined) {
                                                                                 new_row.is_tax_applicable = new_row.is_tax_applicable ? 1 : 0;
