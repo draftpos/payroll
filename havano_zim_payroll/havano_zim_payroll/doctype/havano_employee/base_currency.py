@@ -23,69 +23,49 @@ def main(self):
         or 1
     )
 
-    # 2. CALCULATE EARNINGS (GROSS SALARY)
-    basic_salary = 0
-    taxable_earnings = 0.0
+    # 2. FIND BASIC SALARY FIRST
+    basic_salary = 0.0
     for e in self.employee_earnings:
         if not e.components:
             continue
-        # Motoring Benefit Logic
-        if e.components.upper() == "MOTORING BENEFIT":
-            if getattr(self, "has_motoring_benefit", 0) and getattr(self, "engine_capacity", None):
-                deemed_usd = flt(frappe.db.get_value("Havano Motoring Benefit", {"engine_capacity": self.engine_capacity}, "deemed_value_usd"))
-                
-                # Auto-set the amounts based on currency
-                if default_currency == "USD":
-                    e.amount_usd = deemed_usd
-                    e.amount_zwg = 0
-                    amount = deemed_usd
-                else:
-                    e.amount_usd = 0
-                    e.amount_zwg = deemed_usd * exchange_rate
-                    amount = deemed_usd * exchange_rate
-                    
-            # Check if amount is in USD or ZWG based on company default
-            if default_currency == "USD":
-                amount = flt(e.amount_usd)
-            else:
-                amount = flt(e.amount_zwg)
-
-            # Motoring benefit is taxable but does NOT increase gross total_income
-            taxable_earnings += amount
-            continue
-
-        # Check if amount is in USD or ZWG based on company default
-        if default_currency == "USD":
-            amount = flt(e.amount_usd)
-        else:
-            amount = flt(e.amount_zwg)
-        
-        total_income += amount
-        
-        if e.is_tax_applicable:
-            taxable_earnings += amount
-            
-        if e.components == "Basic Salary":
+        amount = flt(e.amount_usd) if default_currency == "USD" else flt(e.amount_zwg)
+        if (e.components or "").strip().title().startswith("Basic Salary"):
             basic_salary = amount
 
-    self.total_income = round(total_income, 2)
     self.basic_salary_calculated = basic_salary
 
+    # 3. APPLY DYNAMIC EARNINGS
     # --- MOTORING BENEFIT ---
     apply_motoring_benefit(self, default_currency, exchange_rate)
 
     # --- CASH IN LIEU OF LEAVE ---
     apply_cash_in_lieu(self, basic_salary, default_currency)
-    total_income += flt(getattr(self, "cash_in_lieu_amount", 0.0))
-    self.total_income = round(total_income, 2)
 
     # --- OVERTIME ---
     apply_overtime(self, basic_salary, default_currency)
-    total_income += flt(getattr(self, "overtime_amount", 0.0))
-    self.total_income = round(total_income, 2)
 
     # --- SHORT TIME ---
     apply_short_time(self, basic_salary, default_currency)
+
+    # 4. CALCULATE TOTAL EARNINGS AND TAXABLE INCOME
+    taxable_earnings = 0.0
+    for e in self.employee_earnings:
+        if not e.components:
+            continue
+            
+        amount = flt(e.amount_usd) if default_currency == "USD" else flt(e.amount_zwg)
+        
+        # Motoring Benefit Logic
+        if e.components.upper() == "MOTORING BENEFIT":
+            if getattr(e, "is_tax_applicable", 0):
+                taxable_earnings += amount
+            continue # Motoring benefit is taxable but does NOT increase gross total_income
+            
+        total_income += amount
+        if getattr(e, "is_tax_applicable", 0):
+            taxable_earnings += amount
+
+    self.total_income = round(total_income, 2)
 
     # 3. CALCULATE TAX CREDITS
     if getattr(self, "is_elderly", 0):
@@ -717,4 +697,3 @@ def apply_short_time(self, basic_salary, default_currency):
         row_data['is_tax_applicable'] = frappe.db.get_value("havano_salary_component", "Short Time", "is_tax_applicable") or 0
 
     self.append("employee_earnings", row_data)
-    self.net_income = round(self.net_income - short_amount, 2)

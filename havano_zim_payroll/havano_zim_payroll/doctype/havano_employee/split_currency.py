@@ -11,43 +11,22 @@ def main(self):
     total_deduction_usd = 0.0
     total_deduction_zwg = 0.0
 
-    # 2. CALCULATE EARNINGS (GROSS)
-    taxable_earnings_usd = 0.0
-    taxable_earnings_zwg = 0.0
+    # 2. FIND BASIC SALARY FIRST
     basic_salary_usd = 0.0
     basic_salary_zwg = 0.0
     for e in self.employee_earnings:
         if not e.components:
             continue
-        if e.components.upper() == "MOTORING BENEFIT":
-            if getattr(self, "has_motoring_benefit", 0) and getattr(self, "engine_capacity", None):
-                deemed_usd = flt(frappe.db.get_value("Havano Motoring Benefit", {"engine_capacity": self.engine_capacity}, "deemed_value_usd"))
-                e.amount_usd = deemed_usd
-                e.amount_zwg = 0
-                
-            taxable_earnings_usd += flt(e.amount_usd)
-            taxable_earnings_zwg += flt(e.amount_zwg)
-            continue
-            
-        total_earnings_usd += flt(e.amount_usd)
-        total_earnings_zwg += flt(e.amount_zwg)
-        
-        if e.is_tax_applicable:
-            taxable_earnings_usd += flt(e.amount_usd)
-            taxable_earnings_zwg += flt(e.amount_zwg)
-
         if (e.components or "").strip().title().startswith("Basic Salary"):
             basic_salary_usd += flt(e.amount_usd)
             basic_salary_zwg += flt(e.amount_zwg)
 
-    self.total_earnings_usd = round(total_earnings_usd, 2)
-    self.total_earnings_zwg = round(total_earnings_zwg, 2)
-    self.total_income = self.total_earnings_usd + self.total_earnings_zwg
     self.basic_salary_calculated = basic_salary_usd + basic_salary_zwg
 
     # EXCHANGE RATE
     exchange_rate = flt(frappe.db.get_value("Currency Exchange", {"from_currency": "USD", "to_currency": ["in", ["ZWG", "ZWL"]]}, "exchange_rate") or 1)
 
+    # 3. APPLY DYNAMIC EARNINGS
     # --- MOTORING BENEFIT ---
     _mot_currency = "USD" if basic_salary_usd else "ZWG"
     apply_motoring_benefit(self, _mot_currency, exchange_rate)
@@ -56,18 +35,42 @@ def main(self):
     _cil_basic    = basic_salary_usd if basic_salary_usd else basic_salary_zwg
     _cil_currency = "USD" if basic_salary_usd else "ZWG"
     apply_cash_in_lieu(self, _cil_basic, _cil_currency)
-    total_earnings_usd += flt(getattr(self, "cash_in_lieu_amount", 0.0)) if _cil_currency == "USD" else 0.0
-    total_earnings_zwg += flt(getattr(self, "cash_in_lieu_amount", 0.0)) if _cil_currency != "USD" else 0.0
 
     # --- OVERTIME ---
     _ot_basic    = basic_salary_usd if basic_salary_usd else basic_salary_zwg
     _ot_currency = "USD" if basic_salary_usd else "ZWG"
     apply_overtime(self, _ot_basic, _ot_currency)
-    total_earnings_usd += flt(getattr(self, "overtime_amount", 0.0)) if _ot_currency == "USD" else 0.0
-    total_earnings_zwg += flt(getattr(self, "overtime_amount", 0.0)) if _ot_currency != "USD" else 0.0
 
     # --- SHORT TIME ---
     apply_short_time(self, _ot_basic, _ot_currency)
+
+    # 4. CALCULATE TOTAL EARNINGS AND TAXABLE INCOME
+    taxable_earnings_usd = 0.0
+    taxable_earnings_zwg = 0.0
+
+    for e in self.employee_earnings:
+        if not e.components:
+            continue
+            
+        amt_usd = flt(e.amount_usd)
+        amt_zwg = flt(e.amount_zwg)
+        
+        if e.components.upper() == "MOTORING BENEFIT":
+            if getattr(e, "is_tax_applicable", 0):
+                taxable_earnings_usd += amt_usd
+                taxable_earnings_zwg += amt_zwg
+            continue
+            
+        total_earnings_usd += amt_usd
+        total_earnings_zwg += amt_zwg
+        
+        if getattr(e, "is_tax_applicable", 0):
+            taxable_earnings_usd += amt_usd
+            taxable_earnings_zwg += amt_zwg
+
+    self.total_earnings_usd = round(total_earnings_usd, 2)
+    self.total_earnings_zwg = round(total_earnings_zwg, 2)
+    self.total_income = self.total_earnings_usd + self.total_earnings_zwg
 
     # 3. EXCHANGE RATE
     exchange_rate = flt(frappe.db.get_value("Currency Exchange", {"from_currency": "USD", "to_currency": ["in", ["ZWG", "ZWL"]]}, "exchange_rate") or 1)
@@ -703,4 +706,3 @@ def apply_short_time(self, basic_salary, default_currency_split):
         row_data['is_tax_applicable'] = frappe.db.get_value("havano_salary_component", "Short Time", "is_tax_applicable") or 0
 
     self.append("employee_earnings", row_data)
-    self.net_income = round(self.net_income - short_amount, 2)
