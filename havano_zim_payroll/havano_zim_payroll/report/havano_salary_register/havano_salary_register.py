@@ -23,7 +23,7 @@ def get_columns_and_data(filters):
 		"havano_employee",
 		filters=query_filters,
 		fields=[
-			"name", "first_name", "employee_name", 
+			"name", "first_name", "last_name", "employee_name", 
 			"basic_salary_calculated", "salary_currency",
 			"total_earnings_usd", "total_deduction_usd", "total_net_income_usd",
 			"total_earnings_zwg", "total_deduction_zwg", "total_net_income_zwg"
@@ -39,10 +39,12 @@ def get_columns_and_data(filters):
 	for emp in employees:
 		doc = frappe.get_doc("havano_employee", emp.name)
 		
+		full_name = emp.employee_name or f"{emp.first_name or ''} {emp.last_name or ''}".strip()
+
 		row = {
 			"employee_id": emp.name,
 			"first_name": emp.first_name,
-			"full_name": emp.employee_name,
+			"full_name": full_name,
 			"total_earnings_usd": flt(emp.total_earnings_usd),
 			"total_deduction_usd": flt(emp.total_deduction_usd),
 			"net_pay_usd": flt(emp.total_net_income_usd),
