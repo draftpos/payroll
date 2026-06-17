@@ -63,13 +63,13 @@
 			<tr {% if is_total %}class="total-row"{% endif %}>
 				<td>{{ row.earnings or "" }}</td>
 				<td class="text-right">
-					{% if row.earnings_amount_usd != None %}
+					{% if row.earnings_amount_usd is not none %}
 						{{ frappe.format(row.earnings_amount_usd, {"fieldtype": "Currency"}) }}
 					{% endif %}
 				</td>
 				<td>{{ row.deductions or "" }}</td>
 				<td class="text-right">
-					{% if row.deductions_amount_usd != None %}
+					{% if row.deductions_amount_usd is not none %}
 						{{ frappe.format(row.deductions_amount_usd, {"fieldtype": "Currency"}) }}
 					{% endif %}
 				</td>
