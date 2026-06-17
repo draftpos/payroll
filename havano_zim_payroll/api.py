@@ -248,7 +248,7 @@ def run_payroll(month, year, work_date, daily):
         # Create new Payroll Entry
         payroll = frappe.new_doc("Havano Payroll Entry")
         payroll.first_name = emp_doc.first_name
-        payroll.surname = emp_doc.last_name
+        payroll.last_name = emp_doc.last_name
         payroll.payroll_period = f"{month_name} {year}"
         payroll.date = work_date or nowdate()
         payroll.payroll_frequency=emp_doc.payroll_frequency
