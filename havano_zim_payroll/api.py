@@ -352,8 +352,6 @@ def run_payroll(month, year, work_date, daily):
                 if d.components and "NEC" in d.components.upper():
                     try:
                         nec_rep_name = f"NEC-{emp.name}-{month_name}-{year}"
-                        from datetime import date
-                        import calendar
                         start_dt, end_dt = get_month_range(year, month_int)
                         # We assume employer matches employee
                         employer_usd = d.amount_usd or 0
