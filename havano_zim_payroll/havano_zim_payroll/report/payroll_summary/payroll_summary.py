@@ -81,6 +81,14 @@ def get_data(filters):
 		"deductions_amount_usd": total_deductions,
 	})
 
+	# Add Net Balance Row
+	data.append({
+		"earnings": "Net Balance",
+		"earnings_amount_usd": total_earnings - total_deductions,
+		"deductions": "",
+		"deductions_amount_usd": None,
+	})
+
 	return data
 
 def flt(val):

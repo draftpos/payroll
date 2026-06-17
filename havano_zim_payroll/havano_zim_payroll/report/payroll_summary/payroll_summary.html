@@ -59,7 +59,7 @@
 	</thead>
 	<tbody>
 		{% for row in data %}
-			{% set is_total = (loop.last and row.earnings == 'Total Earnings') %}
+			{% set is_total = (row.earnings == 'Total Earnings' or row.earnings == 'Net Balance') %}
 			<tr {% if is_total %}class="total-row"{% endif %}>
 				<td>{{ row.earnings or "" }}</td>
 				<td class="text-right">
