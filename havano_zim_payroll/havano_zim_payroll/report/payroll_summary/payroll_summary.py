@@ -68,9 +68,9 @@ def get_data(filters):
 		
 		data.append({
 			"earnings": e_name,
-			"earnings_amount_usd": e_amt if e_name else "",
+			"earnings_amount_usd": e_amt if e_name else None,
 			"deductions": d_name,
-			"deductions_amount_usd": d_amt if d_name else "",
+			"deductions_amount_usd": d_amt if d_name else None,
 		})
 
 	# Add Total Row

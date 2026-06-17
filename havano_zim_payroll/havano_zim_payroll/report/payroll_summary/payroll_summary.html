@@ -43,7 +43,7 @@
 
 <div class="payslip-header">
 	<div class="payslip-title">Combined Payroll Summary</div>
-	{% if filters.get('month') %}
+	{% if filters and filters.get('month') %}
 	<p>For the month of {{ filters.month }}</p>
 	{% endif %}
 </div>
@@ -63,13 +63,13 @@
 			<tr {% if is_total %}class="total-row"{% endif %}>
 				<td>{{ row.earnings or "" }}</td>
 				<td class="text-right">
-					{% if row.earnings_amount_usd %}
+					{% if row.earnings_amount_usd != None %}
 						{{ frappe.format(row.earnings_amount_usd, {"fieldtype": "Currency"}) }}
 					{% endif %}
 				</td>
 				<td>{{ row.deductions or "" }}</td>
 				<td class="text-right">
-					{% if row.deductions_amount_usd %}
+					{% if row.deductions_amount_usd != None %}
 						{{ frappe.format(row.deductions_amount_usd, {"fieldtype": "Currency"}) }}
 					{% endif %}
 				</td>
