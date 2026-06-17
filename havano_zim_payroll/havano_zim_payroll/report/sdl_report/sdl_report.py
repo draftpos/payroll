@@ -1,10 +1,20 @@
 import frappe
 from frappe import _
+from frappe.utils import flt
 
 def execute(filters=None):
 	columns = get_columns()
 	data = get_data(filters)
-	return columns, data
+	
+	filtered_columns = []
+	for col in columns:
+		if col.get("fieldtype") in ["Currency", "Float", "Int"]:
+			col_total = sum(flt(row.get(col.get("fieldname"))) for row in data)
+			if col_total == 0:
+				continue
+		filtered_columns.append(col)
+
+	return filtered_columns, data
 
 def get_columns():
 	columns = [
@@ -37,8 +47,8 @@ def get_data(filters):
 	)
 
 	for emp in employees:
-		gross_usd = emp.total_earnings_usd or 0.0
-		gross_zwg = emp.total_earnings_zwg or 0.0
+		gross_usd = flt(emp.total_earnings_usd)
+		gross_zwg = flt(emp.total_earnings_zwg)
 
 		# SDL is standard 1% of gross wage
 		sdl_usd = round(gross_usd * 0.01, 2)

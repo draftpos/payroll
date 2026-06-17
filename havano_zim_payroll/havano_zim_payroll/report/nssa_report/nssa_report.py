@@ -6,7 +6,16 @@ import calendar
 def execute(filters=None):
 	columns = get_columns()
 	data = get_data(filters)
-	return columns, data
+	
+	filtered_columns = []
+	for col in columns:
+		if col.get("fieldtype") in ["Currency", "Float", "Int"]:
+			col_total = sum(flt(row.get(col.get("fieldname"))) for row in data)
+			if col_total == 0:
+				continue
+		filtered_columns.append(col)
+
+	return filtered_columns, data
 
 def get_columns():
 	columns = [

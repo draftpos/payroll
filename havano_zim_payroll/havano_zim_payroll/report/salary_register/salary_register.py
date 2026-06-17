@@ -4,7 +4,16 @@ from frappe import _
 def execute(filters=None):
 	columns = get_columns()
 	data = get_data(filters)
-	return columns, data
+	
+	filtered_columns = []
+	for col in columns:
+		if col.get("fieldtype") in ["Currency", "Float", "Int"]:
+			col_total = sum(flt(row.get(col.get("fieldname"))) for row in data)
+			if col_total == 0:
+				continue
+		filtered_columns.append(col)
+
+	return filtered_columns, data
 
 def get_columns():
 	columns = [
@@ -43,9 +52,6 @@ def get_data(filters):
 	)
 
 	for emp in employees:
-		# Map basic salary to respective currency depending on primary currency, 
-		# or fetch from child tables if we want exact splits.
-		# For simplicity, we put the calculated basic salary in USD if primary is USD.
 		doc = frappe.get_doc("havano_employee", emp.name)
 		
 		basic_usd = 0.0
@@ -59,14 +65,14 @@ def get_data(filters):
 			"employee_id": emp.name,
 			"first_name": emp.first_name,
 			"full_name": emp.employee_name,
-			"basic_salary_usd": basic_usd,
-			"total_earnings_usd": emp.total_earnings_usd,
-			"total_deduction_usd": emp.total_deduction_usd,
-			"net_pay_usd": emp.total_net_income_usd,
-			"basic_salary_zwg": basic_zwg,
-			"total_earnings_zwg": emp.total_earnings_zwg,
-			"total_deduction_zwg": emp.total_deduction_zwg,
-			"net_pay_zwg": emp.total_net_income_zwg,
+			"basic_salary_usd": flt(basic_usd),
+			"total_earnings_usd": flt(emp.total_earnings_usd),
+			"total_deduction_usd": flt(emp.total_deduction_usd),
+			"net_pay_usd": flt(emp.total_net_income_usd),
+			"basic_salary_zwg": flt(basic_zwg),
+			"total_earnings_zwg": flt(emp.total_earnings_zwg),
+			"total_deduction_zwg": flt(emp.total_deduction_zwg),
+			"net_pay_zwg": flt(emp.total_net_income_zwg),
 		}
 		data.append(row)
 

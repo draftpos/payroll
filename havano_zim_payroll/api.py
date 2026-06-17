@@ -1168,22 +1168,53 @@ def cancel_payroll_func(month, year, reason):
     payroll_entries = frappe.get_all(
         "Havano Payroll Entry",
         filters={"payroll_period": f"{month} {int(year)}"}, 
-        fields=["name","first_name"]
+        fields=["name", "first_name", "last_name"]
     )
 
     if not payroll_entries:
         return f"No submitted payroll found for {month} {year}."
 
-    # Print entries to the server log
+    # Print entries to the server log and reverse leave for each employee
     for entry in payroll_entries:
-        print(f"Payroll: {entry['name']}, Employee: {entry['first_name']},Reason: {reason}")
-        cancel_payroll_purchase_invoices(f"{month} {int(year)}")
-        delete_sdl_for_period(f"{month} {int(year)}")
-        delete_nassa_reports_for_period(f"{month} {int(year)}")
-        delete_salary_summary_for_period(f"{month} {int(year)}")
-        delete_havano_payroll_entries(f"{month} {int(year)}")
+        print(f"Payroll: {entry['name']}, Employee: {entry.get('first_name')}, Reason: {reason}")
+        
+        # Reverse leave
+        emp = frappe.db.get_value("havano_employee", {"first_name": entry.get("first_name"), "last_name": entry.get("last_name") or ""}, "name")
+        if emp:
+            try:
+                reverse_leave_for_employee(emp)
+            except Exception as e:
+                frappe.log_error(f"Error reversing leave for {emp} during cancel: {str(e)}", "Leave Reversal Error")
+
+    # Call period-wide deletes once outside the loop
+    payroll_period_str = f"{month} {int(year)}"
+    cancel_payroll_purchase_invoices(payroll_period_str)
+    delete_sdl_for_period(payroll_period_str)
+    delete_nassa_reports_for_period(payroll_period_str)
+    delete_salary_summary_for_period(payroll_period_str)
+    delete_havano_payroll_entries(payroll_period_str)
 
     return f"{len(payroll_entries)} payroll entries for {month} {year} with reason: {reason}."
+
+def reverse_leave_for_employee(employee, days_to_deduct=2.5):
+    # 1. Deduct from Annual Leave Allocation
+    allocation = frappe.db.get_value("Havano Annual Leave Allocation", {"employee": employee}, "name")
+    if allocation:
+        current_alloc = flt(frappe.db.get_value("Havano Annual Leave Allocation", allocation, "total_days") or 0)
+        frappe.db.set_value("Havano Annual Leave Allocation", allocation, "total_days", current_alloc - days_to_deduct)
+
+    # 2. Deduct from Havano Leave Balances
+    actual_leave_type = "Annual Leave"
+    db_leave_type = frappe.db.get_value("havano_leave_type", {"name": ["like", "%Annual%"]}, "name")
+    if db_leave_type:
+        actual_leave_type = db_leave_type
+
+    leave_balance = frappe.db.get_value("Havano Leave Balances", {"employee": employee, "havano_leave_type": actual_leave_type}, "name")
+    if leave_balance:
+        current_bal = flt(frappe.db.get_value("Havano Leave Balances", leave_balance, "leave_balance") or 0)
+        frappe.db.set_value("Havano Leave Balances", leave_balance, "leave_balance", current_bal - days_to_deduct)
+
+    frappe.db.commit()
 
 def cancel_payroll_purchase_invoices(payroll_period):
 

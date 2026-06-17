@@ -6,5 +6,10 @@ frappe.query_reports["Salary Register"] = {
 			"fieldtype": "Link",
 			"options": "havano_employee"
 		}
-	]
+	],
+	"onload": function(report) {
+		report.page.add_inner_button(__("Add New Employee"), function() {
+			frappe.new_doc("havano_employee");
+		});
+	}
 };

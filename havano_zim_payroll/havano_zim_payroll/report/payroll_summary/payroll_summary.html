@@ -1,0 +1,79 @@
+<style>
+	.print-format table, .print-format tr, 
+	.print-format td, .print-format div, .print-format p {
+		font-family: 'Helvetica Neue', Helvetica, Arial, 'Open Sans', sans-serif;
+	}
+	.payslip-header {
+		text-align: center;
+		margin-bottom: 30px;
+	}
+	.payslip-title {
+		font-size: 24px;
+		font-weight: bold;
+		text-transform: uppercase;
+		margin-bottom: 5px;
+	}
+	.summary-table {
+		width: 100%;
+		border-collapse: collapse;
+		margin-top: 20px;
+	}
+	.summary-table th {
+		background-color: #f8f9fa;
+		border: 1px solid #d1d8dd;
+		padding: 10px;
+		text-align: left;
+		font-weight: 600;
+	}
+	.summary-table th.text-right {
+		text-align: right;
+	}
+	.summary-table td {
+		border: 1px solid #d1d8dd;
+		padding: 8px 10px;
+	}
+	.summary-table td.text-right {
+		text-align: right;
+	}
+	.total-row td {
+		font-weight: bold;
+		background-color: #f4f5f6;
+	}
+</style>
+
+<div class="payslip-header">
+	<div class="payslip-title">Combined Payroll Summary</div>
+	{% if filters.get('month') %}
+	<p>For the month of {{ filters.month }}</p>
+	{% endif %}
+</div>
+
+<table class="summary-table">
+	<thead>
+		<tr>
+			<th style="width: 35%;">Earnings Component</th>
+			<th class="text-right" style="width: 15%;">Amount (USD)</th>
+			<th style="width: 35%;">Deduction Component</th>
+			<th class="text-right" style="width: 15%;">Amount (USD)</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for row in data %}
+			{% set is_total = (loop.last and row.earnings == 'Total Earnings') %}
+			<tr {% if is_total %}class="total-row"{% endif %}>
+				<td>{{ row.earnings or "" }}</td>
+				<td class="text-right">
+					{% if row.earnings_amount_usd %}
+						{{ frappe.format(row.earnings_amount_usd, {"fieldtype": "Currency"}) }}
+					{% endif %}
+				</td>
+				<td>{{ row.deductions or "" }}</td>
+				<td class="text-right">
+					{% if row.deductions_amount_usd %}
+						{{ frappe.format(row.deductions_amount_usd, {"fieldtype": "Currency"}) }}
+					{% endif %}
+				</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
