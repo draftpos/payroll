@@ -1,4 +1,4 @@
-frappe.query_reports["Salary Register"] = {
+frappe.query_reports["Havano Salary Register"] = {
 	"filters": [
 		{
 			"fieldname": "employee_id",
