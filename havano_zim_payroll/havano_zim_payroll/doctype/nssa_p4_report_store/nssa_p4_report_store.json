@@ -38,17 +38,20 @@
   {
    "fieldname": "start_date",
    "fieldtype": "Date",
-   "label": "Start Date"
+   "label": "Start Date",
+   "in_list_view": 1
   },
   {
    "fieldname": "end_date",
    "fieldtype": "Date",
-   "label": "End Date"
+   "label": "End Date",
+   "in_list_view": 1
   },
   {
    "fieldname": "total_insuarable_earnings_usd",
    "fieldtype": "Float",
-   "label": "Total Insuarable Earnings (USD)"
+   "label": "Total Insuarable Earnings (USD)",
+   "in_list_view": 1
   },
   {
    "fieldname": "prepayments_zwg_column",
@@ -58,52 +61,62 @@
   {
    "fieldname": "total_insuarable_earnings_zwg",
    "fieldtype": "Float",
-   "label": "Total Insuarable Earnings (ZWG)"
+   "label": "Total Insuarable Earnings (ZWG)",
+   "in_list_view": 1
   },
   {
    "fieldname": "current_contributions_usd",
    "fieldtype": "Float",
-   "label": "Current Contribution (USD)"
+   "label": "Current Contribution (USD)",
+   "in_list_view": 1
   },
   {
    "fieldname": "current_contributions_zwg",
    "fieldtype": "Float",
-   "label": "Current Contribution (ZWG)"
+   "label": "Current Contribution (ZWG)",
+   "in_list_view": 1
   },
   {
    "fieldname": "arrears_usd",
    "fieldtype": "Float",
-   "label": "Arrears USD"
+   "label": "Arrears USD",
+   "in_list_view": 1
   },
   {
    "fieldname": "arrears_zwg",
    "fieldtype": "Float",
-   "label": "Arrears ZWG"
+   "label": "Arrears ZWG",
+   "in_list_view": 1
   },
   {
    "fieldname": "prepayments_usd",
    "fieldtype": "Float",
-   "label": "Prepayments USD"
+   "label": "Prepayments USD",
+   "in_list_view": 1
   },
   {
    "fieldname": "surchage_zwg",
    "fieldtype": "Float",
-   "label": "Surchage ZWG"
+   "label": "Surchage ZWG",
+   "in_list_view": 1
   },
   {
    "fieldname": "total_payment_usd",
    "fieldtype": "Float",
-   "label": "Total Payment USD"
+   "label": "Total Payment USD",
+   "in_list_view": 1
   },
   {
    "fieldname": "total_payment_zwg",
    "fieldtype": "Float",
-   "label": "Total Payment ZWG"
+   "label": "Total Payment ZWG",
+   "in_list_view": 1
   },
   {
    "fieldname": "surcharge_usd",
    "fieldtype": "Float",
-   "label": "Surcharge USD"
+   "label": "Surcharge USD",
+   "in_list_view": 1
   }
  ],
  "grid_page_length": 50,
@@ -130,7 +143,7 @@
  ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
- "sort_field": "modified",
- "sort_order": "DESC",
+ "sort_field": "name",
+ "sort_order": "ASC",
  "states": []
 }

@@ -19,47 +19,56 @@
   {
    "fieldname": "surname",
    "fieldtype": "Data",
-   "label": "Surname"
+   "label": "Surname",
+   "in_list_view": 1
   },
   {
    "fieldname": "first_name",
    "fieldtype": "Data",
-   "label": "First Name"
+   "label": "First Name",
+   "in_list_view": 1
   },
   {
    "fieldname": "start_date",
    "fieldtype": "Date",
-   "label": "Start Date"
+   "label": "Start Date",
+   "in_list_view": 1
   },
   {
    "fieldname": "end_date",
    "fieldtype": "Date",
-   "label": "End Date"
+   "label": "End Date",
+   "in_list_view": 1
   },
   {
    "fieldname": "grade",
    "fieldtype": "Data",
-   "label": "Grade"
+   "label": "Grade",
+   "in_list_view": 1
   },
   {
    "fieldname": "nec_earnings_usd",
    "fieldtype": "Float",
-   "label": "NEC Earnings (USD)"
+   "label": "NEC Earnings (USD)",
+   "in_list_view": 1
   },
   {
    "fieldname": "employer_contribution_usd",
    "fieldtype": "Float",
-   "label": "Employer Contribution (USD)"
+   "label": "Employer Contribution (USD)",
+   "in_list_view": 1
   },
   {
    "fieldname": "employer_contribution_zwg",
    "fieldtype": "Float",
-   "label": "Employer Contribution (ZWG)"
+   "label": "Employer Contribution (ZWG)",
+   "in_list_view": 1
   },
   {
    "fieldname": "total_nec_usd",
    "fieldtype": "Float",
-   "label": "Total NEC (USD)"
+   "label": "Total NEC (USD)",
+   "in_list_view": 1
   }
  ],
  "grid_page_length": 50,
@@ -86,7 +95,7 @@
  ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
- "sort_field": "modified",
- "sort_order": "DESC",
+ "sort_field": "name",
+ "sort_order": "ASC",
  "states": []
 }

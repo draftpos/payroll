@@ -39,42 +39,50 @@
   {
    "fieldname": "dob",
    "fieldtype": "Date",
-   "label": "DOB"
+   "label": "DOB",
+   "in_list_view": 1
   },
   {
    "fieldname": "start_date",
    "fieldtype": "Data",
-   "label": "Start Date"
+   "label": "Start Date",
+   "in_list_view": 1
   },
   {
    "fieldname": "end_date",
    "fieldtype": "Date",
-   "label": "End Date"
+   "label": "End Date",
+   "in_list_view": 1
   },
   {
    "fieldname": "gross_paye",
    "fieldtype": "Float",
-   "label": "Gross Pay"
+   "label": "Gross Pay",
+   "in_list_view": 1
   },
   {
    "fieldname": "basic_pension",
    "fieldtype": "Float",
-   "label": "Basic Pension"
+   "label": "Basic Pension",
+   "in_list_view": 1
   },
   {
    "fieldname": "payee",
    "fieldtype": "Float",
-   "label": "Payee"
+   "label": "Payee",
+   "in_list_view": 1
   },
   {
    "fieldname": "aids_levy",
    "fieldtype": "Float",
-   "label": "Aids Levy"
+   "label": "Aids Levy",
+   "in_list_view": 1
   },
   {
    "fieldname": "currency",
    "fieldtype": "Data",
-   "label": "Currency"
+   "label": "Currency",
+   "in_list_view": 1
   }
  ],
  "grid_page_length": 50,
@@ -102,7 +110,7 @@
  ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
- "sort_field": "modified",
- "sort_order": "DESC",
+ "sort_field": "name",
+ "sort_order": "ASC",
  "states": []
 }

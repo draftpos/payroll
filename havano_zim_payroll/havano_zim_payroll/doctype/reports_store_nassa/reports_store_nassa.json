@@ -23,12 +23,14 @@
   {
    "fieldname": "surname",
    "fieldtype": "Data",
-   "label": "Surname"
+   "label": "Surname",
+   "in_list_view": 1
   },
   {
    "fieldname": "nssa_usd_employee",
    "fieldtype": "Data",
-   "label": "NASSA (USD) Employee"
+   "label": "NASSA (USD) Employee",
+   "in_list_view": 1
   },
   {
    "fieldname": "column_break_gmzo",
@@ -37,47 +39,56 @@
   {
    "fieldname": "nssa_usd_employer",
    "fieldtype": "Data",
-   "label": "NASSA (USD) Employer"
+   "label": "NASSA (USD) Employer",
+   "in_list_view": 1
   },
   {
    "fieldname": "payroll_period",
    "fieldtype": "Data",
-   "label": "Payroll Period"
+   "label": "Payroll Period",
+   "in_list_view": 1
   },
   {
    "fieldname": "first_name",
    "fieldtype": "Data",
-   "label": "First Name"
+   "label": "First Name",
+   "in_list_view": 1
   },
   {
    "fieldname": "nssa_zwg_employee",
    "fieldtype": "Float",
-   "label": "NASSA (ZWG) Employee"
+   "label": "NASSA (ZWG) Employee",
+   "in_list_view": 1
   },
   {
    "fieldname": "nssa_zwg_employer",
    "fieldtype": "Data",
-   "label": "NASSA (ZWG) Employer"
+   "label": "NASSA (ZWG) Employer",
+   "in_list_view": 1
   },
   {
    "fieldname": "wcif_usd",
    "fieldtype": "Float",
-   "label": "WCIF USD"
+   "label": "WCIF USD",
+   "in_list_view": 1
   },
   {
    "fieldname": "wcif_zwg",
    "fieldtype": "Float",
-   "label": "WCIF ZWG"
+   "label": "WCIF ZWG",
+   "in_list_view": 1
   },
   {
    "fieldname": "ncdf_usd",
    "fieldtype": "Float",
-   "label": "NCF USD"
+   "label": "NCF USD",
+   "in_list_view": 1
   },
   {
    "fieldname": "ncf_zwg",
    "fieldtype": "Float",
-   "label": "NCF ZWG"
+   "label": "NCF ZWG",
+   "in_list_view": 1
   },
   {
    "fieldname": "column_break_ubtn",
@@ -108,7 +119,7 @@
  ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
- "sort_field": "modified",
- "sort_order": "DESC",
+ "sort_field": "name",
+ "sort_order": "ASC",
  "states": []
 }

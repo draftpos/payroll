@@ -19,47 +19,56 @@
   {
    "fieldname": "employer_name",
    "fieldtype": "Data",
-   "label": "Employer's Name"
+   "label": "Employer's Name",
+   "in_list_view": 1
   },
   {
    "fieldname": "trade_name",
    "fieldtype": "Data",
-   "label": "Trade Name"
+   "label": "Trade Name",
+   "in_list_view": 1
   },
   {
    "fieldname": "tin_number",
    "fieldtype": "Data",
-   "label": "TIN Number"
+   "label": "TIN Number",
+   "in_list_view": 1
   },
   {
    "fieldname": "tax_period",
    "fieldtype": "Data",
-   "label": "Tax Period"
+   "label": "Tax Period",
+   "in_list_view": 1
   },
   {
    "fieldname": "total_renumeration",
    "fieldtype": "Float",
-   "label": "Total Renumeration"
+   "label": "Total Renumeration",
+   "in_list_view": 1
   },
   {
    "fieldname": "gross_paye",
    "fieldtype": "Float",
-   "label": "Gross PAYE"
+   "label": "Gross PAYE",
+   "in_list_view": 1
   },
   {
    "fieldname": "aids_levy",
    "fieldtype": "Float",
-   "label": "AIDS LEVY"
+   "label": "AIDS LEVY",
+   "in_list_view": 1
   },
   {
    "fieldname": "total_tax_due",
    "fieldtype": "Float",
-   "label": "Total Tax Due"
+   "label": "Total Tax Due",
+   "in_list_view": 1
   },
   {
    "fieldname": "currency",
    "fieldtype": "Data",
-   "label": "Currency"
+   "label": "Currency",
+   "in_list_view": 1
   }
  ],
  "grid_page_length": 50,
@@ -86,7 +95,7 @@
  ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
- "sort_field": "modified",
- "sort_order": "DESC",
+ "sort_field": "name",
+ "sort_order": "ASC",
  "states": []
 }
