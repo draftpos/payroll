@@ -145,5 +145,7 @@
  "rows_threshold_for_grid_search": 20,
  "sort_field": "name",
  "sort_order": "ASC",
- "states": []
+ "states": [],
+ "autoname": "autoincrement",
+ "naming_rule": "Autoincrement"
 }
