@@ -107,9 +107,9 @@ def run_payroll(month, year, work_date, daily):
     
     try:
         settings = frappe.get_single("Havano Payroll Settings")
-        mapped_components = [row.component for row in settings.get("payroll_journal_accounts", [])]
+        mapped_components = {row.component: row.account for row in settings.get("payroll_journal_accounts", []) if row.account}
     except Exception:
-        mapped_components = []
+        mapped_components = {}
 
     pj_data = {}
     ecj_data = {}
@@ -501,57 +501,6 @@ def run_payroll(month, year, work_date, daily):
         pj_data[emp_company]["zimra"] += zimra
         
         frappe.db.commit()
-    # Create Journal Entries
-    if create_journal_entry and default_payable_account:
-        for (comp, cur), data in je_data.items():
-            if data["net_pay"] > 0:
-                data["entries"].append({
-                    "account": default_payable_account,
-                    "debit": 0,
-                    "credit": data["net_pay"],
-                    "cost_center": setting_cost_center
-                })
-            if data["entries"]:
-                create_journal_entry_safe(
-                    company=comp,
-                    posting_date=work_date or nowdate(),
-                    entries=data["entries"],
-                    voucher_type="Journal Entry"
-                )
-
-    if acc and not (create_journal_entry and default_payable_account):
-        try:
-            c = create_salary_purchase_invoice(
-                item_name=acc.get("item", "Payroll Item"),
-                supplier=acc.get("supplier"),
-                company=acc.get("company"),
-                cost_center=acc.get("cost_center"),
-                total=total_net_salary_now,
-                salary_account=acc.get("account"),
-                currency=acc.get("currency", "USD"),
-                expense_account=acc.get("account"),
-                custom_from_payroll = 1,
-                custom_payroll_period = f"{month_name} {year}"
-            )
-        except Exception as e:
-            frappe.log_error(frappe.get_traceback(), "Salary Purchase Invoice Creation Failed")
-        
-        try:
-            c = create_salary_purchase_invoice(
-                item_name="Payroll Expense",
-                supplier=setting_supplier,
-                company=acc.get("company"),
-                cost_center=setting_cost_center,
-                total=total_sdl,
-                salary_account=acc.get("account"),
-                currency=acc.get("currency", "USD"),
-                expense_account=acc.get("account"),
-                custom_payroll_period = f"{month_name} {year}",
-                custom_from_payroll = 1
-            )
-        except Exception as e:
-            frappe.log_error(frappe.get_traceback(), "SDL Purchase Invoice Creation Failed")
-            
     # --- Auto-create Havano Payroll Journal ---
     for comp, data in pj_data.items():
         if not comp:
@@ -606,6 +555,39 @@ def run_payroll(month, year, work_date, daily):
                 
                 pj.insert(ignore_permissions=True)
                 frappe.db.commit()
+                
+                # --- Create Accounting Journal Entry for Payroll ---
+                je_entries = []
+                missing_account = False
+                for row in pj.journal_details:
+                    acc_gl = mapped_components.get(row.detail)
+                    if not acc_gl:
+                        frappe.log_error(f"Missing GL Account for '{row.detail}' in Havano Payroll Settings > Setup Accounts", "Accounting JE Error")
+                        missing_account = True
+                        break
+                    je_entries.append({
+                        "account": acc_gl,
+                        "debit_in_account_currency": row.dr,
+                        "credit_in_account_currency": row.cr,
+                        "cost_center": setting_cost_center
+                    })
+                    
+                if not missing_account and je_entries:
+                    je_name = f"Payroll-{month_name}-{year}"
+                    if frappe.db.exists("Journal Entry", je_name):
+                        frappe.delete_doc("Journal Entry", je_name, ignore_permissions=True)
+                        
+                    je = frappe.new_doc("Journal Entry")
+                    je.name = je_name
+                    je.voucher_type = "Journal Entry"
+                    je.company = comp
+                    je.posting_date = work_date or nowdate()
+                    je.user_remark = f"Payroll Journal Entry for {month_name} {year}"
+                    for e in je_entries:
+                        je.append("accounts", e)
+                    je.insert(ignore_permissions=True)
+                    frappe.db.commit()
+                    
                 frappe.msgprint(f"Havano Payroll Journal created for {comp}", alert=True)
             except Exception as e:
                 frappe.log_error(frappe.get_traceback(), f"Havano Payroll Journal Error for {comp}")
@@ -650,7 +632,40 @@ def run_payroll(month, year, work_date, daily):
                     
                 ecj.insert(ignore_permissions=True)
                 frappe.db.commit()
-                frappe.msgprint(f"Employer Contributions Journal created for {comp}", alert=True)
+                
+                # --- Create Accounting Journal Entry for Employer Contributions ---
+                je_entries = []
+                missing_account = False
+                for row in ecj.journal_details:
+                    acc_gl = mapped_components.get(row.detail)
+                    if not acc_gl:
+                        frappe.log_error(f"Missing GL Account for '{row.detail}' in Havano Payroll Settings > Setup Accounts", "Accounting JE Error")
+                        missing_account = True
+                        break
+                    je_entries.append({
+                        "account": acc_gl,
+                        "debit_in_account_currency": row.dr,
+                        "credit_in_account_currency": row.cr,
+                        "cost_center": setting_cost_center
+                    })
+                    
+                if not missing_account and je_entries:
+                    je_name = f"Contrib-{month_name}-{year}"
+                    if frappe.db.exists("Journal Entry", je_name):
+                        frappe.delete_doc("Journal Entry", je_name, ignore_permissions=True)
+                        
+                    je = frappe.new_doc("Journal Entry")
+                    je.name = je_name
+                    je.voucher_type = "Journal Entry"
+                    je.company = comp
+                    je.posting_date = work_date or nowdate()
+                    je.user_remark = f"Employer Contributions Journal Entry for {month_name} {year}"
+                    for e in je_entries:
+                        je.append("accounts", e)
+                    je.insert(ignore_permissions=True)
+                    frappe.db.commit()
+                    
+                frappe.msgprint(f"Havano Employer Contributions Journal created for {comp}", alert=True)
             except Exception as e:
                 frappe.log_error(frappe.get_traceback(), f"Employer Contributions Journal Error for {comp}")
                 frappe.msgprint(f"Failed to create Employer Contributions Journal for {comp}. Check Error Log.", indicator="red")
@@ -659,44 +674,6 @@ def run_payroll(month, year, work_date, daily):
 
 
 
-def create_journal_entry_safe(company, posting_date, entries, voucher_type="Cash Entry"):
-    """
-    Create a Journal Entry in ERPNext safely.
-    'entries' must be a list of dicts with keys: account, debit, credit, cost_center (optional)
-    """
-    import frappe
-    from frappe.utils import flt
-
-    try:
-        # Prepare rows
-        accounts = []
-        for e in entries:
-            accounts.append({
-                "account": e.get("account"),
-                "debit": flt(e.get("debit", 0)),
-                "credit": flt(e.get("credit", 0)),
-                "cost_center": e.get("cost_center")  # optional
-            })
-
-        je = frappe.get_doc({
-            "doctype": "Journal Entry",
-            "voucher_type": voucher_type,
-            "company": company,
-            "posting_date": posting_date,
-            "accounts": accounts
-        })
-        je.insert()
-        je.submit()
-
-        frappe.msgprint(f"Journal Entry Created: {je.name}")
-        return je
-
-    except Exception:
-        import traceback
-        tb = traceback.format_exc()
-        frappe.log_error(message=tb, title="Journal Entry Creation Error")
-        frappe.msgprint("Failed to create Journal Entry. Check Error Log.")
-        return None
 
 def get_loan_deduction_amounts(employee_id):
     """
@@ -773,51 +750,6 @@ def add_sdl_report(employee=None,date=None, amount=None, name=None):
     frappe.db.commit()  # optional, forces immediate save
 
     return f"SDL Report created: {doc.name}"
-
-@frappe.whitelist()
-def create_salary_purchase_invoice(
-    item_name, supplier, company, cost_center, total,
-    salary_account, currency=None, expense_account=None,
-    salary_component=None, period=None, custom_from_payroll = None,custom_payroll_period =None
-):
-
-    currency = currency or frappe.get_cached_value("Company", company, "default_currency")
-
-    # Create Purchase Invoice
-    purchase_invoice = frappe.new_doc("Purchase Invoice")
-    purchase_invoice.update({
-        "supplier": supplier,
-        "company": company,
-        "currency": currency,
-        "cost_center": cost_center,
-        "bill_no": f"Salary-Run-{period or 'NA'}-{salary_component or item_name}",
-        "bill_date": nowdate(),
-        "due_date": nowdate(),
-        "items": [],
-        "custom_from_payroll": 1,
-        "custom_payroll_period": custom_payroll_period
-    })
-
-    item = {
-        "item_code": item_name,
-        "item_name": item_name,
-        "description": f"{salary_component or item_name} - {period or 'NA'}",
-        "qty": 1,
-        "rate": total,
-        "amount": total,
-        "cost_center": cost_center,
-        "expense_account": expense_account or salary_account
-    }
-    purchase_invoice.append("items", item)
-
-    # Auto-set missing values + calculate totals
-    purchase_invoice.run_method("set_missing_values")
-    purchase_invoice.run_method("calculate_taxes_and_totals")
-
-    # Save + submit
-    purchase_invoice.insert(ignore_permissions=True)
-    purchase_invoice.submit()
-    return purchase_invoice.name
 
 
 @frappe.whitelist()
