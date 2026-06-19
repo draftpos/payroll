@@ -465,12 +465,12 @@ def run_payroll(month, year, work_date, daily):
         
         if hasattr(emp_doc, "employee_earnings"):
             for e in emp_doc.employee_earnings:
-                amt = flt(e.amount_usd) if currency == "USD" else flt(e.amount_zwg)
+                amt = flt(e.amount_usd) + flt(e.amount_zwg)
                 total_earnings += amt
                 
         if hasattr(emp_doc, "employee_deductions"):
             for d in emp_doc.employee_deductions:
-                amt = flt(d.amount_usd) if currency == "USD" else flt(d.amount_zwg)
+                amt = flt(d.amount_usd) + flt(d.amount_zwg)
                 if d.components in ["Payee", "Aids Levy"]:
                     zimra += amt
                 elif d.components in mapped_components:
