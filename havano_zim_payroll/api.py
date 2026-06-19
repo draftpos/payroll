@@ -562,9 +562,15 @@ def run_payroll(month, year, work_date, daily):
                 je_entries = []
                 missing_account = False
                 for row in pj.journal_details:
-                    acc_gl = mapped_components.get(row.detail.strip().lower() if row.detail else "")
+                    if row.detail == "Salaries and Wages":
+                        acc_gl = get_account("Basic Salary", comp)
+                    else:
+                        acc_gl = mapped_components.get(row.detail.strip().lower() if row.detail else "")
+                        
                     if not acc_gl:
                         err_msg = f"Missing GL Account for '{row.detail}' in Havano Payroll Settings > Setup Accounts"
+                        if row.detail == "Salaries and Wages":
+                            err_msg = f"Missing GL Account for 'Basic Salary' in Havano Salary Component > Setup Accounts"
                         frappe.log_error(err_msg, "Accounting JE Error")
                         frappe.msgprint(err_msg, indicator="orange", alert=True)
                         missing_account = True
@@ -645,9 +651,15 @@ def run_payroll(month, year, work_date, daily):
                 je_entries = []
                 missing_account = False
                 for row in ecj.journal_details:
-                    acc_gl = mapped_components.get(row.detail.strip().lower() if row.detail else "")
+                    if row.detail == "Salaries and Wages":
+                        acc_gl = get_account("Basic Salary", comp)
+                    else:
+                        acc_gl = mapped_components.get(row.detail.strip().lower() if row.detail else "")
+                        
                     if not acc_gl:
                         err_msg = f"Missing GL Account for '{row.detail}' in Havano Payroll Settings > Setup Accounts"
+                        if row.detail == "Salaries and Wages":
+                            err_msg = f"Missing GL Account for 'Basic Salary' in Havano Salary Component > Setup Accounts (used for Employer Contributions expense)"
                         frappe.log_error(err_msg, "Accounting JE Error")
                         frappe.msgprint(err_msg, indicator="orange", alert=True)
                         missing_account = True
