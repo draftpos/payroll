@@ -64,7 +64,11 @@ def populate_settings():
                     "component": comp,
                     "account": acc_name
                 })
-                added = True
+            else:
+                settings.append("payroll_journal_accounts", {
+                    "component": comp
+                })
+            added = True
     
     if added:
         settings.save(ignore_permissions=True)

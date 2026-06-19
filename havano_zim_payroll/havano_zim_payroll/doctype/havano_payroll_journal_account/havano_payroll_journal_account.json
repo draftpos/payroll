@@ -13,10 +13,9 @@
   {
    "columns": 5,
    "fieldname": "component",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Component",
-   "options": "havano_salary_component",
    "reqd": 1
   },
   {
@@ -26,7 +25,7 @@
    "in_list_view": 1,
    "label": "Account",
    "options": "Account",
-   "reqd": 1
+   "reqd": 0
   }
  ],
  "grid_page_length": 50,
