@@ -10,15 +10,11 @@
   "payroll_salary_slip_location",
   "column_break_rxep",
   "supplier",
-  "journal_entry_section",
-  "create_journal_entry",
-  "default_payroll_payable_account",
   "include_nssa_in_taxable_income",
   "section_break_qmwu",
   "use_formula_cash_in_lieu",
   "components_for_reporting",
   "disable_deductions_on_foreign_amount",
-  "nssa_on_gross_if_other_earnings_exceed_basic",
   "maximum_leave_days_section",
   "max_annual_leave_days",
   "max_sick_leave_days",
@@ -26,7 +22,9 @@
   "column_break_leave_days",
   "max_study_leave_days",
   "max_special_leave_days",
-  "max_bereavement_leave_days"
+  "max_bereavement_leave_days",
+  "payroll_journals_settings_section",
+  "payroll_journal_accounts"
  ],
  "fields": [
   {
@@ -55,27 +53,11 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "journal_entry_section",
-   "fieldtype": "Section Break",
-   "label": "Journal Entry Settings"
-  },
-  {
    "default": "0",
-   "fieldname": "create_journal_entry",
-   "fieldtype": "Check",
-   "label": "Create Payroll Journal Entry on Run"
-  },
-  {
-   "fieldname": "default_payroll_payable_account",
-   "fieldtype": "Link",
-   "label": "Default Payroll Payable Account",
-   "options": "Account"
-  },
-  {
+   "description": "If checked: Amount = Days to Sell x (Basic Salary / 26).<br>If unchecked: use the manually entered Cash in Lieu Amount.",
    "fieldname": "use_formula_cash_in_lieu",
    "fieldtype": "Check",
-   "label": "Use Formula for Cash in Lieu of Leave",
-   "description": "If checked: Amount = Days to Sell x (Basic Salary / 26).<br>If unchecked: use the manually entered Cash in Lieu Amount."
+   "label": "Use Formula for Cash in Lieu of Leave"
   },
   {
    "fieldname": "components_for_reporting",
@@ -99,12 +81,6 @@
    "fieldname": "disable_deductions_on_foreign_amount",
    "fieldtype": "Check",
    "label": "Disable deductions on foreign amount"
-  },
-  {
-   "default": "0",
-   "fieldname": "nssa_on_gross_if_other_earnings_exceed_basic",
-   "fieldtype": "Check",
-   "label": "Calculate NSSA on Gross if Other Earnings >= Basic Salary"
   },
   {
    "fieldname": "maximum_leave_days_section",
@@ -150,13 +126,24 @@
    "fieldname": "max_bereavement_leave_days",
    "fieldtype": "Float",
    "label": "Max Bereavement Leave Days"
+  },
+  {
+   "fieldname": "payroll_journals_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Payroll Journals Settings"
+  },
+  {
+   "fieldname": "payroll_journal_accounts",
+   "fieldtype": "Table",
+   "label": "Payroll Journal Accounts",
+   "options": "Havano Payroll Journal Account"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-01-14 14:51:48.303519",
+ "modified": "2026-06-19 08:32:10.410935",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "Havano Payroll Settings",
