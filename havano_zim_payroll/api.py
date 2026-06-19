@@ -112,6 +112,7 @@ def run_payroll(month, year, work_date, daily):
         mapped_components = []
 
     pj_data = {}
+    ecj_data = {}
     je_data = {}
     
     account_cache = {}
@@ -459,6 +460,22 @@ def run_payroll(month, year, work_date, daily):
         
         if emp_company not in pj_data:
             pj_data[emp_company] = {"total_earnings": 0, "zimra": 0, "mapped": {}}
+            
+        if emp_company not in ecj_data:
+            ecj_data[emp_company] = {
+                "nssa": 0,
+                "medical_aid": 0,
+                "funeral_policy": 0,
+                "lapf": 0,
+                "nec": 0
+            }
+
+        # Employer Contributions (Medical Aid, Funeral, LAPF, NEC)
+        basic_salary = flt(getattr(emp_doc, "basic_salary_calculated", 0))
+        ecj_data[emp_company]["medical_aid"] += flt(getattr(emp_doc, "cimas_employer_", 0))
+        ecj_data[emp_company]["funeral_policy"] += flt(getattr(emp_doc, "funeral_policy_employer_", 0))
+        ecj_data[emp_company]["lapf"] += basic_salary * 0.173
+        ecj_data[emp_company]["nec"] += basic_salary * 0.01
 
         total_earnings = 0
         zimra = 0
@@ -475,6 +492,10 @@ def run_payroll(month, year, work_date, daily):
                     zimra += amt
                 elif d.components in mapped_components:
                     pj_data[emp_company]["mapped"][d.components] = pj_data[emp_company]["mapped"].get(d.components, 0) + amt
+                
+                # NSSA Employer Contribution match
+                if d.components == "NSSA":
+                    ecj_data[emp_company]["nssa"] += amt
                     
         pj_data[emp_company]["total_earnings"] += total_earnings
         pj_data[emp_company]["zimra"] += zimra
@@ -534,51 +555,96 @@ def run_payroll(month, year, work_date, daily):
     # --- Auto-create Havano Payroll Journal ---
     for comp, data in pj_data.items():
         if data["total_earnings"] > 0:
-            # Remove existing journal for the same period and company
-            existing_pj = frappe.get_all("Havano Payroll Journal", filters={"payroll_period": f"{month_name} {year}", "company": comp})
-            for pj_rec in existing_pj:
-                frappe.delete_doc("Havano Payroll Journal", pj_rec.name, ignore_permissions=True)
+            try:
+                # Remove existing journal for the same period and company
+                existing_pj = frappe.get_all("Havano Payroll Journal", filters={"payroll_period": f"{month_name} {year}", "company": comp})
+                for pj_rec in existing_pj:
+                    frappe.delete_doc("Havano Payroll Journal", pj_rec.name, ignore_permissions=True)
+                    
+                pj = frappe.new_doc("Havano Payroll Journal")
+                pj.payroll_period = f"{month_name} {year}"
+                pj.company = comp
                 
-            pj = frappe.new_doc("Havano Payroll Journal")
-            pj.payroll_period = f"{month_name} {year}"
-            pj.company = comp
-            
-            # Row 1: Salaries and Wages
-            pj.append("journal_details", {
-                "detail": "Salaries and Wages",
-                "dr": data["total_earnings"],
-                "cr": 0
-            })
-            
-            # Row 2: Mapped Deductions
-            mapped_total = 0
-            for k, v in data["mapped"].items():
-                if v > 0:
-                    pj.append("journal_details", {
-                        "detail": k,
-                        "dr": 0,
-                        "cr": v
-                    })
-                    mapped_total += v
-            
-            # Row 3: ZIMRA
-            if data["zimra"] > 0:
+                # Row 1: Salaries and Wages
                 pj.append("journal_details", {
-                    "detail": "ZIMRA",
-                    "dr": 0,
-                    "cr": data["zimra"]
+                    "detail": "Salaries and Wages",
+                    "dr": data["total_earnings"],
+                    "cr": 0
                 })
                 
-            # Row 4: Payroll Payables
-            payables = data["total_earnings"] - mapped_total - data["zimra"]
-            pj.append("journal_details", {
-                "detail": "Payroll Payables",
-                "dr": 0,
-                "cr": payables
-            })
-            
-            pj.insert(ignore_permissions=True)
-            frappe.db.commit()
+                # Row 2: Mapped Deductions
+                mapped_total = 0
+                for k, v in data["mapped"].items():
+                    if v > 0:
+                        pj.append("journal_details", {
+                            "detail": k,
+                            "dr": 0,
+                            "cr": v
+                        })
+                        mapped_total += v
+                
+                # Row 3: ZIMRA
+                if data["zimra"] > 0:
+                    pj.append("journal_details", {
+                        "detail": "ZIMRA",
+                        "dr": 0,
+                        "cr": data["zimra"]
+                    })
+                    
+                # Row 4: Payroll Payables
+                payables = data["total_earnings"] - mapped_total - data["zimra"]
+                pj.append("journal_details", {
+                    "detail": "Payroll Payables",
+                    "dr": 0,
+                    "cr": payables
+                })
+                
+                pj.insert(ignore_permissions=True)
+                frappe.db.commit()
+                frappe.msgprint(f"Havano Payroll Journal created for {comp}", alert=True)
+            except Exception as e:
+                frappe.log_error(frappe.get_traceback(), f"Havano Payroll Journal Error for {comp}")
+                frappe.msgprint(f"Failed to create Havano Payroll Journal for {comp}. Check Error Log.", indicator="red")
+
+    # --- Auto-create Havano Employer Contributions Journal ---
+    for comp, data in ecj_data.items():
+        total_dr = data["nssa"] + data["medical_aid"] + data["funeral_policy"] + data["lapf"] + data["nec"]
+        if total_dr > 0:
+            try:
+                # Remove existing journal for the same period and company
+                existing_ecj = frappe.get_all("Havano Employer Contributions Journal", filters={"payroll_period": f"{month_name} {year}", "company": comp})
+                for ecj_rec in existing_ecj:
+                    frappe.delete_doc("Havano Employer Contributions Journal", ecj_rec.name, ignore_permissions=True)
+                    
+                ecj = frappe.new_doc("Havano Employer Contributions Journal")
+                ecj.payroll_period = f"{month_name} {year}"
+                ecj.company = comp
+                
+                # DR side
+                ecj.append("journal_details", {
+                    "detail": "Salaries and Wages",
+                    "dr": total_dr,
+                    "cr": 0
+                })
+                
+                # CR side
+                if data["nssa"] > 0:
+                    ecj.append("journal_details", {"detail": "NSSA", "dr": 0, "cr": data["nssa"]})
+                if data["medical_aid"] > 0:
+                    ecj.append("journal_details", {"detail": "Medical Aid", "dr": 0, "cr": data["medical_aid"]})
+                if data["funeral_policy"] > 0:
+                    ecj.append("journal_details", {"detail": "Funeral Policy", "dr": 0, "cr": data["funeral_policy"]})
+                if data["lapf"] > 0:
+                    ecj.append("journal_details", {"detail": "LAPF", "dr": 0, "cr": data["lapf"]})
+                if data["nec"] > 0:
+                    ecj.append("journal_details", {"detail": "NEC", "dr": 0, "cr": data["nec"]})
+                    
+                ecj.insert(ignore_permissions=True)
+                frappe.db.commit()
+                frappe.msgprint(f"Employer Contributions Journal created for {comp}", alert=True)
+            except Exception as e:
+                frappe.log_error(frappe.get_traceback(), f"Employer Contributions Journal Error for {comp}")
+                frappe.msgprint(f"Failed to create Employer Contributions Journal for {comp}. Check Error Log.", indicator="red")
     
     return f"Payroll created for {len(employees)} employees for {month_name} {year}."
 
