@@ -85,6 +85,8 @@ doctype_js = {"Leave Application" : "havano_zim_payroll/public/js/leave_applicat
 # before_install = "havano_zim_payroll.install.before_install"
 after_install = "havano_zim_payroll.havano_zim_payroll.defaults.install_defaults"
 
+after_migrate = "havano_zim_payroll.havano_zim_payroll.setup_accounts.after_migrate"
+
 # Uninstallation
 # ------------
 
