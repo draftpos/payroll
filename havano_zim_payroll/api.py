@@ -554,6 +554,10 @@ def run_payroll(month, year, work_date, daily):
             
     # --- Auto-create Havano Payroll Journal ---
     for comp, data in pj_data.items():
+        if not comp:
+            frappe.log_error("Skipping Havano Payroll Journal creation for employee with no company", "Payroll Warning")
+            continue
+            
         if data["total_earnings"] > 0:
             try:
                 # Remove existing journal for the same period and company
@@ -608,6 +612,9 @@ def run_payroll(month, year, work_date, daily):
 
     # --- Auto-create Havano Employer Contributions Journal ---
     for comp, data in ecj_data.items():
+        if not comp:
+            continue
+            
         total_dr = data["nssa"] + data["medical_aid"] + data["funeral_policy"] + data["lapf"] + data["nec"]
         if total_dr > 0:
             try:
