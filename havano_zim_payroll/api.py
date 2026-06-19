@@ -566,6 +566,7 @@ def run_payroll(month, year, work_date, daily):
                     frappe.delete_doc("Havano Payroll Journal", pj_rec.name, ignore_permissions=True)
                     
                 pj = frappe.new_doc("Havano Payroll Journal")
+                pj.name = f"{month_name}-{year}"
                 pj.payroll_period = f"{month_name} {year}"
                 pj.company = comp
                 
@@ -624,6 +625,7 @@ def run_payroll(month, year, work_date, daily):
                     frappe.delete_doc("Havano Employer Contributions Journal", ecj_rec.name, ignore_permissions=True)
                     
                 ecj = frappe.new_doc("Havano Employer Contributions Journal")
+                ecj.name = f"{month_name}-{year}"
                 ecj.payroll_period = f"{month_name} {year}"
                 ecj.company = comp
                 

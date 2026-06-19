@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:ECJ-{YYYY}-{MM}-{####}",
+ "autoname": "prompt",
  "creation": "2026-06-19 10:23:38.539305",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -41,7 +41,6 @@
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "Havano Employer Contributions Journal",
- "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
