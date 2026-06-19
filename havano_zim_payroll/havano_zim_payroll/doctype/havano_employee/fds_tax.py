@@ -134,3 +134,46 @@ def calculate_fds_tax(employee_id, first_name, last_name, current_taxable_income
     
     # Return Base PAYE before tax credits and aids levy are applied in base_currency.py
     return max(flt(current_month_base_paye), 0.0)
+
+@frappe.whitelist()
+def test_taxes():
+    from havano_zim_payroll.havano_zim_payroll.doctype.havano_employee.base_currency import payee_against_slab
+    from frappe.utils import nowdate
+    
+    current_year = int(nowdate().split("-")[0])
+    current_month = int(nowdate().split("-")[1])
+    
+    print("\n=================================================")
+    print("--- NON-FDS EMPLOYEE (Joined this year) ---")
+    non_fds = frappe.get_all("havano_employee", filters={"date_of_joining": [">=", f"{current_year}-01-01"], "ensuarable_earnings": [">", 0]}, limit=1)
+    if non_fds:
+        emp = frappe.get_doc("havano_employee", non_fds[0].name)
+        print(f"Name: {emp.first_name} {emp.last_name}")
+        print(f"Date of Joining: {emp.date_of_joining} (Skips FDS)")
+        print(f"Taxable Income: {emp.ensuarable_earnings} {emp.salary_currency}")
+        slab_paye = payee_against_slab(emp.ensuarable_earnings, emp.payroll_frequency, emp.salary_currency)
+        print(f"-> Base PAYE Calculated: {slab_paye}")
+    else:
+        print("No Non-FDS employee found with taxable earnings.")
+
+    print("\n-------------------------------------------------")
+    print("--- FDS EMPLOYEE (Joined before this year) ---")
+    fds = frappe.get_all("havano_employee", filters={"date_of_joining": ["<", f"{current_year}-01-01"], "ensuarable_earnings": [">", 0]}, limit=1)
+    if fds:
+        emp = frappe.get_doc("havano_employee", fds[0].name)
+        print(f"Name: {emp.first_name} {emp.last_name}")
+        print(f"Date of Joining: {emp.date_of_joining} (FDS Eligible!)")
+        print(f"Current Taxable Income: {emp.ensuarable_earnings} {emp.salary_currency}")
+        
+        # Calculate using both methods to compare
+        slab_paye = payee_against_slab(emp.ensuarable_earnings, emp.payroll_frequency, emp.salary_currency)
+        fds_paye = calculate_fds_tax(emp.name, emp.first_name, emp.last_name, emp.ensuarable_earnings, emp.salary_currency, current_month, str(current_year))
+        
+        print(f"-> Base PAYE (Old Slab Method): {slab_paye}")
+        print(f"-> Base PAYE (New FDS Method):  {fds_paye}")
+        
+        if fds_paye != slab_paye:
+            print("\n(Notice how the FDS method adjusted the tax based on forecasted annual income!)")
+    else:
+        print("No FDS employee found with taxable earnings.")
+    print("=================================================\n")
