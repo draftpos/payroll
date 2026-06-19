@@ -13,7 +13,7 @@ def run_payroll_async(month, year, work_date=None, daily=None, sync=False):
     Enqueue payroll or run synchronously.
     Defaults to sync=True to ensure immediate results if workers aren't active.
     """
-    if sync:
+    if str(sync).lower() in ["true", "1", "t", "y", "yes"]:
         # Run immediately in the current request
         return run_payroll(month, year, work_date, daily)
     
@@ -23,7 +23,7 @@ def run_payroll_async(month, year, work_date=None, daily=None, sync=False):
         year=year,
         work_date=work_date,
         daily=daily,
-        queue="default",
+        queue="long",
         timeout=15000
     )
 
