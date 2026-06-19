@@ -9,20 +9,6 @@ def create_accounts_and_components():
         "Medical Aid", "ZIMRA", "NSSA", "ZIBAWU", "UFAWUZ", 
         "NEC", "ZESCWU", "LAPF", "Funeral Policy"
     ]
-    
-    # Ensure Salary Components exist
-    for comp in components:
-        if not frappe.db.exists("Salary Component", comp):
-            try:
-                doc = frappe.get_doc({
-                    "doctype": "Salary Component",
-                    "salary_component": comp,
-                    "type": "Deduction",
-                    "depends_on_payment_days": 1
-                })
-                doc.insert(ignore_permissions=True)
-            except Exception as e:
-                frappe.log_error(f"Failed to create Salary Component {comp}: {e}")
 
     # Create Accounts for all companies
     companies = frappe.get_all("Company", fields=["name"])
@@ -33,9 +19,9 @@ def create_accounts_and_components():
             existing = frappe.get_all("Account", filters=filters, limit=1)
             
             if not existing:
-                # Find parent account (Current Liabilities)
+                # Find parent account (Current Liability)
                 parent_account = frappe.db.get_value("Account", 
-                    {"account_type": "Current Liabilities", "is_group": 1, "company": company.name}, 
+                    {"account_type": "Current Liability", "is_group": 1, "company": company.name}, 
                     "name")
                 if not parent_account:
                     # Fallback to any Liability root/group
@@ -51,11 +37,11 @@ def create_accounts_and_components():
                             "parent_account": parent_account,
                             "company": company.name,
                             "is_group": 0,
-                            "account_type": "Current Liabilities"
+                            "account_type": "Current Liability"
                         })
                         acc.insert(ignore_permissions=True)
                     except Exception as e:
-                        frappe.log_error(f"Failed to create Account {comp} for {company.name}: {e}")
+                        frappe.log_error(f"Failed {comp} - {company.name}"[:130], str(e))
 
 def populate_settings():
     components = [

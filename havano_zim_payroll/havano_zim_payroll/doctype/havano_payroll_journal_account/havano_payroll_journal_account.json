@@ -16,7 +16,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Component",
-   "options": "Salary Component",
+   "options": "havano_salary_component",
    "reqd": 1
   },
   {
