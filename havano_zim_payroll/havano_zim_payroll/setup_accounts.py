@@ -7,7 +7,7 @@ def after_migrate():
 def create_accounts_and_components():
     components = [
         "Medical Aid", "ZIMRA", "NSSA", "ZIBAWU", "UFAWUZ", 
-        "NEC", "ZESCWU", "LAPF", "Funeral Policy"
+        "NEC", "ZESCWU", "LAPF", "Funeral Policy", "Payroll Payables"
     ]
 
     # Create Accounts for all companies
@@ -46,7 +46,7 @@ def create_accounts_and_components():
 def populate_settings():
     components = [
         "Medical Aid", "ZIMRA", "NSSA", "ZIBAWU", "UFAWUZ", 
-        "NEC", "ZESCWU", "LAPF", "Funeral Policy"
+        "NEC", "ZESCWU", "LAPF", "Funeral Policy", "Payroll Payables"
     ]
     
     settings = frappe.get_single("Havano Payroll Settings")
