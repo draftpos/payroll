@@ -117,6 +117,17 @@ def main(self):
             nssa_base_usd = basic_salary_usd if nssa_basis == "Basic Only" else total_earnings_usd
             nssa_base_zwg = basic_salary_zwg if nssa_basis == "Basic Only" else total_earnings_zwg
 
+            try:
+                nssa_dynamic = frappe.db.get_single_value("Havano Payroll Settings", "nssa_on_gross_if_other_earnings_exceed_basic") or 0
+                if nssa_dynamic:
+                    if (total_earnings_usd - basic_salary_usd) >= basic_salary_usd:
+                        nssa_base_usd = total_earnings_usd
+                    if (total_earnings_zwg - basic_salary_zwg) >= basic_salary_zwg:
+                        nssa_base_zwg = total_earnings_zwg
+            except Exception:
+                pass
+
+
             nssa_limit_usd = 700
             nssa_income_usd = min(nssa_base_usd, nssa_limit_usd)
             d.amount_usd = round(nssa_income_usd * 0.045, 2)
