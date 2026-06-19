@@ -300,6 +300,24 @@ def main(self):
     # Get PAYE from Slab: ((Taxable * %) - Deduction)
     base_payee = payee_against_slab(self.ensuarable_earnings, self.payroll_frequency, self.salary_currency)
     
+    try:
+        from havano_zim_payroll.havano_zim_payroll.doctype.havano_employee.fds_tax import calculate_fds_tax
+        if frappe.db.get_single_value("Havano Payroll Settings", "allow_forecast_fds_method"):
+            current_month = nowdate().split("-")[1]
+            current_year = nowdate().split("-")[0]
+            # Override base_payee with FDS calculation
+            base_payee = calculate_fds_tax(
+                employee_id=self.name,
+                first_name=self.first_name,
+                last_name=self.last_name,
+                current_taxable_income=self.ensuarable_earnings,
+                currency=self.salary_currency,
+                current_month_num=current_month,
+                current_year=current_year
+            )
+    except Exception as e:
+        frappe.log_error(f"FDS Calculation Error for {self.name}: {e}")
+    
     # Final Payee = Base Payee - Total Tax Credits
     final_payee = round(max(base_payee - tax_credits, 0), 2)
     

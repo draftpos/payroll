@@ -321,6 +321,35 @@ def main(self):
     payee_usd = payee_against_slab(self.total_taxable_income_usd, self.payroll_frequency, "USD")
     payee_zwg = payee_against_slab(self.total_taxable_income_zwg, self.payroll_frequency, "ZWG")
 
+    try:
+        from havano_zim_payroll.havano_zim_payroll.doctype.havano_employee.fds_tax import calculate_fds_tax
+        if frappe.db.get_single_value("Havano Payroll Settings", "allow_forecast_fds_method"):
+            from frappe.utils import nowdate
+            current_month = nowdate().split("-")[1]
+            current_year = nowdate().split("-")[0]
+            if self.total_taxable_income_usd > 0:
+                payee_usd = calculate_fds_tax(
+                    employee_id=self.name,
+                    first_name=self.first_name,
+                    last_name=self.last_name,
+                    current_taxable_income=self.total_taxable_income_usd,
+                    currency="USD",
+                    current_month_num=current_month,
+                    current_year=current_year
+                )
+            if self.total_taxable_income_zwg > 0:
+                payee_zwg = calculate_fds_tax(
+                    employee_id=self.name,
+                    first_name=self.first_name,
+                    last_name=self.last_name,
+                    current_taxable_income=self.total_taxable_income_zwg,
+                    currency="ZWG",
+                    current_month_num=current_month,
+                    current_year=current_year
+                )
+    except Exception as e:
+        frappe.log_error(f"FDS Calculation Error for {self.name}: {e}")
+
     final_payee_usd = round(max(payee_usd - tax_credits_usd, 0), 2)
     final_payee_zwg = round(max(payee_zwg - tax_credits_zwg, 0), 2)
 

@@ -422,37 +422,36 @@ def run_payroll(month, year, work_date, daily):
         except Exception as e:
             frappe.log_error(f"Error updating leave balances for {emp.name}: {str(e)}", "Payroll Error")        
         # --- Journal Entry Aggregation ---
-        if create_journal_entry and default_payable_account:
-            emp_company = emp_doc.company
-            currency = emp_doc.salary_currency or frappe.get_cached_value("Company", emp_company, "default_currency")
-            je_key = (emp_company, currency)
-            if je_key not in je_data:
-                je_data[je_key] = {"entries": [], "net_pay": 0}
+        emp_company = emp_doc.company
+        currency = emp_doc.salary_currency or frappe.get_cached_value("Company", emp_company, "default_currency")
+        je_key = (emp_company, currency)
+        if je_key not in je_data:
+            je_data[je_key] = {"entries": [], "net_pay": 0}
             
-            # Earnings (Debits)
-            if hasattr(emp_doc, "employee_earnings"):
-                for e in emp_doc.employee_earnings:
-                    amt = flt(e.amount_usd) if currency == "USD" else flt(e.amount_zwg)
-                    if amt:
-                        acc = get_account(e.components, emp_company)
-                        if acc:
-                            je_data[je_key]["entries"].append({
-                                "account": acc, "debit": amt, "credit": 0, "cost_center": setting_cost_center
-                            })
-            
-            # Deductions (Credits)
-            if hasattr(emp_doc, "employee_deductions"):
-                for d in emp_doc.employee_deductions:
-                    amt = flt(d.amount_usd) if currency == "USD" else flt(d.amount_zwg)
-                    if amt:
-                        acc = get_account(d.components, emp_company)
-                        if acc:
-                            je_data[je_key]["entries"].append({
-                                "account": acc, "debit": 0, "credit": amt, "cost_center": setting_cost_center
-                            })
-            
-            # Net Pay (Credit)
-            je_data[je_key]["net_pay"] += flt(emp_netpay)
+        # Earnings (Debits)
+        if hasattr(emp_doc, "employee_earnings"):
+            for e in emp_doc.employee_earnings:
+                amt = flt(e.amount_usd) if currency == "USD" else flt(e.amount_zwg)
+                if amt:
+                    acc = get_account(e.components, emp_company)
+                    if acc:
+                        je_data[je_key]["entries"].append({
+                            "account": acc, "debit": amt, "credit": 0, "cost_center": setting_cost_center
+                        })
+        
+        # Deductions (Credits)
+        if hasattr(emp_doc, "employee_deductions"):
+            for d in emp_doc.employee_deductions:
+                amt = flt(d.amount_usd) if currency == "USD" else flt(d.amount_zwg)
+                if amt:
+                    acc = get_account(d.components, emp_company)
+                    if acc:
+                        je_data[je_key]["entries"].append({
+                            "account": acc, "debit": 0, "credit": amt, "cost_center": setting_cost_center
+                        })
+        
+        # Net Pay (Credit)
+        je_data[je_key]["net_pay"] += flt(emp_netpay)
             
         # --- Havano Payroll Journal Aggregation ---
         emp_company = emp_doc.company
@@ -578,7 +577,6 @@ def run_payroll(month, year, work_date, daily):
                         frappe.delete_doc("Journal Entry", je_name, ignore_permissions=True)
                         
                     je = frappe.new_doc("Journal Entry")
-                    je.name = je_name
                     je.voucher_type = "Journal Entry"
                     je.company = comp
                     je.posting_date = work_date or nowdate()
@@ -586,6 +584,11 @@ def run_payroll(month, year, work_date, daily):
                     for e in je_entries:
                         je.append("accounts", e)
                     je.insert(ignore_permissions=True)
+                    
+                    # Force rename to custom ID
+                    if je.name != je_name:
+                        frappe.rename_doc("Journal Entry", je.name, je_name, force=True, ignore_permissions=True)
+                        
                     frappe.db.commit()
                     
                 frappe.msgprint(f"Havano Payroll Journal created for {comp}", alert=True)
@@ -655,7 +658,6 @@ def run_payroll(month, year, work_date, daily):
                         frappe.delete_doc("Journal Entry", je_name, ignore_permissions=True)
                         
                     je = frappe.new_doc("Journal Entry")
-                    je.name = je_name
                     je.voucher_type = "Journal Entry"
                     je.company = comp
                     je.posting_date = work_date or nowdate()
@@ -663,6 +665,11 @@ def run_payroll(month, year, work_date, daily):
                     for e in je_entries:
                         je.append("accounts", e)
                     je.insert(ignore_permissions=True)
+                    
+                    # Force rename to custom ID
+                    if je.name != je_name:
+                        frappe.rename_doc("Journal Entry", je.name, je_name, force=True, ignore_permissions=True)
+                        
                     frappe.db.commit()
                     
                 frappe.msgprint(f"Havano Employer Contributions Journal created for {comp}", alert=True)
