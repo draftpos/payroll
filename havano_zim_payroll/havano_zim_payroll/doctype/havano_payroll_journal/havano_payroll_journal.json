@@ -1,0 +1,52 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:PJ-{YYYY}-{MM}-{####}",
+ "creation": "2026-06-19 08:57:26.102206",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "payroll_period",
+  "company",
+  "journal_details"
+ ],
+ "fields": [
+  {
+   "fieldname": "payroll_period",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Payroll Period",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "journal_details",
+   "fieldtype": "Table",
+   "label": "Journal Details",
+   "options": "Havano Payroll Journal Detail"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-19 08:57:26.102206",
+ "modified_by": "Administrator",
+ "module": "Havano Zim Payroll",
+ "name": "Havano Payroll Journal",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

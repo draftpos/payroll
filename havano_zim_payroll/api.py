@@ -105,6 +105,13 @@ def run_payroll(month, year, work_date, daily):
     create_journal_entry = flt(settin.get("create_journal_entry"))
     default_payable_account = settin.get("default_payroll_payable_account")
     
+    try:
+        settings = frappe.get_single("Havano Payroll Settings")
+        mapped_components = [row.component for row in settings.get("payroll_journal_accounts", [])]
+    except Exception:
+        mapped_components = []
+
+    pj_data = {}
     je_data = {}
     
     account_cache = {}
@@ -445,6 +452,32 @@ def run_payroll(month, year, work_date, daily):
             
             # Net Pay (Credit)
             je_data[je_key]["net_pay"] += flt(emp_netpay)
+            
+        # --- Havano Payroll Journal Aggregation ---
+        emp_company = emp_doc.company
+        currency = emp_doc.salary_currency or frappe.get_cached_value("Company", emp_company, "default_currency")
+        
+        if emp_company not in pj_data:
+            pj_data[emp_company] = {"total_earnings": 0, "zimra": 0, "mapped": {}}
+
+        total_earnings = 0
+        zimra = 0
+        
+        if hasattr(emp_doc, "employee_earnings"):
+            for e in emp_doc.employee_earnings:
+                amt = flt(e.amount_usd) if currency == "USD" else flt(e.amount_zwg)
+                total_earnings += amt
+                
+        if hasattr(emp_doc, "employee_deductions"):
+            for d in emp_doc.employee_deductions:
+                amt = flt(d.amount_usd) if currency == "USD" else flt(d.amount_zwg)
+                if d.components in ["Payee", "Aids Levy"]:
+                    zimra += amt
+                elif d.components in mapped_components:
+                    pj_data[emp_company]["mapped"][d.components] = pj_data[emp_company]["mapped"].get(d.components, 0) + amt
+                    
+        pj_data[emp_company]["total_earnings"] += total_earnings
+        pj_data[emp_company]["zimra"] += zimra
         
         frappe.db.commit()
     # Create Journal Entries
@@ -497,6 +530,55 @@ def run_payroll(month, year, work_date, daily):
             )
         except Exception as e:
             frappe.log_error(frappe.get_traceback(), "SDL Purchase Invoice Creation Failed")
+            
+    # --- Auto-create Havano Payroll Journal ---
+    for comp, data in pj_data.items():
+        if data["total_earnings"] > 0:
+            # Remove existing journal for the same period and company
+            existing_pj = frappe.get_all("Havano Payroll Journal", filters={"payroll_period": f"{month_name} {year}", "company": comp})
+            for pj_rec in existing_pj:
+                frappe.delete_doc("Havano Payroll Journal", pj_rec.name, ignore_permissions=True)
+                
+            pj = frappe.new_doc("Havano Payroll Journal")
+            pj.payroll_period = f"{month_name} {year}"
+            pj.company = comp
+            
+            # Row 1: Salaries and Wages
+            pj.append("journal_details", {
+                "detail": "Salaries and Wages",
+                "dr": data["total_earnings"],
+                "cr": 0
+            })
+            
+            # Row 2: Mapped Deductions
+            mapped_total = 0
+            for k, v in data["mapped"].items():
+                if v > 0:
+                    pj.append("journal_details", {
+                        "detail": k,
+                        "dr": 0,
+                        "cr": v
+                    })
+                    mapped_total += v
+            
+            # Row 3: ZIMRA
+            if data["zimra"] > 0:
+                pj.append("journal_details", {
+                    "detail": "ZIMRA",
+                    "dr": 0,
+                    "cr": data["zimra"]
+                })
+                
+            # Row 4: Payroll Payables
+            payables = data["total_earnings"] - mapped_total - data["zimra"]
+            pj.append("journal_details", {
+                "detail": "Payroll Payables",
+                "dr": 0,
+                "cr": payables
+            })
+            
+            pj.insert(ignore_permissions=True)
+            frappe.db.commit()
     
     return f"Payroll created for {len(employees)} employees for {month_name} {year}."
 
