@@ -107,7 +107,10 @@ def run_payroll(month, year, work_date, daily):
     
     try:
         settings = frappe.get_single("Havano Payroll Settings")
-        mapped_components = {row.component: row.account for row in settings.get("payroll_journal_accounts", []) if row.account}
+        if settings:
+            mapped_components = {row.component.strip().lower(): row.account for row in settings.get("payroll_journal_accounts", []) if row.account and row.component}
+        else:
+            mapped_components = {}
     except Exception:
         mapped_components = {}
 
@@ -489,7 +492,7 @@ def run_payroll(month, year, work_date, daily):
                 amt = flt(d.amount_usd) + flt(d.amount_zwg)
                 if d.components in ["Payee", "Aids Levy"]:
                     zimra += amt
-                elif d.components in mapped_components:
+                elif d.components and d.components.strip().lower() in mapped_components:
                     pj_data[emp_company]["mapped"][d.components] = pj_data[emp_company]["mapped"].get(d.components, 0) + amt
                 
                 # NSSA Employer Contribution match
@@ -559,9 +562,11 @@ def run_payroll(month, year, work_date, daily):
                 je_entries = []
                 missing_account = False
                 for row in pj.journal_details:
-                    acc_gl = mapped_components.get(row.detail)
+                    acc_gl = mapped_components.get(row.detail.strip().lower() if row.detail else "")
                     if not acc_gl:
-                        frappe.log_error(f"Missing GL Account for '{row.detail}' in Havano Payroll Settings > Setup Accounts", "Accounting JE Error")
+                        err_msg = f"Missing GL Account for '{row.detail}' in Havano Payroll Settings > Setup Accounts"
+                        frappe.log_error(err_msg, "Accounting JE Error")
+                        frappe.msgprint(err_msg, indicator="orange", alert=True)
                         missing_account = True
                         break
                     je_entries.append({
@@ -640,9 +645,11 @@ def run_payroll(month, year, work_date, daily):
                 je_entries = []
                 missing_account = False
                 for row in ecj.journal_details:
-                    acc_gl = mapped_components.get(row.detail)
+                    acc_gl = mapped_components.get(row.detail.strip().lower() if row.detail else "")
                     if not acc_gl:
-                        frappe.log_error(f"Missing GL Account for '{row.detail}' in Havano Payroll Settings > Setup Accounts", "Accounting JE Error")
+                        err_msg = f"Missing GL Account for '{row.detail}' in Havano Payroll Settings > Setup Accounts"
+                        frappe.log_error(err_msg, "Accounting JE Error")
+                        frappe.msgprint(err_msg, indicator="orange", alert=True)
                         missing_account = True
                         break
                     je_entries.append({
