@@ -461,7 +461,7 @@ def run_payroll(month, year, work_date, daily):
         currency = emp_doc.salary_currency or frappe.get_cached_value("Company", emp_company, "default_currency")
         
         if emp_company not in pj_data:
-            pj_data[emp_company] = {"total_earnings": 0, "zimra": 0, "mapped": {}}
+            pj_data[emp_company] = {"total_earnings": 0, "zimra": 0, "mapped": {}, "net_pay": 0}
             
         if emp_company not in ecj_data:
             ecj_data[emp_company] = {
@@ -501,6 +501,7 @@ def run_payroll(month, year, work_date, daily):
                     
         pj_data[emp_company]["total_earnings"] += total_earnings
         pj_data[emp_company]["zimra"] += zimra
+        pj_data[emp_company]["net_pay"] += flt(emp_netpay)
         
         frappe.db.commit()
     # --- Auto-create Havano Payroll Journal ---
@@ -521,13 +522,6 @@ def run_payroll(month, year, work_date, daily):
                 pj.payroll_period = f"{month_name} {year}"
                 pj.company = comp
                 
-                # Row 1: Salaries and Wages
-                pj.append("journal_details", {
-                    "detail": "Salaries and Wages",
-                    "dr": data["total_earnings"],
-                    "cr": 0
-                })
-                
                 # Row 2: Mapped Deductions
                 mapped_total = 0
                 for k, v in data["mapped"].items():
@@ -540,19 +534,29 @@ def run_payroll(month, year, work_date, daily):
                         mapped_total += v
                 
                 # Row 3: ZIMRA
-                if data["zimra"] > 0:
+                zimra_total = data.get("zimra", 0)
+                if zimra_total > 0:
                     pj.append("journal_details", {
                         "detail": "ZIMRA",
                         "dr": 0,
-                        "cr": data["zimra"]
+                        "cr": zimra_total
                     })
                     
                 # Row 4: Payroll Payables
-                payables = data["total_earnings"] - mapped_total - data["zimra"]
+                payables = data.get("net_pay", 0)
+                if payables > 0:
+                    pj.append("journal_details", {
+                        "detail": "Payroll Payables",
+                        "dr": 0,
+                        "cr": payables
+                    })
+                
+                # Row 1: Salaries and Wages (Sum of CR side)
+                total_cr = mapped_total + zimra_total + payables
                 pj.append("journal_details", {
-                    "detail": "Payroll Payables",
-                    "dr": 0,
-                    "cr": payables
+                    "detail": "Salaries and Wages",
+                    "dr": total_cr,
+                    "cr": 0
                 })
                 
                 pj.insert(ignore_permissions=True)
@@ -583,7 +587,19 @@ def run_payroll(month, year, work_date, daily):
                     })
                     
                 if not missing_account and je_entries:
-                    je_name = f"Payroll-{month_name}-{year}"
+                    
+                    # Custom employee_x naming
+                    jes = frappe.get_all("Journal Entry", filters={"name": ["like", "employee_%"]}, fields=["name"])
+                    max_id = 0
+                    for je_rec in jes:
+                        try:
+                            num = int(je_rec.name.replace("employee_", ""))
+                            if num > max_id:
+                                max_id = num
+                        except:
+                            pass
+                    je_name = f"employee_{max_id + 1}"
+    
                     if frappe.db.exists("Journal Entry", je_name):
                         frappe.delete_doc("Journal Entry", je_name, ignore_permissions=True)
                         
@@ -672,7 +688,19 @@ def run_payroll(month, year, work_date, daily):
                     })
                     
                 if not missing_account and je_entries:
-                    je_name = f"Contrib-{month_name}-{year}"
+                    
+                    # Custom employer_x naming
+                    jes = frappe.get_all("Journal Entry", filters={"name": ["like", "employer_%"]}, fields=["name"])
+                    max_id = 0
+                    for je_rec in jes:
+                        try:
+                            num = int(je_rec.name.replace("employer_", ""))
+                            if num > max_id:
+                                max_id = num
+                        except:
+                            pass
+                    je_name = f"employer_{max_id + 1}"
+    
                     if frappe.db.exists("Journal Entry", je_name):
                         frappe.delete_doc("Journal Entry", je_name, ignore_permissions=True)
                         
