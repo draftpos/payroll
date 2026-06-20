@@ -1677,7 +1677,7 @@
    "fieldname": "payroll_frequency",
    "fieldtype": "Select",
    "label": "Payroll Frequency",
-   "options": "\nMonthly\nFortnightly\nBimonthly\nWeekly\nDaily"
+   "options": "\nMonthly\nFortnightly\nBimonthly\nWeekly\nDaily\nAnnual"
   }
  ],
  "icon": "fa fa-user",
