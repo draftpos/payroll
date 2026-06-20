@@ -76,7 +76,7 @@ def calculate_fds_tax(employee_id, first_name, last_name, current_taxable_income
 
     for pe in payroll_entries:
         pe_date = getdate(pe.date)
-        if pe_date.month >= current_month_num:
+        if pe_date.month >= cint(current_month_num):
             continue # Only consider strict historical months!
 
         doc = frappe.get_doc("Havano Payroll Entry", pe.name)
