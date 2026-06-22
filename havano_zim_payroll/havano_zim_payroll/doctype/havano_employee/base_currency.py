@@ -67,6 +67,12 @@ def main(self):
 
     self.total_income = round(total_income, 2)
 
+    # Resequence idx on earnings and deductions to avoid duplicate idx collisions
+    for i, r in enumerate(self.employee_earnings, start=1):
+        r.idx = i
+    for i, r in enumerate(self.employee_deductions, start=1):
+        r.idx = i
+
     # 3. CALCULATE TAX CREDITS
     if getattr(self, "is_elderly", 0):
         val = 75 if self.salary_currency == "USD" else 75 * exchange_rate
