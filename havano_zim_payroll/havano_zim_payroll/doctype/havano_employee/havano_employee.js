@@ -279,12 +279,20 @@ function calculate_totals_server(frm) {
 
 							let server_names = server_rows.map(row => row.name).filter(Boolean);
 
-							// Remove rows not in server response
+							// Remove rows not present in server response
+							// BUT only remove rows that have a real DB name AND are not matched by component name in server rows
+							let server_components = server_rows.map(r => (r.components || "").toUpperCase());
 							let i = frm.doc[table].length;
 							while (i--) {
-								if (frm.doc[table][i].name && !server_names.includes(frm.doc[table][i].name)) {
-									frappe.model.clear_doc(frm.doc[table][i].doctype, frm.doc[table][i].name);
-									frm.doc[table].splice(i, 1);
+								let cur = frm.doc[table][i];
+								// If row has a DB name and server didn't return it, remove it
+								if (cur.name && !cur.name.startsWith('new-') && !server_names.includes(cur.name)) {
+									// Double-check: server might have returned this component without a name (newly injected)
+									let comp_upper = (cur.components || "").toUpperCase();
+									if (!server_components.includes(comp_upper)) {
+										frappe.model.clear_doc(cur.doctype, cur.name);
+										frm.doc[table].splice(i, 1);
+									}
 								}
 							}
 
