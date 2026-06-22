@@ -199,125 +199,133 @@ frappe.ui.form.on("havano_payroll_deductions", {
 });
 
 function calculate_totals_server(frm) {
-        if (frm.doc.company) {
-                // Sync fields from locals into frm.doc before sending to server
-                // (Child table edits live in locals[] not frm.doc until grid blur)
-                ["employee_earnings", "employee_deductions"].forEach(function(table) {
-                        (frm.doc[table] || []).forEach(function(row) {
-                                if (locals[row.doctype] && locals[row.doctype][row.name]) {
-                                        let l = locals[row.doctype][row.name];
-                                        row.is_tax_applicable = l.is_tax_applicable;
-                                        if (l.amount_usd !== undefined) row.amount_usd = l.amount_usd;
-                                        if (l.amount_zwg !== undefined) row.amount_zwg = l.amount_zwg;
-                                        if (l.components !== undefined) row.components = l.components;
-                                }
-                        });
-                });
+	if (frm.doc.company) {
+		// ── STEP 1: Snapshot is_tax_applicable for ALL rows BEFORE server call ──
+		let tax_snapshot = {};
+		["employee_earnings", "employee_deductions"].forEach(function(table) {
+			(frm.doc[table] || []).forEach(function(row) {
+				// Prefer locals[] (what user currently sees) over frm.doc
+				let live = (locals[row.doctype] && locals[row.doctype][row.name])
+					? locals[row.doctype][row.name].is_tax_applicable
+					: row.is_tax_applicable;
+				tax_snapshot[row.name] = live ? 1 : 0;
+			});
+		});
 
-                frappe.call({
-                        doc: frm.doc,
-                        method: "calculate_totals",
-                        callback: function(r) {
-                                if (r.message) {
-                                        // Sync scalar fields
-                                        const scalar_fields = [
-                                                "payee", "aids_levy", "sdl", "net_income",
-                                                "total_income", "total_deductions", "total_tax_credits",
-                                                "total_income_usd", "total_income_zwg",
-                                                "total_deduction_usd", "total_deduction_zwg",
-                                                "total_net_income_usd", "total_net_income_zwg",
-                                                "blind", "disabled", "elderly", "medical_aid_tax_credit",
-                                                "cimas_employee", "cimas_employer", "funeral_employee", "funeral_employer",
-                                                "ensuarable_earnings", "allowable_deductions", "basic_salary_calculated",
-                                                "overtime_amount", "hourly_rate", "cash_in_lieu_amount", "half_amount", "double_amount", "hours_half", "hours_double",
-                                                "total_taxable_income", "total_taxable_income_usd", "total_taxable_income_zwg",
-                                                "total_ensuarable_earnings_usd", "total_ensuarable_earnings_zwg"
-                                        ];
-                                        scalar_fields.forEach(function(f) {
-                                                if (r.message[f] !== undefined) {
-                                                        frm.doc[f] = r.message[f];
-                                                }
-                                        });
-                                        // Reload child tables from server response
-                                        ["employee_earnings", "employee_deductions"].forEach(function(table) {
-                                                if (r.message[table]) {
-                                                        let server_rows = r.message[table];
-                                                        
-                                                        // Keep track of matched local names so we don't reuse them
-                                                        let matched_local_names = [];
-                                                        
-                                                        // Fallback mapping for temporary rows: if server wiped the "new-..." name,
-                                                        // or assigned a random name to an unsaved row,
-                                                        // map it back using the component name or row idx so we don't unnecessarily delete and recreate the row.
-                                                        server_rows.forEach(s_row => {
-                                                                let exactly_matches = frm.doc[table].find(c_row => c_row.name === s_row.name);
-                                                                
-                                                                if (!exactly_matches) {
-                                                                        let match = frm.doc[table].find(c_row => 
-                                                                                c_row.name && c_row.name.startsWith('new-') && 
-                                                                                !matched_local_names.includes(c_row.name) &&
-                                                                                ((c_row.components && c_row.components === s_row.components) || (!c_row.components && !s_row.components && c_row.idx === s_row.idx))
-                                                                        );
-                                                                        if (match) {
-                                                                                s_row.name = match.name;
-                                                                                matched_local_names.push(match.name);
-                                                                        } else {
-                                                                                // If no match is found, it's genuinely a new row added by python.
-                                                                                // Delete the python-generated name so add_child can make a correct local 'new-...' name.
-                                                                                delete s_row.name;
-                                                                        }
-                                                                } else {
-                                                                        matched_local_names.push(exactly_matches.name);
-                                                                }
-                                                        });
+		// ── STEP 2: Sync editable fields into frm.doc before sending ──
+		["employee_earnings", "employee_deductions"].forEach(function(table) {
+			(frm.doc[table] || []).forEach(function(row) {
+				if (locals[row.doctype] && locals[row.doctype][row.name]) {
+					let l = locals[row.doctype][row.name];
+					row.is_tax_applicable = l.is_tax_applicable;
+					if (l.amount_usd !== undefined) row.amount_usd = l.amount_usd;
+					if (l.amount_zwg !== undefined) row.amount_zwg = l.amount_zwg;
+					if (l.components !== undefined) row.components = l.components;
+				}
+			});
+		});
 
-                                                        let server_names = server_rows.map(row => row.name).filter(Boolean);
-                                                        
-                                                        // Remove rows not present in server response
-                                                        let i = frm.doc[table].length;
-                                                        while (i--) {
-                                                                if (frm.doc[table][i].name && !server_names.includes(frm.doc[table][i].name)) {
-                                                                        frappe.model.clear_doc(frm.doc[table][i].doctype, frm.doc[table][i].name);
-                                                                        frm.doc[table].splice(i, 1);
-                                                                }
-                                                        }
-                                                        
-                                                        // Add or update rows, preserving the user's is_tax_applicable
-                                                        // IMPORTANT: preserve user-set is_tax_applicable — never let server overwrite it
-                                                        server_rows.forEach(row_data => {
-                                                                let existing = row_data.name ? frm.doc[table].find(r => r.name === row_data.name) : null;
-                                                                if (existing) {
-                                                                        // Grab value from locals (what user actually has ticked)
-                                                                        let live_tax = (locals[existing.doctype] && locals[existing.doctype][existing.name])
-                                                                                ? locals[existing.doctype][existing.name].is_tax_applicable
-                                                                                : existing.is_tax_applicable;
-                                                                        live_tax = live_tax ? 1 : 0;
-                                                                        Object.assign(existing, row_data);
-                                                                        existing.is_tax_applicable = live_tax;
-                                                                        if (locals[existing.doctype] && locals[existing.doctype][existing.name]) {
-                                                                                locals[existing.doctype][existing.name].is_tax_applicable = live_tax;
-                                                                        }
-                                                                } else {
-                                                                        let new_row = frappe.model.add_child(frm.doc, table);
-                                                                        // Clean up row_data.name if it exists so we don't overwrite new_row.name and break the grid
-                                                                        delete row_data.name;
-                                                                        Object.assign(new_row, row_data);
-                                                                        if (new_row.is_tax_applicable !== undefined) {
-                                                                                new_row.is_tax_applicable = new_row.is_tax_applicable ? 1 : 0;
-                                                                        }
-                                                                }
-                                                        });
-                                                        
-                                                        frm.refresh_field(table);
-                                                }
-                                        });
-                                        frm.refresh_fields();
-                                        // Re-apply overtime visibility
-                                        apply_overtime_visibility(frm);
-                                }
-                        }
-                });
-        }
+		frappe.call({
+			doc: frm.doc,
+			method: "calculate_totals",
+			callback: function(r) {
+				if (r.message) {
+					// ── STEP 3: Sync scalar fields ──
+					const scalar_fields = [
+						"payee", "aids_levy", "sdl", "net_income",
+						"total_income", "total_deductions", "total_tax_credits",
+						"total_income_usd", "total_income_zwg",
+						"total_deduction_usd", "total_deduction_zwg",
+						"total_net_income_usd", "total_net_income_zwg",
+						"blind", "disabled", "elderly", "medical_aid_tax_credit",
+						"cimas_employee", "cimas_employer", "funeral_employee", "funeral_employer",
+						"ensuarable_earnings", "allowable_deductions", "basic_salary_calculated",
+						"overtime_amount", "hourly_rate", "cash_in_lieu_amount",
+						"half_amount", "double_amount", "hours_half", "hours_double",
+						"total_taxable_income", "total_taxable_income_usd", "total_taxable_income_zwg",
+						"total_ensuarable_earnings_usd", "total_ensuarable_earnings_zwg"
+					];
+					scalar_fields.forEach(function(f) {
+						if (r.message[f] !== undefined) {
+							frm.doc[f] = r.message[f];
+						}
+					});
+
+					// ── STEP 4: Sync child tables, restoring is_tax_applicable from snapshot ──
+					["employee_earnings", "employee_deductions"].forEach(function(table) {
+						if (r.message[table]) {
+							let server_rows = r.message[table];
+							let matched_local_names = [];
+
+							server_rows.forEach(s_row => {
+								let exactly_matches = frm.doc[table].find(c_row => c_row.name === s_row.name);
+								if (!exactly_matches) {
+									let match = frm.doc[table].find(c_row =>
+										c_row.name && c_row.name.startsWith('new-') &&
+										!matched_local_names.includes(c_row.name) &&
+										((c_row.components && c_row.components === s_row.components) ||
+										 (!c_row.components && !s_row.components && c_row.idx === s_row.idx))
+									);
+									if (match) {
+										s_row.name = match.name;
+										matched_local_names.push(match.name);
+									} else {
+										delete s_row.name;
+									}
+								} else {
+									matched_local_names.push(exactly_matches.name);
+								}
+							});
+
+							let server_names = server_rows.map(row => row.name).filter(Boolean);
+
+							// Remove rows not in server response
+							let i = frm.doc[table].length;
+							while (i--) {
+								if (frm.doc[table][i].name && !server_names.includes(frm.doc[table][i].name)) {
+									frappe.model.clear_doc(frm.doc[table][i].doctype, frm.doc[table][i].name);
+									frm.doc[table].splice(i, 1);
+								}
+							}
+
+							server_rows.forEach(row_data => {
+								let existing = row_data.name
+									? frm.doc[table].find(r => r.name === row_data.name)
+									: null;
+
+								if (existing) {
+									// ── KEY FIX: use pre-call snapshot, not locals[] (already stale) ──
+									let preserved_tax = (tax_snapshot[existing.name] !== undefined)
+										? tax_snapshot[existing.name]
+										: (row_data.is_tax_applicable ? 1 : 0);
+
+									Object.assign(existing, row_data);
+									existing.is_tax_applicable = preserved_tax;
+
+									// Also restore in locals[] so the grid shows correctly
+									if (locals[existing.doctype] && locals[existing.doctype][existing.name]) {
+										locals[existing.doctype][existing.name].is_tax_applicable = preserved_tax;
+									}
+								} else {
+									let new_row = frappe.model.add_child(frm.doc, table);
+									delete row_data.name;
+									Object.assign(new_row, row_data);
+									new_row.is_tax_applicable = new_row.is_tax_applicable ? 1 : 0;
+									// New rows: also put in snapshot for future calls
+									tax_snapshot[new_row.name] = new_row.is_tax_applicable;
+								}
+							});
+
+							frm.refresh_field(table);
+						}
+					});
+
+					frm.refresh_fields();
+					apply_overtime_visibility(frm);
+				}
+			}
+		});
+	}
 }
 
 function update_tax_credits_if_needed(frm, cdt, cdn) {

@@ -27,6 +27,9 @@ class havano_employee(Document):
         elif payslip_type == "Split Currency":
             split_currency.main(self)
 
+        # Push is_tax_applicable changes back to havano_salary_component master
+        self._sync_tax_applicable_to_components()
+
         # -----------------------------
         # Create ERPNext Employee if not exists
                 # -----------------------------
@@ -69,6 +72,31 @@ class havano_employee(Document):
 
             self.native_employee_id = employee_doc.name
             #frappe.msgprint(f"Created Employee: {employee_doc.name}")
+
+    def _sync_tax_applicable_to_components(self):
+        """When user changes is_tax_applicable on a row, update the salary component master."""
+        all_rows = list(self.employee_earnings or []) + list(self.employee_deductions or [])
+        for row in all_rows:
+            if not row.get("components"):
+                continue
+            current = frappe.db.get_value(
+                "havano_salary_component", row.components, "is_tax_applicable"
+            )
+            if current is None:
+                continue
+            row_val = 1 if row.get("is_tax_applicable") else 0
+            if int(current) != row_val:
+                frappe.db.set_value(
+                    "havano_salary_component",
+                    row.components,
+                    "is_tax_applicable",
+                    row_val
+                )
+                frappe.logger().info(
+                    f"[havano_employee] Updated is_tax_applicable={row_val} "
+                    f"on component '{row.components}' from employee '{self.name}'"
+                )
+
     @frappe.whitelist()
     def calculate_totals(self):
         """Whitelisted method to trigger calculations from client side."""
