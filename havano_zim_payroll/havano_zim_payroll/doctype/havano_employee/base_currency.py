@@ -432,11 +432,16 @@ def ensure_deductions(self):
                 )
 
                 if always_calc:
-                    self.append("employee_deductions", {
-                        "components": comp_name,
-                        "amount_usd": 0,
-                        "amount_zwg": 0
-                    })
+                    # Check DB directly in case row exists but was dropped from in-memory doc
+                    existing_name = frappe.db.get_value("havano_payroll_deductions", {
+                        "parent": self.name,
+                        "parentfield": "employee_deductions",
+                        "components": comp_name
+                    }, "name")
+                    row = {"components": comp_name, "amount_usd": 0, "amount_zwg": 0}
+                    if existing_name:
+                        row["name"] = existing_name
+                    self.append("employee_deductions", row)
                     
     # Separately ensure Medical Aid
     if not has_medical_aid:
