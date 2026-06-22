@@ -544,17 +544,37 @@ def apply_overtime(self, basic_salary, default_currency):
         if half_hours > 0:
             amount_usd = half_amount if default_currency == 'USD' else 0.0
             amount_zwg = half_amount if default_currency != 'USD' else 0.0
-            row_data = {
-                'components': 'Overtime Short',
-                'amount_usd': amount_usd,
-                'amount_zwg': amount_zwg,
-            }
             if 'Overtime Short' in existing_data:
-                row_data['name'] = existing_data['Overtime Short']['name']
-                row_data['is_tax_applicable'] = existing_data['Overtime Short']['is_tax_applicable']
+                row_data = {
+                    'name': existing_data['Overtime Short']['name'],
+                    'components': 'Overtime Short',
+                    'amount_usd': amount_usd,
+                    'amount_zwg': amount_zwg,
+                    'is_tax_applicable': existing_data['Overtime Short']['is_tax_applicable'],
+                }
+                self.append('employee_earnings', row_data)
             else:
-                row_data['is_tax_applicable'] = frappe.db.get_value("havano_salary_component", "Overtime Short", "is_tax_applicable") or 0
-            self.append('employee_earnings', row_data)
+                is_tax = frappe.db.get_value("havano_salary_component", "Overtime Short", "is_tax_applicable") or 0
+                new_row = frappe.get_doc({
+                    'doctype': 'havano_payroll_earnings',
+                    'parenttype': 'havano_employee',
+                    'parentfield': 'employee_earnings',
+                    'parent': self.name,
+                    'components': 'Overtime Short',
+                    'amount_usd': amount_usd,
+                    'amount_zwg': amount_zwg,
+                    'is_tax_applicable': is_tax,
+                })
+                new_row.insert(ignore_permissions=True)
+                frappe.db.commit()
+                row_data = {
+                    'name': new_row.name,
+                    'components': 'Overtime Short',
+                    'amount_usd': amount_usd,
+                    'amount_zwg': amount_zwg,
+                    'is_tax_applicable': is_tax,
+                }
+                self.append('employee_earnings', row_data)
             
         if double_hours > 0:
             amount_usd = double_amount if default_currency == 'USD' else 0.0
