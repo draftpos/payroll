@@ -25,8 +25,8 @@ def execute(file_path):
         name = row[1]
         tax_year = str(row[2]).strip()
         tax_period = str(row[3]).strip()
+        # Get only the USD amount as requested
         tax_usd = frappe.utils.flt(row[4])
-        tax_zwg = frappe.utils.flt(row[5])
         
         month_num = month_map.get(tax_period)
         if not month_num:
@@ -40,8 +40,7 @@ def execute(file_path):
             }
             
         aggregated_data[key]["months"][month_num] = {
-            "usd": tax_usd,
-            "zwg": tax_zwg
+            "usd": tax_usd
         }
         
     # Insert or update into Havano Historical PAYE
@@ -70,7 +69,6 @@ def execute(file_path):
             
         for month_num, amounts in data["months"].items():
             doc.set(f"month_{month_num}_usd", amounts["usd"])
-            doc.set(f"month_{month_num}_zwg", amounts["zwg"])
             
         doc.save(ignore_permissions=True)
         frappe.db.commit()
