@@ -114,13 +114,6 @@ def calculate_fds_tax(employee_id, first_name, last_name, current_taxable_income
         # YTD Taxable = Taxable Earnings - Allowable Deductions
         ytd_taxable_income += max(entry_taxable - entry_allowable, 0.0)
 
-        for d in doc.employee_deductions:
-            if (d.components or "").upper() == "PAYEE":
-                if currency == "USD":
-                    ytd_paye += flt(d.amount_usd)
-                else:
-                    ytd_paye += flt(d.amount_zwg)
-
     # Fetch and add historical PAYE imported from external system
     historical_paye = frappe.get_all(
         "Havano Historical PAYE",
