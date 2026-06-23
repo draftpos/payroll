@@ -1,7 +1,7 @@
 import frappe
 
 def execute():
-    reports = ["Salary Register", "NSSA Report", "SDL Report", "NEC Report"]
+    reports = ["Salary Register", "NSSA Report", "SDL Report", "NEC Report", "FDS PAYE Report"]
     for rep in reports:
         if not frappe.db.exists("Report", rep):
             doc = frappe.get_doc({
