@@ -114,13 +114,26 @@ def calculate_fds_tax(employee_id, first_name, last_name, current_taxable_income
         # YTD Taxable = Taxable Earnings - Allowable Deductions
         ytd_taxable_income += max(entry_taxable - entry_allowable, 0.0)
 
-        # YTD PAYE
         for d in doc.employee_deductions:
             if (d.components or "").upper() == "PAYEE":
                 if currency == "USD":
                     ytd_paye += flt(d.amount_usd)
                 else:
                     ytd_paye += flt(d.amount_zwg)
+
+    # Fetch and add historical PAYE imported from external system
+    historical_paye = frappe.get_all(
+        "Havano Historical PAYE",
+        filters={"first_name": first_name, "last_name": last_name, "tax_year": current_year},
+        fields=["*"]
+    )
+    for hp in historical_paye:
+        # Sum only for strictly historical months
+        for i in range(1, cint(current_month_num)):
+            if currency == "USD":
+                ytd_paye += flt(hp.get(f"month_{i}_usd"))
+            else:
+                ytd_paye += flt(hp.get(f"month_{i}_zwg"))
 
     # Now calculate FDS
     cumulative_taxable_income = ytd_taxable_income + current_taxable_income

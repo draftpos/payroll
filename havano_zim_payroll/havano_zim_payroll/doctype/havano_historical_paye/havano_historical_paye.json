@@ -1,0 +1,241 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-06-23 11:03:13.955205",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee",
+  "first_name",
+  "last_name",
+  "tax_year",
+  "month_1_usd",
+  "month_1_zwg",
+  "month_2_usd",
+  "month_2_zwg",
+  "month_3_usd",
+  "month_3_zwg",
+  "month_4_usd",
+  "month_4_zwg",
+  "month_5_usd",
+  "month_5_zwg",
+  "month_6_usd",
+  "month_6_zwg",
+  "month_7_usd",
+  "month_7_zwg",
+  "month_8_usd",
+  "month_8_zwg",
+  "month_9_usd",
+  "month_9_zwg",
+  "month_10_usd",
+  "month_10_zwg",
+  "month_11_usd",
+  "month_11_zwg",
+  "month_12_usd",
+  "month_12_zwg"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "havano_employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.first_name",
+   "fieldname": "first_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "First Name"
+  },
+  {
+   "fetch_from": "employee.last_name",
+   "fieldname": "last_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Last Name"
+  },
+  {
+   "default": "2026",
+   "fieldname": "tax_year",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Tax Year",
+   "reqd": 1
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_1_usd",
+   "fieldtype": "Currency",
+   "label": "Jan PAYE (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_1_zwg",
+   "fieldtype": "Currency",
+   "label": "Jan PAYE (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_2_usd",
+   "fieldtype": "Currency",
+   "label": "Feb PAYE (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_2_zwg",
+   "fieldtype": "Currency",
+   "label": "Feb PAYE (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_3_usd",
+   "fieldtype": "Currency",
+   "label": "Mar PAYE (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_3_zwg",
+   "fieldtype": "Currency",
+   "label": "Mar PAYE (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_4_usd",
+   "fieldtype": "Currency",
+   "label": "Apr PAYE (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_4_zwg",
+   "fieldtype": "Currency",
+   "label": "Apr PAYE (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_5_usd",
+   "fieldtype": "Currency",
+   "label": "May PAYE (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_5_zwg",
+   "fieldtype": "Currency",
+   "label": "May PAYE (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_6_usd",
+   "fieldtype": "Currency",
+   "label": "Jun PAYE (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_6_zwg",
+   "fieldtype": "Currency",
+   "label": "Jun PAYE (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_7_usd",
+   "fieldtype": "Currency",
+   "label": "Jul PAYE (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_7_zwg",
+   "fieldtype": "Currency",
+   "label": "Jul PAYE (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_8_usd",
+   "fieldtype": "Currency",
+   "label": "Aug PAYE (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_8_zwg",
+   "fieldtype": "Currency",
+   "label": "Aug PAYE (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_9_usd",
+   "fieldtype": "Currency",
+   "label": "Sep PAYE (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_9_zwg",
+   "fieldtype": "Currency",
+   "label": "Sep PAYE (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_10_usd",
+   "fieldtype": "Currency",
+   "label": "Oct PAYE (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_10_zwg",
+   "fieldtype": "Currency",
+   "label": "Oct PAYE (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_11_usd",
+   "fieldtype": "Currency",
+   "label": "Nov PAYE (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_11_zwg",
+   "fieldtype": "Currency",
+   "label": "Nov PAYE (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_12_usd",
+   "fieldtype": "Currency",
+   "label": "Dec PAYE (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_12_zwg",
+   "fieldtype": "Currency",
+   "label": "Dec PAYE (ZWG)"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-23 11:03:13.955205",
+ "modified_by": "Administrator",
+ "module": "Havano Zim Payroll",
+ "name": "Havano Historical PAYE",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
