@@ -55,14 +55,19 @@ def main(self):
             
         amount = flt(e.amount_usd) if default_currency == "USD" else flt(e.amount_zwg)
         
+
+        # Always read is_tax_applicable from component master (row value can be stale)
+        is_taxable = cint(frappe.db.get_value("havano_salary_component", e.components, "is_tax_applicable") or 0)
+        e.is_tax_applicable = is_taxable  # Sync back so UI reflects correctly
+
         # Motoring Benefit Logic
         if e.components.upper() == "MOTORING BENEFIT":
-            if getattr(e, "is_tax_applicable", 0):
+            if is_taxable:
                 taxable_earnings += amount
             continue # Motoring benefit is taxable but does NOT increase gross total_income
             
         total_income += amount
-        if getattr(e, "is_tax_applicable", 0):
+        if is_taxable:
             taxable_earnings += amount
 
     self.total_income = round(total_income, 2)
@@ -334,7 +339,10 @@ def main(self):
     final_payee = round(max(base_payee - tax_credits, 0), 2)
     
     # Aids Levy = 3% of Payee
-    aids_levy = round(final_payee * 0.03, 2)
+    # Backwards split: extract base PAYE so that (PAYE + Aids Levy) = Total Tax
+    total_tax = final_payee
+    final_payee = round(total_tax / 1.03, 2)
+    aids_levy = round(total_tax - final_payee, 2)
     
     # SDL = 5% of Gross (reference only, not a deduction)
     # self.sdl = round(self.total_income * 0.05, 2)

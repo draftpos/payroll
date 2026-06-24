@@ -125,10 +125,30 @@ def calculate_fds_tax(employee_id, first_name, last_name, current_taxable_income
         for i in range(1, cint(current_month_num)):
             if currency == "USD":
                 ytd_paye += flt(hp.get(f"month_{i}_usd"))
+                ytd_taxable_income += flt(hp.get(f"month_{i}_income_usd"))
             else:
                 ytd_paye += flt(hp.get(f"month_{i}_zwg"))
+                ytd_taxable_income += flt(hp.get(f"month_{i}_income_zwg"))
 
     # Now calculate FDS
+    # FIX: If YTD taxable is zero from historical, try fetching from Salary Slips
+    if ytd_taxable_income <= 0 and current_month_num > 1:
+        slip_ytd = frappe.db.sql("""
+            SELECT SUM(custom_total_taxable_income) as sum_taxable
+            FROM `tabSalary Slip`
+            WHERE employee = %s 
+              AND docstatus IN (1, 2)
+              AND YEAR(start_date) = %s 
+              AND MONTH(start_date) < %s
+        """, (employee, current_year, current_month_num))
+        
+        if slip_ytd and slip_ytd[0][0]:
+            ytd_taxable_income = flt(slip_ytd[0][0])
+            print(f"
+✅ FDS: Found YTD Taxable Income from Salary Slips: {ytd_taxable_income}")
+        else:
+            ytd_taxable_income = current_taxable_income * (current_month_num - 1)
+
     cumulative_taxable_income = ytd_taxable_income + current_taxable_income
     forecasted_annual_income = cumulative_taxable_income + (current_taxable_income * remaining_months)
     

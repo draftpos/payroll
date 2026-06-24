@@ -198,7 +198,16 @@ frappe.ui.form.on("havano_payroll_deductions", {
 	}
 });
 
+let calc_timeout = null;
+
 function calculate_totals_server(frm) {
+	if (calc_timeout) clearTimeout(calc_timeout);
+	calc_timeout = setTimeout(() => {
+		_calculate_totals_server_now(frm);
+	}, 400);
+}
+
+function _calculate_totals_server_now(frm) {
 	if (frm.doc.company) {
 		// ── STEP 1: Snapshot is_tax_applicable for ALL rows BEFORE server call ──
 		let tax_snapshot = {};

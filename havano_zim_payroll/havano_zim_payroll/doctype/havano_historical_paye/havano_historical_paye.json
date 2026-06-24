@@ -10,28 +10,76 @@
   "first_name",
   "last_name",
   "tax_year",
+  "sb_month_1",
+  "month_1_income_usd",
+  "month_1_income_zwg",
+  "cb_month_1",
   "month_1_usd",
   "month_1_zwg",
+  "sb_month_2",
+  "month_2_income_usd",
+  "month_2_income_zwg",
+  "cb_month_2",
   "month_2_usd",
   "month_2_zwg",
+  "sb_month_3",
+  "month_3_income_usd",
+  "month_3_income_zwg",
+  "cb_month_3",
   "month_3_usd",
   "month_3_zwg",
+  "sb_month_4",
+  "month_4_income_usd",
+  "month_4_income_zwg",
+  "cb_month_4",
   "month_4_usd",
   "month_4_zwg",
+  "sb_month_5",
+  "month_5_income_usd",
+  "month_5_income_zwg",
+  "cb_month_5",
   "month_5_usd",
   "month_5_zwg",
+  "sb_month_6",
+  "month_6_income_usd",
+  "month_6_income_zwg",
+  "cb_month_6",
   "month_6_usd",
   "month_6_zwg",
+  "sb_month_7",
+  "month_7_income_usd",
+  "month_7_income_zwg",
+  "cb_month_7",
   "month_7_usd",
   "month_7_zwg",
+  "sb_month_8",
+  "month_8_income_usd",
+  "month_8_income_zwg",
+  "cb_month_8",
   "month_8_usd",
   "month_8_zwg",
+  "sb_month_9",
+  "month_9_income_usd",
+  "month_9_income_zwg",
+  "cb_month_9",
   "month_9_usd",
   "month_9_zwg",
+  "sb_month_10",
+  "month_10_income_usd",
+  "month_10_income_zwg",
+  "cb_month_10",
   "month_10_usd",
   "month_10_zwg",
+  "sb_month_11",
+  "month_11_income_usd",
+  "month_11_income_zwg",
+  "cb_month_11",
   "month_11_usd",
   "month_11_zwg",
+  "sb_month_12",
+  "month_12_income_usd",
+  "month_12_income_zwg",
+  "cb_month_12",
   "month_12_usd",
   "month_12_zwg"
  ],
@@ -209,12 +257,263 @@
    "fieldname": "month_12_zwg",
    "fieldtype": "Currency",
    "label": "Dec PAYE (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_1_income_usd",
+   "fieldtype": "Currency",
+   "label": "Jan Taxable Income (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_1_income_zwg",
+   "fieldtype": "Currency",
+   "label": "Jan Taxable Income (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_2_income_usd",
+   "fieldtype": "Currency",
+   "label": "Feb Taxable Income (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_2_income_zwg",
+   "fieldtype": "Currency",
+   "label": "Feb Taxable Income (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_3_income_usd",
+   "fieldtype": "Currency",
+   "label": "Mar Taxable Income (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_3_income_zwg",
+   "fieldtype": "Currency",
+   "label": "Mar Taxable Income (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_4_income_usd",
+   "fieldtype": "Currency",
+   "label": "Apr Taxable Income (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_4_income_zwg",
+   "fieldtype": "Currency",
+   "label": "Apr Taxable Income (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_5_income_usd",
+   "fieldtype": "Currency",
+   "label": "May Taxable Income (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_5_income_zwg",
+   "fieldtype": "Currency",
+   "label": "May Taxable Income (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_6_income_usd",
+   "fieldtype": "Currency",
+   "label": "Jun Taxable Income (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_6_income_zwg",
+   "fieldtype": "Currency",
+   "label": "Jun Taxable Income (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_7_income_usd",
+   "fieldtype": "Currency",
+   "label": "Jul Taxable Income (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_7_income_zwg",
+   "fieldtype": "Currency",
+   "label": "Jul Taxable Income (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_8_income_usd",
+   "fieldtype": "Currency",
+   "label": "Aug Taxable Income (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_8_income_zwg",
+   "fieldtype": "Currency",
+   "label": "Aug Taxable Income (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_9_income_usd",
+   "fieldtype": "Currency",
+   "label": "Sep Taxable Income (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_9_income_zwg",
+   "fieldtype": "Currency",
+   "label": "Sep Taxable Income (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_10_income_usd",
+   "fieldtype": "Currency",
+   "label": "Oct Taxable Income (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_10_income_zwg",
+   "fieldtype": "Currency",
+   "label": "Oct Taxable Income (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_11_income_usd",
+   "fieldtype": "Currency",
+   "label": "Nov Taxable Income (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_11_income_zwg",
+   "fieldtype": "Currency",
+   "label": "Nov Taxable Income (ZWG)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_12_income_usd",
+   "fieldtype": "Currency",
+   "label": "Dec Taxable Income (USD)"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "month_12_income_zwg",
+   "fieldtype": "Currency",
+   "label": "Dec Taxable Income (ZWG)"
+  },
+  {
+   "fieldname": "sb_month_1",
+   "fieldtype": "Section Break",
+   "label": "January"
+  },
+  {
+   "fieldname": "cb_month_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sb_month_2",
+   "fieldtype": "Section Break",
+   "label": "February"
+  },
+  {
+   "fieldname": "cb_month_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sb_month_3",
+   "fieldtype": "Section Break",
+   "label": "March"
+  },
+  {
+   "fieldname": "cb_month_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sb_month_4",
+   "fieldtype": "Section Break",
+   "label": "April"
+  },
+  {
+   "fieldname": "cb_month_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sb_month_5",
+   "fieldtype": "Section Break",
+   "label": "May"
+  },
+  {
+   "fieldname": "cb_month_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sb_month_6",
+   "fieldtype": "Section Break",
+   "label": "June"
+  },
+  {
+   "fieldname": "cb_month_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sb_month_7",
+   "fieldtype": "Section Break",
+   "label": "July"
+  },
+  {
+   "fieldname": "cb_month_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sb_month_8",
+   "fieldtype": "Section Break",
+   "label": "August"
+  },
+  {
+   "fieldname": "cb_month_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sb_month_9",
+   "fieldtype": "Section Break",
+   "label": "September"
+  },
+  {
+   "fieldname": "cb_month_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sb_month_10",
+   "fieldtype": "Section Break",
+   "label": "October"
+  },
+  {
+   "fieldname": "cb_month_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sb_month_11",
+   "fieldtype": "Section Break",
+   "label": "November"
+  },
+  {
+   "fieldname": "cb_month_11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sb_month_12",
+   "fieldtype": "Section Break",
+   "label": "December"
+  },
+  {
+   "fieldname": "cb_month_12",
+   "fieldtype": "Column Break"
   }
  ],
- "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-23 11:03:13.955205",
+ "modified": "2026-06-24 15:10:53.097025",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "Havano Historical PAYE",
@@ -233,8 +532,6 @@
    "write": 1
   }
  ],
- "row_format": "Dynamic",
- "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []
