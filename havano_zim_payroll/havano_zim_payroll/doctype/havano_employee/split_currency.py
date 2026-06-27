@@ -353,6 +353,39 @@ def main(self):
                         current_month_num=current_month,
                         current_year=str(current_year)
                     )
+        elif frappe.db.get_single_value("Havano Payroll Settings", "allow_averaging_fds_method"):
+            from havano_zim_payroll.havano_zim_payroll.doctype.havano_employee.fds_tax import calculate_averaging_fds_tax
+            current_month = nowdate().split("-")[1]
+            current_year = int(nowdate().split("-")[0])
+            
+            doj = getdate(self.date_of_joining) if self.date_of_joining else None
+            is_fds_eligible = doj and doj.year < current_year
+            
+            if is_fds_eligible:
+                if self.total_taxable_income_usd > 0:
+                    payee_usd = calculate_averaging_fds_tax(
+                        employee_id=self.name,
+                        first_name=self.first_name,
+                        last_name=self.last_name,
+                        current_taxable_income=self.total_taxable_income_usd,
+                        currency="USD",
+                        current_month_num=current_month,
+                        current_year=str(current_year),
+                        employee_earnings=self.employee_earnings,
+                        tax_credits=tax_credits_usd
+                    )
+                if self.total_taxable_income_zwg > 0:
+                    payee_zwg = calculate_averaging_fds_tax(
+                        employee_id=self.name,
+                        first_name=self.first_name,
+                        last_name=self.last_name,
+                        current_taxable_income=self.total_taxable_income_zwg,
+                        currency="ZWG",
+                        current_month_num=current_month,
+                        current_year=str(current_year),
+                        employee_earnings=self.employee_earnings,
+                        tax_credits=tax_credits_zwg
+                    )
     except Exception as e:
         frappe.log_error(f"FDS Calculation Error for {self.name}: {e}")
 

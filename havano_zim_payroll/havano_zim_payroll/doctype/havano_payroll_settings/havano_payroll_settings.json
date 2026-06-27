@@ -26,6 +26,7 @@
   "max_bereavement_leave_days",
   "payroll_journals_settings_section",
   "allow_forecast_fds_method",
+  "allow_averaging_fds_method",
   "payroll_journal_accounts"
  ],
  "fields": [
@@ -145,6 +146,12 @@
    "fieldname": "allow_forecast_fds_method",
    "fieldtype": "Check",
    "label": "Allow Forecast FDS Method"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_averaging_fds_method",
+   "fieldtype": "Check",
+   "label": "Allow Averaging FDS Method"
   },
   {
    "fieldname": "payroll_journal_accounts",

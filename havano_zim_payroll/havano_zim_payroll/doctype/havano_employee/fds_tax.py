@@ -114,7 +114,6 @@ def calculate_fds_tax(employee_id, first_name, last_name, current_taxable_income
         # YTD Taxable = Taxable Earnings - Allowable Deductions
         ytd_taxable_income += max(entry_taxable - entry_allowable, 0.0)
 
-    # Fetch and add historical PAYE imported from external system
     historical_paye = frappe.get_all(
         "Havano Historical PAYE",
         filters={"first_name": first_name, "last_name": last_name, "tax_year": current_year},
@@ -161,6 +160,126 @@ def calculate_fds_tax(employee_id, first_name, last_name, current_taxable_income
     # Return Base PAYE before tax credits and aids levy are applied in base_currency.py
     return max(flt(current_month_base_paye), 0.0)
 
+def calculate_averaging_fds_tax(employee_id, first_name, last_name, current_taxable_income, currency, current_month_num, current_year, employee_earnings, tax_credits):
+    """
+    Averaging Method calculation (incorporates Bonus and CILOL separately).
+    Returns base PAYE such that after subtracting tax_credits in base_currency.py,
+    the final PAYE strictly matches the True-up PAYE for the month.
+    """
+    if currency in ["ZWL", "ZWG"]:
+        currency = "ZWG"
+
+    current_month_num = cint(current_month_num)
+
+    # 1. Separate current month's regular vs irregular (Bonus/CILOL) taxable income
+    current_irregular = 0.0
+    if employee_earnings:
+        for e in employee_earnings:
+            if getattr(e, "is_tax_applicable", 0):
+                comp = (e.components or "").lower()
+                if "bonus" in comp or "cash in lieu" in comp or "cilol" in comp:
+                    current_irregular += flt(e.amount_usd) if currency == "USD" else flt(e.amount_zwg)
+
+    # We assume allowable deductions have already been netted out of current_taxable_income.
+    current_regular = max(flt(current_taxable_income) - current_irregular, 0.0)
+
+    # 2. Sum YTD historical regular and irregular taxable income
+    ytd_regular = 0.0
+    ytd_irregular = 0.0
+    ytd_paye = 0.0
+
+    payroll_entries = frappe.get_all(
+        "Havano Payroll Entry",
+        filters={
+            "first_name": first_name,
+            "last_name": last_name,
+            "date": ["between", [f"{current_year}-01-01", f"{current_year}-12-31"]]
+        },
+        fields=["name", "date"]
+    )
+
+    for pe in payroll_entries:
+        pe_date = getdate(pe.date)
+        if pe_date.month >= current_month_num:
+            continue
+
+        doc = frappe.get_doc("Havano Payroll Entry", pe.name)
+        
+        entry_taxable = 0.0
+        entry_irregular = 0.0
+        
+        taxable_components = [c.name for c in frappe.get_all("havano_salary_component", filters={"is_tax_applicable": 1})]
+        for e in doc.employee_earnings:
+            if e.components in taxable_components:
+                amt = flt(e.amount_usd) if currency == "USD" else flt(e.amount_zwg)
+                entry_taxable += amt
+                comp = (e.components or "").lower()
+                if "bonus" in comp or "cash in lieu" in comp or "cilol" in comp:
+                    entry_irregular += amt
+
+        allowable_components = []
+        for c in frappe.get_all("havano_salary_component", filters={"type": "Deduction"}, fields=["name", "component_mode"]):
+            if c.component_mode and "allowable" in c.component_mode.lower():
+                allowable_components.append(c.name)
+                
+        if not frappe.db.get_single_value("Havano Payroll Settings", "include_nssa_in_taxable_income"):
+            allowable_components.append("NSSA")
+            
+        entry_allowable = 0.0
+        for d in doc.employee_deductions:
+            if d.components in allowable_components:
+                entry_allowable += flt(d.amount_usd) if currency == "USD" else flt(d.amount_zwg)
+
+        net_entry_taxable = max(entry_taxable - entry_allowable, 0.0)
+        entry_regular = max(net_entry_taxable - entry_irregular, 0.0)
+
+        ytd_regular += entry_regular
+        ytd_irregular += entry_irregular
+
+    historical_paye = frappe.get_all(
+        "Havano Historical PAYE",
+        filters={"first_name": first_name, "last_name": last_name, "tax_year": current_year},
+        fields=["*"]
+    )
+    for hp in historical_paye:
+        for i in range(1, current_month_num):
+            if currency == "USD":
+                ytd_paye += flt(hp.get(f"month_{i}_usd"))
+                ytd_regular += flt(hp.get(f"month_{i}_income_usd"))
+            else:
+                ytd_paye += flt(hp.get(f"month_{i}_zwg"))
+                ytd_regular += flt(hp.get(f"month_{i}_income_zwg"))
+
+    cumulative_regular = ytd_regular + current_regular
+    cumulative_irregular = ytd_irregular + current_irregular
+
+    average_taxable = cumulative_regular / current_month_num
+    projected_annual = average_taxable * 12.0
+    
+    annual_tax_base = get_annual_tax(projected_annual, currency)
+    average_monthly_tax = annual_tax_base / 12.0
+    cumulative_tax_base = average_monthly_tax * current_month_num
+
+    tax_on_irregular = 0.0
+    if cumulative_irregular > 0:
+        total_taxable_with_irregular = projected_annual + cumulative_irregular
+        annual_tax_with_irregular = get_annual_tax(total_taxable_with_irregular, currency)
+        tax_on_irregular = annual_tax_with_irregular - annual_tax_base
+
+    total_tax_chargeable_before_credits = cumulative_tax_base + tax_on_irregular
+    ytd_credits = tax_credits * current_month_num
+
+    net_paye_before_levy = max(total_tax_chargeable_before_credits - ytd_credits, 0.0)
+    total_paye_chargeable = net_paye_before_levy * 1.03
+
+    current_paye_payable = max(total_paye_chargeable - ytd_paye, 0.0)
+
+    # Back-calculate base_payee for base_currency.py
+    target_final_paye = current_paye_payable / 1.03
+    required_base_paye = target_final_paye + tax_credits
+
+    return max(flt(required_base_paye), 0.0)
+
 @frappe.whitelist()
 def test_taxes():
     from havano_zim_payroll.havano_zim_payroll.doctype.havano_employee.base_currency import payee_against_slab
@@ -195,11 +314,30 @@ def test_taxes():
         slab_paye = payee_against_slab(emp.ensuarable_earnings, emp.payroll_frequency, emp.salary_currency)
         fds_paye = calculate_fds_tax(emp.name, emp.first_name, emp.last_name, emp.ensuarable_earnings, emp.salary_currency, current_month, str(current_year))
         
-        print(f"-> Base PAYE (Old Slab Method): {slab_paye}")
-        print(f"-> Base PAYE (New FDS Method):  {fds_paye}")
+        # Calculate for Averaging FDS
+        tax_credits = flt(emp.get('total_tax_credits'))
+        if not tax_credits:
+            # If not yet processed/saved, we can approximate or use 0
+            tax_credits = 0.0
+            
+        avg_fds_paye = calculate_averaging_fds_tax(
+            employee_id=emp.name,
+            first_name=emp.first_name,
+            last_name=emp.last_name,
+            current_taxable_income=emp.ensuarable_earnings,
+            currency=emp.salary_currency,
+            current_month_num=current_month,
+            current_year=str(current_year),
+            employee_earnings=emp.employee_earnings,
+            tax_credits=tax_credits
+        )
         
-        if fds_paye != slab_paye:
-            print("\n(Notice how the FDS method adjusted the tax based on forecasted annual income!)")
+        print(f"-> Base PAYE (Old Slab Method):       {slab_paye}")
+        print(f"-> Base PAYE (Forecast FDS Method):  {fds_paye}")
+        print(f"-> Base PAYE (Averaging FDS Method): {avg_fds_paye}")
+        
+        if fds_paye != slab_paye or avg_fds_paye != slab_paye:
+            print("\n(Notice how the FDS methods adjusted the tax based on annualized projection/averaging!)")
     else:
         print("No FDS employee found with taxable earnings.")
     print("=================================================\n")

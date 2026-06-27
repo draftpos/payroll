@@ -21,15 +21,17 @@ function apply_overtime_visibility(frm) {
 function check_fds_and_set_annual(frm) {
 	if (!frm.doc.date_of_joining) return;
 	frappe.db.get_single_value("Havano Payroll Settings", "allow_forecast_fds_method").then(allow_fds => {
-		if (allow_fds) {
-			let doj_year = new Date(frm.doc.date_of_joining).getFullYear();
-			let current_year = new Date().getFullYear();
-			if (doj_year < current_year) {
-				if (frm.doc.payroll_frequency !== "Annual") {
-					frm.set_value("payroll_frequency", "Annual");
+		frappe.db.get_single_value("Havano Payroll Settings", "allow_averaging_fds_method").then(allow_avg => {
+			if (allow_fds || allow_avg) {
+				let doj_year = new Date(frm.doc.date_of_joining).getFullYear();
+				let current_year = new Date().getFullYear();
+				if (doj_year < current_year) {
+					if (frm.doc.payroll_frequency !== "Annual") {
+						frm.set_value("payroll_frequency", "Annual");
+					}
 				}
 			}
-		}
+		});
 	});
 }
 
