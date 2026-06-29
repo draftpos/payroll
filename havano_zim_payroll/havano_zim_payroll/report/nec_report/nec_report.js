@@ -3,7 +3,8 @@ frappe.query_reports["NEC Report"] = {
 		{
 			"fieldname": "payroll_period",
 			"label": __("Payroll Period"),
-			"fieldtype": "Data",
+			"fieldtype": "Link",
+			"options": "Payroll Period",
 			"default": ""
 		},
 		{

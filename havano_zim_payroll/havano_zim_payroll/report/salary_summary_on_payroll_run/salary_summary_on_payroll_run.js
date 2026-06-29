@@ -3,7 +3,8 @@ frappe.query_reports["Salary Summary On Payroll Run"] = {
 		{
 			"fieldname": "payroll_period",
 			"label": __("Payroll Period (e.g. January 2026)"),
-			"fieldtype": "Data",
+			"fieldtype": "Link",
+			"options": "Payroll Period",
 			"default": ""
 		},
 		{

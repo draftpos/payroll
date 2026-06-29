@@ -14,10 +14,11 @@
  "fields": [
   {
    "fieldname": "payroll_period",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Payroll Period",
-   "reqd": 1
+   "reqd": 1,
+   "options": "Payroll Period"
   },
   {
    "fieldname": "company",
