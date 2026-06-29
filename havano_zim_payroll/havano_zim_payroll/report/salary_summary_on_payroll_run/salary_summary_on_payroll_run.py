@@ -21,7 +21,7 @@ def execute(filters=None):
 	payroll_entries = frappe.get_all(
 		"Havano Payroll Entry",
 		filters=entry_filters,
-		fields=["name", "first_name", "last_name", "payroll_period", "date"]
+		fields=["name", "first_name", "last_name", "payroll_period", "date", "leave_balances", "total_leave_taken"]
 	)
 
 	if not payroll_entries:
@@ -57,7 +57,7 @@ def execute(filters=None):
 	# Explicitly requested summary fields
 	summary_fields = ["Funeral", "Medical Aid", "Overtime"]
 	
-	# Determine distinct components for columns (exclude summary fields)
+	# Determine distinct components for columns (include summary fields in columns now!)
 	distinct_earnings = []
 	distinct_deductions = []
 	
@@ -66,10 +66,11 @@ def execute(filters=None):
 	
 	for e in explicit_earnings:
 		if e not in distinct_earnings:
+            # We want it appended
 			distinct_earnings.append(e)
 			
 	for e in earnings:
-		if e.components and e.components not in distinct_earnings and e.components not in summary_fields:
+		if e.components and e.components not in distinct_earnings:
 			distinct_earnings.append(e.components)
 
 	for d in explicit_deductions:
@@ -77,7 +78,7 @@ def execute(filters=None):
 			distinct_deductions.append(d)
 			
 	for d in deductions:
-		if d.components and d.components not in distinct_deductions and d.components not in summary_fields:
+		if d.components and d.components not in distinct_deductions:
 			distinct_deductions.append(d.components)
 
 	columns = get_columns(distinct_earnings, distinct_deductions)
@@ -110,6 +111,8 @@ def execute(filters=None):
 			"national_id": emp.get("national_id"),
 			"period": entry.payroll_period,
 			"date": entry.date,
+			"leave_balances": entry.leave_balances,
+			"total_leave_taken": entry.total_leave_taken,
 			"total_earnings": 0.0,
 			"total_deductions": 0.0,
 			"net_pay": 0.0
@@ -150,6 +153,8 @@ def get_columns(earnings, deductions):
 		{"label": _("National ID"), "fieldname": "national_id", "fieldtype": "Data", "width": 120},
 		{"label": _("Period"), "fieldname": "period", "fieldtype": "Data", "width": 120},
 		{"label": _("Date"), "fieldname": "date", "fieldtype": "Date", "width": 100},
+		{"label": _("Leave Balances"), "fieldname": "leave_balances", "fieldtype": "Data", "width": 120},
+		{"label": _("Total Leave Taken"), "fieldname": "total_leave_taken", "fieldtype": "Data", "width": 120},
 	]
 
 	for e in earnings:
