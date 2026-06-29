@@ -1,5 +1,7 @@
 import frappe
 
+import re
+
 def execute():
     try:
         components = frappe.get_all("havano_salary_component", pluck="name")
@@ -8,7 +10,8 @@ def execute():
     
     count = 0
     for comp in components:
-        dt_name = f"{comp} Report Store"
+        clean_comp = re.sub(r'[^a-zA-Z0-9 \-_]', '', comp)
+        dt_name = f"{clean_comp} Report Store"
         if not frappe.db.exists("DocType", dt_name):
             try:
                 doc = frappe.get_doc({
@@ -32,7 +35,8 @@ def execute():
                 doc.insert(ignore_permissions=True)
                 count += 1
             except Exception as e:
-                frappe.log_error(f"Failed to auto-create {dt_name}: {str(e)}")
+                title = f"Failed to auto-create {dt_name}"[:100]
+                frappe.log_error(str(e), title)
 
     frappe.db.commit()
     print(f"Successfully auto-generated {count} new Report Store DocTypes for existing Salary Components!")
