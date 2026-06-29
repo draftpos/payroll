@@ -504,7 +504,7 @@ def run_payroll(month, year, work_date, daily):
         if hasattr(emp_doc, "employee_deductions"):
             for d in emp_doc.employee_deductions:
                 amt = flt(d.amount_usd) + flt(d.amount_zwg)
-                if d.components in ["Payee", "Aids Levy"]:
+                if d.components in ["PAYE", "Aids Levy"]:
                     zimra += amt
                 elif d.components and d.components.strip().lower() in mapped_components:
                     pj_data[emp_company]["mapped"][d.components] = pj_data[emp_company]["mapped"].get(d.components, 0) + amt

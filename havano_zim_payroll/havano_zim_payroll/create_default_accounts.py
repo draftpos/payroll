@@ -10,7 +10,7 @@ def insert_payroll_accounts():
 
     accounts = [
         {"name": "Loan Interest", "parent_group": "Liabilities"},
-        {"name": "Payee", "parent_group": "Liabilities"},
+        {"name": "PAYE", "parent_group": "Liabilities"},
         {"name": "Aids Levy", "parent_group": "Liabilities"},
         {"name": "Salaries-Overtime-Finishing", "parent_group": "Expenses"},
         {"name": "Salaries & Wages", "parent_group": "Expenses"},

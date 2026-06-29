@@ -262,7 +262,7 @@ def main(self):
 
             total_deduction_usd += deduct_usd
 
-        elif d.components.upper() in ["PAYEE", "AIDS LEVY", "SDL"]:
+        elif d.components.upper() in ["PAYE", "AIDS LEVY", "SDL"]:
             continue
 
         elif d.components.upper() in ["LAPF", "UFAWUZ", "ZFBAWU"]:
@@ -289,8 +289,8 @@ def main(self):
 
         else:
             # Other deductions (NEC, Pension, etc.)
-            # Skip PAYEE and AIDS LEVY here because they are added at the very end
-            if d.components.upper() in ["PAYEE", "AIDS LEVY", "SDL"]:
+            # Skip PAYE and AIDS LEVY here because they are added at the very end
+            if d.components.upper() in ["PAYE", "AIDS LEVY", "SDL"]:
                 continue
                 
             if zero_out_zwg:
@@ -404,7 +404,7 @@ def main(self):
         if not d.components:
             continue
             
-        if d.components.upper() == "PAYEE":
+        if d.components.upper() == "PAYE":
             d.amount_usd = final_payee_usd
             d.amount_zwg = final_payee_zwg
         elif d.components.upper() == "AIDS LEVY":
@@ -418,7 +418,7 @@ def main(self):
 
     # 9. FINAL SUMMARY
     existing = [(d.components or "").upper() for d in self.employee_deductions]
-    if "PAYEE" not in existing:
+    if "PAYE" not in existing:
         final_payee_usd = 0
         final_payee_zwg = 0
     if "AIDS LEVY" not in existing:
@@ -490,7 +490,7 @@ def ensure_deductions(self):
     # Check if we already have a funeral policy row
     has_funeral_policy = any(x in ["FUNERAL POLICY", "FUNERAL", funeral_policy_label.upper()] for x in existing)
 
-    for comp in ["NSSA", "PAYEE", "AIDS LEVY"]:
+    for comp in ["NSSA", "PAYE", "AIDS LEVY"]:
         if comp not in existing:
             comp_name = frappe.db.get_value(
                 "havano_salary_component",

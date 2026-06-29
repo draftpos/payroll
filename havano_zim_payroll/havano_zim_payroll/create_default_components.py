@@ -25,14 +25,14 @@ def create_salary_components():
         #     ]
         # },
         {
-            "name": "PAYEE",
+            "name": "PAYE",
             "type": "Deduction",
             "code": "PY",
             "component_mode": "",
             "is_tax_applicable": 0,
             "accounts": [
                 {
-                    "account": "Payee",
+                    "account": "PAYE",
                     "item": "Payroll Expense",
                     "supplier": "ZIMRA"
                 }

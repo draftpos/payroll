@@ -156,7 +156,7 @@ def main(self):
             total_deduction += nssa_amt
             continue
 
-        elif d.components.upper() in ["PAYEE", "AIDS LEVY", "SDL"]:
+        elif d.components.upper() in ["PAYE", "AIDS LEVY", "SDL"]:
             # Skip these for now, calculate later
             continue
 
@@ -280,8 +280,8 @@ def main(self):
             total_deduction += deduction_effect
         else:
             # Other deductions (NEC, Pension, etc.)
-            # Skip PAYEE and AIDS LEVY here because they are added at the very end
-            if d.components.upper() in ["PAYEE", "AIDS LEVY", "SDL"]:
+            # Skip PAYE and AIDS LEVY here because they are added at the very end
+            if d.components.upper() in ["PAYE", "AIDS LEVY", "SDL"]:
                 continue
                 
             amt = flt(d.amount_usd) if self.salary_currency == "USD" else flt(d.amount_zwg)
@@ -373,7 +373,7 @@ def main(self):
         if not d.components:
             continue
             
-        if d.components.upper() == "PAYEE":
+        if d.components.upper() == "PAYE":
             if self.salary_currency == "USD":
                 d.amount_usd = final_payee
             else:
@@ -389,7 +389,7 @@ def main(self):
 
     # 7. UPDATE TOTAL DEDUCTIONS AND NET INCOME
     existing = [(d.components or "").upper() for d in self.employee_deductions]
-    if "PAYEE" not in existing:
+    if "PAYE" not in existing:
         final_payee = 0
     if "AIDS LEVY" not in existing:
         aids_levy = 0
@@ -447,7 +447,7 @@ def ensure_deductions(self):
     # Check if we already have a funeral policy row
     has_funeral_policy = any(x in ["FUNERAL POLICY", "FUNERAL", funeral_policy_label.upper()] for x in existing)
 
-    for comp in ["NSSA", "PAYEE", "AIDS LEVY"]:
+    for comp in ["NSSA", "PAYE", "AIDS LEVY"]:
         if comp not in existing:
             comp_name = frappe.db.get_value(
                 "havano_salary_component",

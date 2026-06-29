@@ -2,7 +2,7 @@
 // For license information, please see license.txt
 
 // Components that are controlled by "Always Calculate" checkbox on havano_salary_component
-const ALWAYS_CALC_COMPONENTS = ["NSSA", "PAYEE", "AIDS LEVY"];
+const ALWAYS_CALC_COMPONENTS = ["NSSA", "PAYE", "AIDS LEVY"];
 
 function apply_overtime_visibility(frm) {
 	let overtime = frm.doc.overtime || '';
@@ -402,7 +402,7 @@ function update_tax_credits(frm) {
 
 /**
  * Sync the employee_deductions table based on always_calculate flag.
- * - Adds NSSA, PAYEE, AIDS LEVY rows when always_calculate = 1.
+ * - Adds NSSA, PAYE, AIDS LEVY rows when always_calculate = 1.
  * - Removes those rows when always_calculate = 0.
  * Uses case-insensitive matching so "Aids Levy", "AIDS LEVY" etc. all work.
  */

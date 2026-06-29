@@ -34,7 +34,7 @@ def set_havano_payroll_defaults():
         {"component": "NSSA"},
         {"component": "Aids Levy"},
         {"component": "Funeral Policy"},
-        {"component": "PAYEE"},
+        {"component": "PAYE"},
         {"component": "UFAWUZ"},
         {"component": "ZIBAWU"},
         {"component": "LAPF"},

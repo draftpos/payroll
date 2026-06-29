@@ -24,7 +24,7 @@ class HavanoPayrollEntry(Document):
         paye_usd = 0.0
         paye_zwg = 0.0
         for d in self.employee_deductions:
-            if (d.components or "").upper() == "PAYEE":
+            if (d.components or "").upper() == "PAYE":
                 paye_usd += flt(d.amount_usd)
                 paye_zwg += flt(d.amount_zwg)
                 

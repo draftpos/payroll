@@ -24,7 +24,7 @@ def execute():
                     {"components": "Basic Salary", "amount_usd": 1000}
                 ],
                 "employee_deductions": [
-                    {"components": "Payee", "amount_usd": 100},
+                    {"components": "PAYE", "amount_usd": 100},
                     {"components": "Medical Aid", "amount_usd": 50}
                 ]
             }).insert(ignore_permissions=True)
