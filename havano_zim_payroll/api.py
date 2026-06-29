@@ -8,14 +8,14 @@ frappe.error_log = error_log
 
 
 @frappe.whitelist()
-def run_payroll_async(month, year, work_date=None, daily=None, sync=False):
+def run_payroll_async(month, year, work_date=None, daily=None, sync=False, employee=None):
     """
     Enqueue payroll or run synchronously.
     Defaults to sync=True to ensure immediate results if workers aren't active.
     """
     if str(sync).lower() in ["true", "1", "t", "y", "yes"]:
         # Run immediately in the current request
-        return run_payroll(month, year, work_date, daily)
+        return run_payroll(month, year, work_date, daily, employee=employee)
     
     job = frappe.enqueue(
         "havano_zim_payroll.api.run_payroll",
@@ -23,6 +23,7 @@ def run_payroll_async(month, year, work_date=None, daily=None, sync=False):
         year=year,
         work_date=work_date,
         daily=daily,
+        employee=employee,
         queue="long",
         timeout=15000
     )
@@ -98,7 +99,7 @@ def add_basic_hourly(employee_id, amount):
     return f"Basic Salary updated for {employee_id}"
 
 @frappe.whitelist()
-def run_payroll(month, year, work_date, daily):
+def run_payroll(month, year, work_date, daily, employee=None):
     settin=get_payroll_settings()
     setting_cost_center=settin["cost_center"]
     setting_supplier=settin["supplier"]
@@ -149,6 +150,9 @@ def run_payroll(month, year, work_date, daily):
             fields=["name", "first_name", "last_name", "net_income", "payroll_frequency"],
             ignore_permissions=True
         )
+
+    if employee:
+        employees = [e for e in employees if e.name == employee]
 
     frappe.log_error(f"Found {len(employees)} active employees for payroll run (Daily={daily})", "Payroll Debug")
     if not employees:
