@@ -253,7 +253,10 @@ def run_payroll(month, year, work_date, daily):
         try:
             emp_doc.save(ignore_permissions=True)
         except Exception as e:
-            frappe.log_error(f"Error saving employee {emp.name} during payroll: {e}")
+            frappe.log_error(
+                frappe.get_traceback(),
+                f"Payroll Skip - {emp.name} ({emp.get('first_name','')} {emp.get('last_name','')}) - save error"
+            )
             continue
 
         # Create new Payroll Entry
@@ -272,7 +275,10 @@ def run_payroll(month, year, work_date, daily):
             total_loan += flt(loan_deduction_add_back.get("amount_usd", 0))
             total_sdl += flt(emp_doc.total_income) * 0.05
         except Exception as e:
-            frappe.log_error(f"Payroll Calc Error for {emp.name}: {e}")
+            frappe.log_error(
+                frappe.get_traceback(),
+                f"Payroll Skip - {emp.name} ({emp.get('first_name','')} {emp.get('last_name','')}) - calc error"
+            )
             continue
 
         # === Short Time Deduction (payslip only) ===
