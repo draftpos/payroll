@@ -436,6 +436,72 @@ def run_payroll(month, year, work_date, daily, employee=None):
         except Exception as e:
             frappe.log_error(f"Statutory Report Error for {emp.name}: {e}")
 
+        # Auto-Create Custom Report Stores (Funeral, Medical Aid, Leave, Overtime)
+        try:
+            payroll_period_str = f"{month_name} {year}"
+            
+            # Calculate Amounts from Earnings/Deductions
+            funeral_amt = 0
+            medical_emp = 0
+            overtime_amt = 0
+            
+            if hasattr(emp_doc, "employee_deductions"):
+                for d in emp_doc.employee_deductions:
+                    if d.components and "FUNERAL" in d.components.upper():
+                        funeral_amt += flt(d.amount_usd) + flt(d.amount_zwg)
+                    if d.components and ("CIMAS" in d.components.upper() or "MEDICAL" in d.components.upper()):
+                        medical_emp += flt(d.amount_usd) + flt(d.amount_zwg)
+                        
+            if hasattr(emp_doc, "employee_earnings"):
+                for e in emp_doc.employee_earnings:
+                    if e.components and "OVERTIME" in e.components.upper():
+                        overtime_amt += flt(e.amount_usd) + flt(e.amount_zwg)
+                        
+            medical_employer = flt(getattr(emp_doc, "cimas_employer_", 0))
+
+            # 1. Funeral Report Store
+            frappe.get_doc({
+                "doctype": "Funeral Report Store",
+                "employee": emp.name,
+                "department": emp_doc.department,
+                "payroll_period": payroll_period_str,
+                "amount": funeral_amt
+            }).insert(ignore_permissions=True)
+            
+            # 2. Medical Aid Report Store
+            frappe.get_doc({
+                "doctype": "Medical Aid Report Store",
+                "employee": emp.name,
+                "department": emp_doc.department,
+                "payroll_period": payroll_period_str,
+                "employee_contribution": medical_emp,
+                "employer_contribution": medical_employer,
+                "total_contribution": medical_emp + medical_employer
+            }).insert(ignore_permissions=True)
+            
+            # 3. Leave Report Store
+            leave_taken = flt(frappe.db.get_value("Havano Leave Balances", {"employee": emp.name, "havano_leave_type": "Annual Leave"}, "leave_taken") or 0)
+            frappe.get_doc({
+                "doctype": "Leave Report Store",
+                "employee": emp.name,
+                "department": emp_doc.department,
+                "payroll_period": payroll_period_str,
+                "leave_days": leave_taken
+            }).insert(ignore_permissions=True)
+            
+            # 4. Overtime Report Store
+            frappe.get_doc({
+                "doctype": "Overtime Report Store",
+                "employee": emp.name,
+                "department": emp_doc.department,
+                "payroll_period": payroll_period_str,
+                "overtime_hours": 0, # Could be calculated if hourly rate is known
+                "amount": overtime_amt
+            }).insert(ignore_permissions=True)
+            
+        except Exception as e:
+            frappe.log_error(f"Custom Report Store Error for {emp.name}: {e}")
+
         try:
             update_employee_annual_leave(emp.name, payroll_period=f"{month_name} {year}")
         except Exception as e:
