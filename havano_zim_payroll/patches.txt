@@ -3,5 +3,6 @@
 # Read docs to understand patches: https://frappeframework.com/docs/v14/user/en/database-migrations
 
 [post_model_sync]
-# Patches added in this section will be executed after doctypes are migratedhavano_zim_payroll.patches.auto_create_component_stores.execute
-havano_zim_payroll.patches.update_january_payroll_details.execute
+# Patches added in this section will be executed after doctypes are migrated
+havano_zim_payroll.patches.auto_create_component_stores
+havano_zim_payroll.patches.update_january_payroll_details
