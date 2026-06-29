@@ -40,7 +40,8 @@ def fix_naming():
                 except Exception as e:
                     if "Incorrect integer value" in str(e) or "DataError" in str(type(e)):
                         print(f"Converting name column of {doctype} to VARCHAR(140) to fix BIGINT conflict...")
-                        frappe.db.sql(f"ALTER TABLE `tab{doctype}` MODIFY name VARCHAR(140);")
+                        frappe.db.commit()
+                        frappe.db.sql(f"ALTER TABLE `tab{doctype}` MODIFY name VARCHAR(140);", auto_commit=True)
                         frappe.rename_doc(doctype, rec.name, new_name, force=True)
                     else:
                         raise e
