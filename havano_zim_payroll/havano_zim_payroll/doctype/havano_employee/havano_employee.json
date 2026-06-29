@@ -16,6 +16,7 @@
   "first_name",
   "middle_name",
   "last_name",
+  "national_id",
   "employee_name",
   "column_break_9",
   "gender",
@@ -252,7 +253,8 @@
   "addendums_section",
   "addendums_table",
   "appraisals_section",
-  "appraisals_table"
+  "appraisals_table",
+  "leave_days_to_sell"
  ],
  "fields": [
   {
@@ -575,40 +577,32 @@
   {
    "fieldname": "hours",
    "fieldtype": "Float",
-   "label": "Overtime Hours",
-   "hidden": 0
+   "label": "Overtime Hours"
   },
   {
    "fieldname": "hours_half",
    "fieldtype": "Float",
-   "label": "Time & Half Hours",
-   "hidden": 0
+   "label": "Time & Half Hours"
   },
   {
    "fieldname": "hours_double",
    "fieldtype": "Float",
-   "label": "Double Time Hours",
-   "hidden": 0
+   "label": "Double Time Hours"
   },
   {
    "fieldname": "half_amount",
    "fieldtype": "Float",
-   "label": "Time & Half Amount",
-   "read_only": 0,
-   "hidden": 0
+   "label": "Time & Half Amount"
   },
   {
    "fieldname": "double_amount",
    "fieldtype": "Float",
-   "label": "Double Time Amount",
-   "read_only": 0,
-   "hidden": 0
+   "label": "Double Time Amount"
   },
   {
    "fieldname": "overtime_amount",
    "fieldtype": "Float",
-   "label": "Overtime Amount",
-   "hidden": 0
+   "label": "Overtime Amount"
   },
   {
    "collapsible": 1,
@@ -829,11 +823,10 @@
    "oldfieldtype": "Date"
   },
   {
+   "default": "0",
    "fieldname": "leave_days_to_sell",
    "fieldtype": "Float",
-   "label": "Leave Days to Sell",
-   "insert_after": "encashment_date",
-   "default": "0"
+   "label": "Leave Days to Sell"
   },
   {
    "fieldname": "exit_interview_details",
@@ -1536,16 +1529,16 @@
    "label": "Total Days Worked"
   },
   {
+   "default": "0",
    "fieldname": "has_short_time",
    "fieldtype": "Check",
-   "label": "Has Short Time",
-   "track_changes": 1
+   "label": "Has Short Time"
   },
   {
+   "depends_on": "eval:doc.has_short_time == 1",
    "fieldname": "short_time_days_worked",
    "fieldtype": "Float",
-   "label": "Short Time Days Worked",
-   "depends_on": "eval:doc.has_short_time == 1"
+   "label": "Short Time Days Worked"
   },
   {
    "fieldname": "native_employee_id",
@@ -1581,10 +1574,10 @@
    "label": "Medical Aid Amount"
   },
   {
+   "description": "Leave blank to show 'Medical Aid'. Enter a custom name to display it on the deductions table and payslip (e.g. First Mutual, CIMAS).",
    "fieldname": "medical_aid_display_name",
    "fieldtype": "Data",
-   "label": "Medical Aid Display Name",
-   "description": "Leave blank to show 'Medical Aid'. Enter a custom name to display it on the deductions table and payslip (e.g. First Mutual, CIMAS)."
+   "label": "Medical Aid Display Name"
   },
   {
    "default": "0",
@@ -1678,6 +1671,11 @@
    "fieldtype": "Select",
    "label": "Payroll Frequency",
    "options": "\nMonthly\nFortnightly\nBimonthly\nWeekly\nDaily\nAnnual"
+  },
+  {
+   "fieldname": "national_id",
+   "fieldtype": "Data",
+   "label": "National ID"
   }
  ],
  "icon": "fa fa-user",
@@ -1685,7 +1683,7 @@
  "image_field": "image",
  "is_tree": 1,
  "links": [],
- "modified": "2026-05-27 15:00:00.000000",
+ "modified": "2026-06-29 13:48:42.837439",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "havano_employee",

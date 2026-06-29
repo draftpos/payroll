@@ -1,7 +1,7 @@
 {
  "actions": [],
- "autoname": "autoincrement",
- "creation": "2025-12-03 09:38:48.089697",
+ "autoname": "SDL-.####",
+ "creation": "2026-06-18 11:55:42.806226",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -71,11 +71,10 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-09 11:32:07.694117",
+ "modified": "2026-06-29 14:13:16.683322",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "SDL Report",
- "naming_rule": "Autoincrement",
  "owner": "Administrator",
  "permissions": [
   {

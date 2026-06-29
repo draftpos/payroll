@@ -1,7 +1,7 @@
 {
  "actions": [],
- "autoname": "autoincrement",
- "creation": "2025-11-01 09:46:23.813264",
+ "autoname": "ITF16-.####",
+ "creation": "2026-06-18 11:55:43.174838",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -39,60 +39,59 @@
   {
    "fieldname": "dob",
    "fieldtype": "Date",
-   "label": "DOB",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "DOB"
   },
   {
    "fieldname": "start_date",
    "fieldtype": "Data",
-   "label": "Start Date",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Start Date"
   },
   {
    "fieldname": "end_date",
    "fieldtype": "Date",
-   "label": "End Date",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "End Date"
   },
   {
    "fieldname": "gross_paye",
    "fieldtype": "Float",
-   "label": "Gross Pay",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Gross Pay"
   },
   {
    "fieldname": "basic_pension",
    "fieldtype": "Float",
-   "label": "Basic Pension",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Basic Pension"
   },
   {
    "fieldname": "payee",
    "fieldtype": "Float",
-   "label": "Payee",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Payee"
   },
   {
    "fieldname": "aids_levy",
    "fieldtype": "Float",
-   "label": "Aids Levy",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Aids Levy"
   },
   {
    "fieldname": "currency",
    "fieldtype": "Data",
-   "label": "Currency",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Currency"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-09 10:01:55.513020",
+ "modified": "2026-06-29 14:13:16.468257",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "ZIMRA ITF16",
- "naming_rule": "Autoincrement",
  "owner": "Administrator",
  "permissions": [
   {

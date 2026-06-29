@@ -123,6 +123,32 @@ frappe.ui.form.on("havano_employee", {
 	native_employee_id(frm) {
 		calculate_totals_server(frm);
 	},
+	national_id(frm) {
+		let val = frm.doc.national_id;
+		if (val) {
+			// Remove spaces and hyphens, convert to uppercase
+			val = val.replace(/[\s-]/g, '').toUpperCase();
+			
+			// Auto generate hyphen after first 2 numbers
+			if (val.length > 2) {
+				val = val.substring(0, 2) + '-' + val.substring(2);
+			}
+			
+			if (val !== frm.doc.national_id) {
+				frappe.model.set_value(frm.doctype, frm.docname, 'national_id', val);
+			}
+
+			// Validate: 2 numbers, hyphen, 6 numbers, 1 letter, 2 numbers
+			let regex = /^\d{2}-\d{6}[A-Z]\d{2}$/;
+			if (val.length >= 12 && !regex.test(val)) {
+				frappe.msgprint({
+					title: __('Invalid National ID'),
+					indicator: 'orange',
+					message: __('National ID must have 2 numbers, a hyphen, 6 numbers, a letter, and 2 numbers (e.g., 12-345678A12)')
+				});
+			}
+		}
+	},
 	overtime(frm) {
 		apply_overtime_visibility(frm);
 		calculate_totals_server(frm);
@@ -135,6 +161,19 @@ frappe.ui.form.on("havano_employee", {
 	},
 	hours_double(frm) {
 		calculate_totals_server(frm);
+	},
+	validate(frm) {
+		if (frm.doc.national_id) {
+			let regex = /^\d{2}-\d{6}[A-Z]\d{2}$/;
+			if (!regex.test(frm.doc.national_id)) {
+				frappe.msgprint({
+					title: __('Invalid National ID'),
+					indicator: 'red',
+					message: __('National ID must have 2 numbers, a hyphen, 6 numbers, a letter, and 2 numbers (e.g., 12-345678A12)')
+				});
+				frappe.validated = false;
+			}
+		}
 	}
 });
 

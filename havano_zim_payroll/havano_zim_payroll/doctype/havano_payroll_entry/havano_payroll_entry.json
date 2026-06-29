@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "autoincrement",
+ "autoname": "HPE-.####",
  "creation": "2025-10-31 07:48:19.571330",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -97,11 +97,10 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-25 10:22:30.968422",
+ "modified": "2026-06-29 14:13:16.887769",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "Havano Payroll Entry",
- "naming_rule": "Autoincrement",
  "owner": "Administrator",
  "permissions": [
   {

@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "NSSAP4-.####",
  "creation": "2025-10-29 10:21:17.720415",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -38,20 +39,20 @@
   {
    "fieldname": "start_date",
    "fieldtype": "Date",
-   "label": "Start Date",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Start Date"
   },
   {
    "fieldname": "end_date",
    "fieldtype": "Date",
-   "label": "End Date",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "End Date"
   },
   {
    "fieldname": "total_insuarable_earnings_usd",
    "fieldtype": "Float",
-   "label": "Total Insuarable Earnings (USD)",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Total Insuarable Earnings (USD)"
   },
   {
    "fieldname": "prepayments_zwg_column",
@@ -61,68 +62,68 @@
   {
    "fieldname": "total_insuarable_earnings_zwg",
    "fieldtype": "Float",
-   "label": "Total Insuarable Earnings (ZWG)",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Total Insuarable Earnings (ZWG)"
   },
   {
    "fieldname": "current_contributions_usd",
    "fieldtype": "Float",
-   "label": "Current Contribution (USD)",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Current Contribution (USD)"
   },
   {
    "fieldname": "current_contributions_zwg",
    "fieldtype": "Float",
-   "label": "Current Contribution (ZWG)",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Current Contribution (ZWG)"
   },
   {
    "fieldname": "arrears_usd",
    "fieldtype": "Float",
-   "label": "Arrears USD",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Arrears USD"
   },
   {
    "fieldname": "arrears_zwg",
    "fieldtype": "Float",
-   "label": "Arrears ZWG",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Arrears ZWG"
   },
   {
    "fieldname": "prepayments_usd",
    "fieldtype": "Float",
-   "label": "Prepayments USD",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Prepayments USD"
   },
   {
    "fieldname": "surchage_zwg",
    "fieldtype": "Float",
-   "label": "Surchage ZWG",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Surchage ZWG"
   },
   {
    "fieldname": "total_payment_usd",
    "fieldtype": "Float",
-   "label": "Total Payment USD",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Total Payment USD"
   },
   {
    "fieldname": "total_payment_zwg",
    "fieldtype": "Float",
-   "label": "Total Payment ZWG",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Total Payment ZWG"
   },
   {
    "fieldname": "surcharge_usd",
    "fieldtype": "Float",
-   "label": "Surcharge USD",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Surcharge USD"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-10-31 14:20:26.649230",
+ "modified": "2026-06-29 14:13:15.221461",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "NSSA P4 Report Store",
@@ -145,7 +146,5 @@
  "rows_threshold_for_grid_search": 20,
  "sort_field": "name",
  "sort_order": "ASC",
- "states": [],
- "autoname": "autoincrement",
- "naming_rule": "Autoincrement"
+ "states": []
 }

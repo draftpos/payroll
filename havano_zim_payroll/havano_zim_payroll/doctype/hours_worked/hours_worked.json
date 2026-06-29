@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "autoincrement",
+ "autoname": "HW-.####",
  "creation": "2025-12-29 09:10:06.769058",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -52,11 +52,10 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-12-29 09:28:30.735102",
+ "modified": "2026-06-29 14:13:17.682941",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "hours worked",
- "naming_rule": "Autoincrement",
  "owner": "Administrator",
  "permissions": [
   {

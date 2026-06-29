@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "NEC-.####",
  "creation": "2025-11-01 12:07:29.277026",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -19,62 +20,62 @@
   {
    "fieldname": "surname",
    "fieldtype": "Data",
-   "label": "Surname",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Surname"
   },
   {
    "fieldname": "first_name",
    "fieldtype": "Data",
-   "label": "First Name",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "First Name"
   },
   {
    "fieldname": "start_date",
    "fieldtype": "Date",
-   "label": "Start Date",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Start Date"
   },
   {
    "fieldname": "end_date",
    "fieldtype": "Date",
-   "label": "End Date",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "End Date"
   },
   {
    "fieldname": "grade",
    "fieldtype": "Data",
-   "label": "Grade",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Grade"
   },
   {
    "fieldname": "nec_earnings_usd",
    "fieldtype": "Float",
-   "label": "NEC Earnings (USD)",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "NEC Earnings (USD)"
   },
   {
    "fieldname": "employer_contribution_usd",
    "fieldtype": "Float",
-   "label": "Employer Contribution (USD)",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Employer Contribution (USD)"
   },
   {
    "fieldname": "employer_contribution_zwg",
    "fieldtype": "Float",
-   "label": "Employer Contribution (ZWG)",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Employer Contribution (ZWG)"
   },
   {
    "fieldname": "total_nec_usd",
    "fieldtype": "Float",
-   "label": "Total NEC (USD)",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Total NEC (USD)"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-01 12:27:03.721091",
+ "modified": "2026-06-29 14:13:16.277753",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "NEC Report",
@@ -97,7 +98,5 @@
  "rows_threshold_for_grid_search": 20,
  "sort_field": "name",
  "sort_order": "ASC",
- "states": [],
- "autoname": "autoincrement",
- "naming_rule": "Autoincrement"
+ "states": []
 }

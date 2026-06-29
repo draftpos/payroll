@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "autoincrement",
+ "autoname": "EPP-.####",
  "creation": "2025-11-13 11:07:15.090843",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -123,11 +123,10 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-11-14 11:57:08.048023",
+ "modified": "2026-06-29 14:13:17.091024",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "Employee Payment Processing",
- "naming_rule": "Autoincrement",
  "owner": "Administrator",
  "permissions": [
   {
