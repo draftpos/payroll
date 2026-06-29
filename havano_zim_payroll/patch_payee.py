@@ -9,25 +9,19 @@ def execute():
         except Exception as e:
             print(f"Error renaming component: {e}")
 
-    # 2. Update all child tables (Earnings & Deductions) across the system
-    # This covers Havano Employee and Havano Payroll Entry child tables
-    tables = [
-        "tabHavano Payroll Earnings",
-        "tabHavano Payroll Deduction",
-        "tabHavano Payroll Journal Detail"
-    ]
-    
-    for table in tables:
+    # 2. Update all tables with 'component' or 'components' columns
+    tables = frappe.db.sql("SHOW TABLES")
+    for table_tuple in tables:
+        table = table_tuple[0]
         try:
-            # Check if table exists first
-            if frappe.db.sql(f"SHOW TABLES LIKE '{table}'"):
-                # Check if it has a components column
-                cols = [c[0] for c in frappe.db.sql(f"SHOW COLUMNS FROM `{table}`")]
-                if "components" in cols:
-                    res = frappe.db.sql(f"UPDATE `{table}` SET components = 'PAYE' WHERE components = 'PAYEE'")
-                    print(f"Updated {frappe.db.rowcount} rows in {table}")
+            cols = [c[0] for c in frappe.db.sql(f"SHOW COLUMNS FROM `{table}`")]
+            for col in ["component", "components"]:
+                if col in cols:
+                    res = frappe.db.sql(f"UPDATE `{table}` SET `{col}` = 'PAYE' WHERE `{col}` = 'PAYEE'")
+                    if frappe.db.rowcount > 0:
+                        print(f"Updated {frappe.db.rowcount} rows in {table} (column: {col})")
         except Exception as e:
-            print(f"Skipping {table}: {e}")
+            pass
 
     frappe.db.commit()
     print("Database patch completed successfully.")
