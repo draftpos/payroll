@@ -1,6 +1,12 @@
 frappe.query_reports["Payroll Summary"] = {
 	"filters": [
 		{
+			"fieldname": "payroll_period",
+			"label": __("Payroll Period"),
+			"fieldtype": "Data",
+			"default": ""
+		},
+		{
 			"fieldname": "group_by",
 			"label": __("Group By"),
 			"fieldtype": "Select",

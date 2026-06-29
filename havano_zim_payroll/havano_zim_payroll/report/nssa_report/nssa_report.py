@@ -46,7 +46,7 @@ def get_data(filters):
 
 	today = date.today()
 	month_name = calendar.month_name[today.month]
-	payroll_period = f"{month_name} {today.year}"
+	payroll_period = filters.get("payroll_period") if filters and filters.get("payroll_period") else f"{month_name} {today.year}"
 
 	for emp in employees:
 		doc = frappe.get_doc("havano_employee", emp.name)

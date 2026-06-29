@@ -1,6 +1,12 @@
 frappe.query_reports["FDS PAYE Report"] = {
 	"filters": [
 		{
+			"fieldname": "payroll_period",
+			"label": __("Payroll Period"),
+			"fieldtype": "Data",
+			"default": ""
+		},
+		{
 			"fieldname":"company",
 			"label": __("Company"),
 			"fieldtype": "Link",

@@ -3,6 +3,12 @@
 
 frappe.query_reports["Nassa2"] = {
 	"filters": [
+		{
+			"fieldname": "payroll_period",
+			"label": __("Payroll Period"),
+			"fieldtype": "Data",
+			"default": ""
+		},
 
 	]
 };

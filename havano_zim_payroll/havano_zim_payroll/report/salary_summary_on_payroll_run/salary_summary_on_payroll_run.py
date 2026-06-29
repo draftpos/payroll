@@ -9,8 +9,8 @@ def execute(filters=None):
 
 	# Fetch Payroll Entries
 	entry_filters = {}
-	if filters.get("from_date") and filters.get("to_date"):
-		entry_filters["date"] = ["between", [filters.get("from_date"), filters.get("to_date")]]
+	if filters.get("payroll_period"):
+		entry_filters["payroll_period"] = filters.get("payroll_period")
 
 	if filters.get("employee"):
 		emp_doc = frappe.get_doc("havano_employee", filters.get("employee"))
@@ -50,20 +50,22 @@ def execute(filters=None):
 		key = (emp.first_name or "").strip().lower() + "|" + (emp.last_name or "").strip().lower()
 		emp_map[key] = emp
 
-	# Determine distinct components for columns
+	# Explicitly requested summary fields
+	summary_fields = ["Funeral", "Medical Aid", "Overtime"]
+	
+	# Determine distinct components for columns (exclude summary fields)
 	distinct_earnings = []
 	distinct_deductions = []
 	
-	# Explicitly requested columns
-	explicit_earnings = ["Basic Salary", "Overtime"]
-	explicit_deductions = ["Medical Aid", "Funeral", "NSSA", "PAYE", "Aids Levy"]
+	explicit_earnings = ["Basic Salary"]
+	explicit_deductions = ["NSSA", "PAYE", "Aids Levy"]
 	
 	for e in explicit_earnings:
 		if e not in distinct_earnings:
 			distinct_earnings.append(e)
 			
 	for e in earnings:
-		if e.components and e.components not in distinct_earnings:
+		if e.components and e.components not in distinct_earnings and e.components not in summary_fields:
 			distinct_earnings.append(e.components)
 
 	for d in explicit_deductions:
@@ -71,7 +73,7 @@ def execute(filters=None):
 			distinct_deductions.append(d)
 			
 	for d in deductions:
-		if d.components and d.components not in distinct_deductions:
+		if d.components and d.components not in distinct_deductions and d.components not in summary_fields:
 			distinct_deductions.append(d.components)
 
 	columns = get_columns(distinct_earnings, distinct_deductions)
@@ -86,6 +88,11 @@ def execute(filters=None):
 	for d in deductions:
 		amt = frappe.utils.flt(d.amount_usd) + frappe.utils.flt(d.amount_zwg)
 		entry_data_map[d.parent]["deductions"][d.components] = entry_data_map[d.parent]["deductions"].get(d.components, 0.0) + amt
+
+	# Calculate totals for summary cards
+	total_funeral = 0.0
+	total_medical_aid = 0.0
+	total_overtime = 0.0
 
 	for entry in payroll_entries:
 		key = (entry.first_name or "").strip().lower() + "|" + (entry.last_name or "").strip().lower()
@@ -114,10 +121,21 @@ def execute(filters=None):
 			row[frappe.scrub(comp)] = val
 			row["total_deductions"] += val
 			
+		# Accumulate summary items
+		total_funeral += entry_data_map[entry.name]["deductions"].get("Funeral", 0.0)
+		total_medical_aid += entry_data_map[entry.name]["deductions"].get("Medical Aid", 0.0)
+		total_overtime += entry_data_map[entry.name]["earnings"].get("Overtime", 0.0)
+			
 		row["net_pay"] = row["total_earnings"] - row["total_deductions"]
 		data.append(row)
 
-	return columns, data
+	report_summary = [
+		{"value": total_overtime, "indicator": "Green", "label": "Total Overtime", "datatype": "Currency"},
+		{"value": total_medical_aid, "indicator": "Blue", "label": "Total Medical Aid", "datatype": "Currency"},
+		{"value": total_funeral, "indicator": "Red", "label": "Total Funeral", "datatype": "Currency"},
+	]
+
+	return columns, data, None, None, report_summary
 
 def get_columns(earnings, deductions):
 	columns = [
