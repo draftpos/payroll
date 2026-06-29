@@ -27,6 +27,12 @@ def get_data(filters):
     if not year:
         year = frappe.utils.nowdate()[:4]
         
+    department_filter = ""
+    query_args = [year]
+    if filters and filters.get("department"):
+        department_filter = " AND EXISTS (SELECT 1 FROM `tabhavano_employee` emp WHERE emp.first_name = `tabHavano Historical PAYE`.first_name AND emp.last_name = `tabHavano Historical PAYE`.last_name AND emp.department = %s)"
+        query_args.append(filters.get("department"))
+        
     employees = {}
     
     # Fetch PAYE from the single source of truth: Havano Historical PAYE
@@ -47,9 +53,9 @@ def get_data(filters):
             month_11_usd, month_11_zwg,
             month_12_usd, month_12_zwg
         FROM `tabHavano Historical PAYE`
-        WHERE tax_year = %s
+        WHERE tax_year = %s {department_filter}
     """
-    historical_results = frappe.db.sql(historical_query, (year,), as_dict=True)
+    historical_results = frappe.db.sql(historical_query, tuple(query_args), as_dict=True)
     
     for row in historical_results:
         key = f"{row.first_name} {row.last_name}"

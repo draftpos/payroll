@@ -390,6 +390,7 @@ def run_payroll(month, year, work_date, daily, employee=None):
                             employer_contribution_usd=employer_usd,
                             employer_contribution_zwg=employer_zwg,
                             total_nec_usd=total_usd,
+                            department=emp_doc.department,
                             name=nec_rep_name
                         )
                     except Exception as e:
@@ -422,16 +423,16 @@ def run_payroll(month, year, work_date, daily, employee=None):
             sdl_name = f"SDL-{emp.name}-{month_name}-{year}"
 
             if emp_doc.salary_currency == "USD" or flt(emp_doc.total_income_usd) > 0:
-                create_nssa_p4_report_store(surname=emp_doc.last_name, first_name=emp_doc.first_name, national_id=emp_doc.national_id, payroll_period=f"{month_name} {year}", total_insuarable_earnings_zwg=0, total_insuarable_earnings_usd=emp_doc.total_taxable_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_taxable_income_usd, current_contributions_usd=nssa_usd, current_contributions_zwg=0, total_payment_usd=nssa_usd, total_payment_zwg=0, name=p4_name)
+                create_nssa_p4_report_store(surname=emp_doc.last_name, first_name=emp_doc.first_name, national_id=emp_doc.national_id, payroll_period=f"{month_name} {year}", total_insuarable_earnings_zwg=0, total_insuarable_earnings_usd=emp_doc.total_taxable_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_taxable_income_usd, current_contributions_usd=nssa_usd, current_contributions_zwg=0, total_payment_usd=nssa_usd, total_payment_zwg=0, department=emp_doc.department, name=p4_name)
                 create_zimra_p2form(employer_name="DPT", trade_name="DPT", tax_period=f"{month_name} {year}", total_renumeration=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_usd, gross_paye=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_usd, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_usd, total_tax_due=flt(emp_doc.aids_levy or 0) + flt(emp_doc.payee or 0) if emp_doc.payslip_type == "Base Currency" else flt(emp_doc.aids_levy_usd or 0) + flt(emp_doc.payee_usd or 0), currency="USD", name=p2_name)
-                create_zimra_itf16(surname=emp_doc.last_name, first_name=emp_doc.first_name, employee_id=emp_doc.name, gross_paye=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_usd, payee=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_usd, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_usd, currency="USD", dob=emp_doc.date_of_birth, start_date=emp_doc.final_confirmation_date, end_date=emp_doc.contract_end_date, name=itf16_name)
-                add_sdl_report(employee=emp_doc.name, date=f"{month_name} {year}", amount=flt(emp_doc.total_income) * 0.05, name=sdl_name)
+                create_zimra_itf16(surname=emp_doc.last_name, first_name=emp_doc.first_name, employee_id=emp_doc.name, gross_paye=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_usd, payee=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_usd, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_usd, currency="USD", dob=emp_doc.date_of_birth, start_date=emp_doc.final_confirmation_date, end_date=emp_doc.contract_end_date, department=emp_doc.department, name=itf16_name)
+                add_sdl_report(employee=emp_doc.name, date=f"{month_name} {year}", amount=flt(emp_doc.total_income) * 0.05, department=emp_doc.department, name=sdl_name)
             
             elif emp_doc.salary_currency in ["ZWL", "ZWG"] or flt(emp_doc.total_income_zwg) > 0:
-                create_nssa_p4_report_store(surname=emp_doc.last_name, first_name=emp_doc.first_name, national_id=emp_doc.national_id, payroll_period=f"{month_name} {year}", total_insuarable_earnings_zwg=emp_doc.total_taxable_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_taxable_income_zwg, total_insuarable_earnings_usd=0, current_contributions_usd=0, current_contributions_zwg=nssa_zwg, total_payment_usd=0, total_payment_zwg=nssa_zwg, name=p4_name)
+                create_nssa_p4_report_store(surname=emp_doc.last_name, first_name=emp_doc.first_name, national_id=emp_doc.national_id, payroll_period=f"{month_name} {year}", total_insuarable_earnings_zwg=emp_doc.total_taxable_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_taxable_income_zwg, total_insuarable_earnings_usd=0, current_contributions_usd=0, current_contributions_zwg=nssa_zwg, total_payment_usd=0, total_payment_zwg=nssa_zwg, department=emp_doc.department, name=p4_name)
                 create_zimra_p2form(employer_name="DPT", trade_name="DPT", tax_period=f"{month_name} {year}", total_renumeration=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_zwg, gross_paye=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_zwg, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_zwg, total_tax_due=flt(emp_doc.aids_levy or 0) + flt(emp_doc.payee or 0) if emp_doc.payslip_type == "Base Currency" else flt(emp_doc.aids_levy_zwg or 0) + flt(emp_doc.payee_zwg or 0), currency="ZWG", name=p2_name)
-                create_zimra_itf16(surname=emp_doc.last_name, first_name=emp_doc.first_name, employee_id=emp_doc.name, gross_paye=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_zwg, payee=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_zwg, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_zwg, currency="ZWG", dob=emp_doc.date_of_birth, start_date=emp_doc.final_confirmation_date, end_date=emp_doc.contract_end_date, name=itf16_name)
-                add_sdl_report(employee=emp_doc.name, date=f"{month_name} {year}", amount=flt(emp_doc.total_income) * 0.05, name=sdl_name)
+                create_zimra_itf16(surname=emp_doc.last_name, first_name=emp_doc.first_name, employee_id=emp_doc.name, gross_paye=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_zwg, payee=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_zwg, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_zwg, currency="ZWG", dob=emp_doc.date_of_birth, start_date=emp_doc.final_confirmation_date, end_date=emp_doc.contract_end_date, department=emp_doc.department, name=itf16_name)
+                add_sdl_report(employee=emp_doc.name, date=f"{month_name} {year}", amount=flt(emp_doc.total_income) * 0.05, department=emp_doc.department, name=sdl_name)
         except Exception as e:
             frappe.log_error(f"Statutory Report Error for {emp.name}: {e}")
 
@@ -790,7 +791,7 @@ def get_employee_loan(employee_id):
     return loan_doc
 
 @frappe.whitelist()
-def add_sdl_report(employee=None,date=None, amount=None, name=None):
+def add_sdl_report(employee=None,date=None, amount=None, department=None, name=None):
     """
     Adds an SDL Report record if one for the same employee and date doesn't exist.
     
@@ -816,7 +817,8 @@ def add_sdl_report(employee=None,date=None, amount=None, name=None):
         "doctype": "SDL Report",
         "employee": employee,
         "date": date,
-        "amount": amount
+        "amount": amount,
+        "department": department
     })
     if name:
         doc.name = name
@@ -1043,7 +1045,8 @@ def create_zimra_p2form(*,
             "gross_paye": gross_paye,
             "aids_levy": aids_levy,
             "total_tax_due": total_tax_due,
-            "currency": currency
+            "currency": currency,
+            "department": department
         })
         if name:
             doc.name = name
@@ -1076,6 +1079,7 @@ def create_nssa_p4_report_store(
     total_payment_usd=None,
     total_payment_zwg=None,
     prepayments_zwg_column=None,
+    department=None,
     name=None
 ):
     """Create a new record in NSSA P4 Report Store"""
@@ -1100,6 +1104,7 @@ def create_nssa_p4_report_store(
             "total_payment_usd": total_payment_usd,
             "total_payment_zwg": total_payment_zwg,
             "prepayments_zwg_column": prepayments_zwg_column,
+            "department": department,
         })
         
         if name:
@@ -1164,6 +1169,7 @@ def create_nec_report(
     employer_contribution_usd=None,
     employer_contribution_zwg=None,
     total_nec_usd=None,
+    department=None,
     name=None
 ):
     """Create a new record in NEC Report"""
@@ -1178,7 +1184,8 @@ def create_nec_report(
             "nec_earnings_usd": nec_earnings_usd,
             "employer_contribution_usd": employer_contribution_usd,
             "employer_contribution_zwg": employer_contribution_zwg,
-            "total_nec_usd": total_nec_usd
+            "total_nec_usd": total_nec_usd,
+            "department": department
         })
         
         if name:

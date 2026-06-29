@@ -26,6 +26,9 @@ def get_columns(filters=None):
 
 def get_data(filters):
 	query_filters = {"status": "Active"}
+	if filters and filters.get("department"):
+		query_filters["department"] = filters.get("department")
+
 	if filters and filters.get("employee_id"):
 		query_filters["name"] = filters.get("employee_id")
 

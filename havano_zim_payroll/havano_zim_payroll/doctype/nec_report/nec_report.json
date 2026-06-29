@@ -70,6 +70,14 @@
    "fieldtype": "Float",
    "in_list_view": 1,
    "label": "Total NEC (USD)"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Department",
+   "options": "Department"
   }
  ],
  "grid_page_length": 50,

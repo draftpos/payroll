@@ -1,6 +1,13 @@
 frappe.query_reports["NSSA Report"] = {
 	"filters": [
 		{
+			"fieldname": "department",
+			"label": __("Department"),
+			"fieldtype": "Link",
+			"options": "Department",
+			"default": ""
+		},
+		{
 			"fieldname": "payroll_period",
 			"label": __("Payroll Period"),
 			"fieldtype": "Link",

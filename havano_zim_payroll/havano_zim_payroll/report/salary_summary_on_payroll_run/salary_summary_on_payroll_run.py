@@ -44,7 +44,11 @@ def execute(filters=None):
 	)
 
 	# Fetch employees to get National ID
-	employees = frappe.get_all("havano_employee", fields=["name", "first_name", "last_name", "national_id"])
+	emp_filters = {}
+	if filters.get("department"):
+		emp_filters["department"] = filters.get("department")
+		
+	employees = frappe.get_all("havano_employee", filters=emp_filters, fields=["name", "first_name", "last_name", "national_id"])
 	emp_map = {}
 	for emp in employees:
 		key = (emp.first_name or "").strip().lower() + "|" + (emp.last_name or "").strip().lower()
@@ -98,6 +102,8 @@ def execute(filters=None):
 		key = (entry.first_name or "").strip().lower() + "|" + (entry.last_name or "").strip().lower()
 		emp = emp_map.get(key, {})
 		
+		if not emp and filters.get("department"):
+			continue
 		row = {
 			"employee": emp.get("name"),
 			"employee_name": f"{entry.first_name or ''} {entry.last_name or ''}".strip(),
