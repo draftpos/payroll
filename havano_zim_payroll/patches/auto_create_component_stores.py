@@ -1,7 +1,10 @@
 import frappe
 
 def execute():
-    components = frappe.get_all("Havano Salary Component", pluck="name")
+    try:
+        components = frappe.get_all("havano_salary_component", pluck="name")
+    except Exception:
+        return
     
     count = 0
     for comp in components:
