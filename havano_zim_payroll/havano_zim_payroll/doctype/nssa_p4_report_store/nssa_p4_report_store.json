@@ -10,6 +10,7 @@
   "surname",
   "first_name",
   "national_id",
+  "payroll_period",
   "start_date",
   "end_date",
   "total_insuarable_earnings_usd",
@@ -42,6 +43,13 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "National ID"
+  },
+  {
+   "fieldname": "payroll_period",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Payroll Period"
   },
   {
    "fieldname": "start_date",
