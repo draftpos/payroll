@@ -140,7 +140,8 @@ def run_payroll(month, year, work_date, daily, employee=None):
             "havano_employee",
             filters={"payroll_frequency": "Daily", "status": "Active"},
             fields=["name", "first_name", "last_name", "net_income", "payroll_frequency"],
-            ignore_permissions=True
+            ignore_permissions=True,
+            limit_page_length=0
         )
     else:
         # Default: Process all Active employees regardless of frequency (or you can filter for Monthly)
@@ -148,7 +149,8 @@ def run_payroll(month, year, work_date, daily, employee=None):
             "havano_employee",
             filters={"status": "Active"},
             fields=["name", "first_name", "last_name", "net_income", "payroll_frequency"],
-            ignore_permissions=True
+            ignore_permissions=True,
+            limit_page_length=0
         )
 
     if employee:
