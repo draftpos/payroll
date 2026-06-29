@@ -9,6 +9,7 @@
   "prepayments_zwg_column",
   "surname",
   "first_name",
+  "national_id",
   "start_date",
   "end_date",
   "total_insuarable_earnings_usd",
@@ -35,6 +36,12 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "First Name"
+  },
+  {
+   "fieldname": "national_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "National ID"
   },
   {
    "fieldname": "start_date",
