@@ -498,6 +498,28 @@ def run_payroll(month, year, work_date, daily, employee=None):
                 "overtime_hours": 0, # Could be calculated if hourly rate is known
                 "amount": overtime_amt
             }).insert(ignore_permissions=True)
+            # 5. Dynamic Report Stores for ALL Other Components
+            component_totals = {}
+            if hasattr(emp_doc, "employee_earnings"):
+                for e in emp_doc.employee_earnings:
+                    if e.components and "OVERTIME" not in e.components.upper():
+                        component_totals[e.components] = component_totals.get(e.components, 0) + flt(e.amount_usd) + flt(e.amount_zwg)
+                        
+            if hasattr(emp_doc, "employee_deductions"):
+                for d in emp_doc.employee_deductions:
+                    if d.components and "FUNERAL" not in d.components.upper() and "CIMAS" not in d.components.upper() and "MEDICAL" not in d.components.upper():
+                        component_totals[d.components] = component_totals.get(d.components, 0) + flt(d.amount_usd) + flt(d.amount_zwg)
+
+            for comp_name, amt in component_totals.items():
+                dt_name = f"{comp_name} Report Store"
+                if frappe.db.exists("DocType", dt_name):
+                    frappe.get_doc({
+                        "doctype": dt_name,
+                        "employee": emp.name,
+                        "department": emp_doc.department,
+                        "payroll_period": payroll_period_str,
+                        "amount": amt
+                    }).insert(ignore_permissions=True)
             
         except Exception as e:
             frappe.log_error(f"Custom Report Store Error for {emp.name}: {e}")
