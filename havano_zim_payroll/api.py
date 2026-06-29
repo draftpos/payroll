@@ -396,8 +396,16 @@ def run_payroll(month, year, work_date, daily):
                     "amount_zwg": d.amount_zwg
                 })
 
-        payroll.insert(ignore_permissions=True)
-        frappe.db.commit()
+        try:
+            payroll.insert(ignore_permissions=True)
+            frappe.db.commit()
+        except Exception as e:
+            frappe.log_error(
+                frappe.get_traceback(),
+                f"Payroll Skip - {emp.name} ({emp.get('first_name','')} {emp.get('last_name','')}) - insert error"
+            )
+            frappe.db.rollback()
+            continue
 
         # Generate Statutory Reports (ZIMRA, SDL)
         try:
