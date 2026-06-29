@@ -35,7 +35,15 @@ def fix_naming():
             if not str(rec.name).startswith(prefix):
                 new_name = make_autoname(autoname)
                 print(f"Renaming {doctype} {rec.name} to {new_name}")
-                frappe.rename_doc(doctype, rec.name, new_name, force=True)
+                try:
+                    frappe.rename_doc(doctype, rec.name, new_name, force=True)
+                except Exception as e:
+                    if "Incorrect integer value" in str(e) or "DataError" in str(type(e)):
+                        print(f"Converting name column of {doctype} to VARCHAR(140) to fix BIGINT conflict...")
+                        frappe.db.sql(f"ALTER TABLE `tab{doctype}` MODIFY name VARCHAR(140);")
+                        frappe.rename_doc(doctype, rec.name, new_name, force=True)
+                    else:
+                        raise e
                 frappe.db.commit()
     
     print("Done fixing naming for existing records.")
