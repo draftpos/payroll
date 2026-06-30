@@ -635,16 +635,17 @@ def run_payroll(month, year, work_date, daily, employee=None):
                 # Row 2: Mapped Deductions
                 mapped_total = 0
                 for k, v in data["mapped"].items():
-                    if v > 0:
+                    rounded_v = frappe.utils.flt(v, 2)
+                    if rounded_v > 0:
                         pj.append("journal_details", {
                             "detail": k,
                             "dr": 0,
-                            "cr": v
+                            "cr": rounded_v
                         })
-                        mapped_total += v
+                        mapped_total += rounded_v
                 
                 # Row 3: ZIMRA
-                zimra_total = data.get("zimra", 0)
+                zimra_total = frappe.utils.flt(data.get("zimra", 0), 2)
                 if zimra_total > 0:
                     pj.append("journal_details", {
                         "detail": "ZIMRA",
@@ -653,7 +654,7 @@ def run_payroll(month, year, work_date, daily, employee=None):
                     })
                     
                 # Row 4: Payroll Payables
-                payables = data.get("net_pay", 0)
+                payables = frappe.utils.flt(data.get("net_pay", 0), 2)
                 if payables > 0:
                     pj.append("journal_details", {
                         "detail": "Payroll Payables",
@@ -740,7 +741,15 @@ def run_payroll(month, year, work_date, daily, employee=None):
         if not comp:
             continue
             
-        total_dr = data["nssa"] + data["medical_aid"] + data["funeral_policy"] + data["lapf"] + data["nec"]
+        # Round each contribution before summing to avoid 1-cent imbalances
+        nssa_cr = frappe.utils.flt(data["nssa"], 2)
+        med_cr = frappe.utils.flt(data["medical_aid"], 2)
+        fun_cr = frappe.utils.flt(data["funeral_policy"], 2)
+        lapf_cr = frappe.utils.flt(data["lapf"], 2)
+        nec_cr = frappe.utils.flt(data["nec"], 2)
+        
+        total_dr = nssa_cr + med_cr + fun_cr + lapf_cr + nec_cr
+        
         if total_dr > 0:
             try:
                 # Remove existing journal for the same period and company
@@ -761,16 +770,16 @@ def run_payroll(month, year, work_date, daily, employee=None):
                 })
                 
                 # CR side
-                if data["nssa"] > 0:
-                    ecj.append("journal_details", {"detail": "NSSA", "dr": 0, "cr": data["nssa"]})
-                if data["medical_aid"] > 0:
-                    ecj.append("journal_details", {"detail": "Medical Aid", "dr": 0, "cr": data["medical_aid"]})
-                if data["funeral_policy"] > 0:
-                    ecj.append("journal_details", {"detail": "Funeral Policy", "dr": 0, "cr": data["funeral_policy"]})
-                if data["lapf"] > 0:
-                    ecj.append("journal_details", {"detail": "LAPF", "dr": 0, "cr": data["lapf"]})
-                if data["nec"] > 0:
-                    ecj.append("journal_details", {"detail": "NEC", "dr": 0, "cr": data["nec"]})
+                if nssa_cr > 0:
+                    ecj.append("journal_details", {"detail": "NSSA", "dr": 0, "cr": nssa_cr})
+                if med_cr > 0:
+                    ecj.append("journal_details", {"detail": "Medical Aid", "dr": 0, "cr": med_cr})
+                if fun_cr > 0:
+                    ecj.append("journal_details", {"detail": "Funeral Policy", "dr": 0, "cr": fun_cr})
+                if lapf_cr > 0:
+                    ecj.append("journal_details", {"detail": "LAPF", "dr": 0, "cr": lapf_cr})
+                if nec_cr > 0:
+                    ecj.append("journal_details", {"detail": "NEC", "dr": 0, "cr": nec_cr})
                     
                 ecj.insert(ignore_permissions=True)
                 frappe.db.commit()
