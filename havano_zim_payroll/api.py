@@ -701,33 +701,19 @@ def run_payroll(month, year, work_date, daily, employee=None):
                     
                 if not missing_account and je_entries:
                     
-                    # Custom employee_x naming
-                    jes = frappe.get_all("Journal Entry", filters={"name": ["like", "employee_%"]}, fields=["name"])
-                    max_id = 0
-                    for je_rec in jes:
-                        try:
-                            num = int(je_rec.name.replace("employee_", ""))
-                            if num > max_id:
-                                max_id = num
-                        except:
-                            pass
-                    je_name = f"employee_{max_id + 1}"
-    
-                    if frappe.db.exists("Journal Entry", je_name):
-                        frappe.delete_doc("Journal Entry", je_name, ignore_permissions=True)
+                    remark = f"Payroll Journal Entry for {month_name} {year}"
+                    existing_jes = frappe.get_all("Journal Entry", filters={"user_remark": remark, "company": comp, "docstatus": 0})
+                    for existing_je in existing_jes:
+                        frappe.delete_doc("Journal Entry", existing_je.name, ignore_permissions=True)
                         
                     je = frappe.new_doc("Journal Entry")
                     je.voucher_type = "Journal Entry"
                     je.company = comp
                     je.posting_date = work_date or nowdate()
-                    je.user_remark = f"Payroll Journal Entry for {month_name} {year}"
+                    je.user_remark = remark
                     for e in je_entries:
                         je.append("accounts", e)
                     je.insert(ignore_permissions=True)
-                    
-                    # Force rename to custom ID
-                    if je.name != je_name:
-                        frappe.rename_doc("Journal Entry", je.name, je_name, force=True, ignore_permissions=True)
                         
                     frappe.db.commit()
                     
@@ -812,33 +798,19 @@ def run_payroll(month, year, work_date, daily, employee=None):
                     
                 if not missing_account and je_entries:
                     
-                    # Custom employer_x naming
-                    jes = frappe.get_all("Journal Entry", filters={"name": ["like", "employer_%"]}, fields=["name"])
-                    max_id = 0
-                    for je_rec in jes:
-                        try:
-                            num = int(je_rec.name.replace("employer_", ""))
-                            if num > max_id:
-                                max_id = num
-                        except:
-                            pass
-                    je_name = f"employer_{max_id + 1}"
-    
-                    if frappe.db.exists("Journal Entry", je_name):
-                        frappe.delete_doc("Journal Entry", je_name, ignore_permissions=True)
+                    remark = f"Employer Contributions Journal Entry for {month_name} {year}"
+                    existing_jes = frappe.get_all("Journal Entry", filters={"user_remark": remark, "company": comp, "docstatus": 0})
+                    for existing_je in existing_jes:
+                        frappe.delete_doc("Journal Entry", existing_je.name, ignore_permissions=True)
                         
                     je = frappe.new_doc("Journal Entry")
                     je.voucher_type = "Journal Entry"
                     je.company = comp
                     je.posting_date = work_date or nowdate()
-                    je.user_remark = f"Employer Contributions Journal Entry for {month_name} {year}"
+                    je.user_remark = remark
                     for e in je_entries:
                         je.append("accounts", e)
                     je.insert(ignore_permissions=True)
-                    
-                    # Force rename to custom ID
-                    if je.name != je_name:
-                        frappe.rename_doc("Journal Entry", je.name, je_name, force=True, ignore_permissions=True)
                         
                     frappe.db.commit()
                     
@@ -1469,6 +1441,7 @@ def cancel_payroll_func(month, year, reason):
     delete_nassa_reports_for_period(payroll_period_str)
     delete_salary_summary_for_period(payroll_period_str)
     delete_havano_payroll_entries(payroll_period_str)
+    delete_journal_entries_for_period(payroll_period_str)
 
     return f"{len(payroll_entries)} payroll entries for {month} {year} with reason: {reason}."
 
@@ -1695,6 +1668,38 @@ def delete_havano_payroll_entries(period_str):
         title="Havano Payroll Delete Success",
         message=f"Deleted {deleted} Havano Payroll Entry records for period {period_str}"
     )
+
+def delete_journal_entries_for_period(period_str):
+    """
+    Deletes Journal Entries, Havano Payroll Journals, and Employer Contribution Journals for a given period string.
+    """
+    # 1. Delete Journal Entries
+    jes = frappe.get_all("Journal Entry", filters={"user_remark": ["like", f"%{period_str}%"]}, pluck="name")
+    deleted_jes = 0
+    for name in jes:
+        try:
+            frappe.delete_doc("Journal Entry", name, force=1, ignore_permissions=True)
+            deleted_jes += 1
+        except Exception:
+            frappe.log_error(title="JE Delete Failed", message=frappe.get_traceback())
+
+    # 2. Delete Havano Payroll Journal
+    pjs = frappe.get_all("Havano Payroll Journal", filters={"payroll_period": period_str}, pluck="name")
+    for name in pjs:
+        try:
+            frappe.delete_doc("Havano Payroll Journal", name, force=1, ignore_permissions=True)
+        except Exception:
+            pass
+            
+    # 3. Delete Havano Employer Contributions Journal
+    ecjs = frappe.get_all("Havano Employer Contributions Journal", filters={"payroll_period": period_str}, pluck="name")
+    for name in ecjs:
+        try:
+            frappe.delete_doc("Havano Employer Contributions Journal", name, force=1, ignore_permissions=True)
+        except Exception:
+            pass
+
+    frappe.log_error(title="Journal Entries Delete Success", message=f"Deleted {deleted_jes} Journal Entries for period {period_str}")
 import frappe
 from frappe.utils import flt
 import os
