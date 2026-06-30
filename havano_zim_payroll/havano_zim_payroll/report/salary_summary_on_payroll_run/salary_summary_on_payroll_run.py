@@ -32,14 +32,14 @@ def execute(filters=None):
 	# Fetch Earnings
 	earnings = frappe.get_all(
 		"havano_payroll_earnings",
-		filters={"parent": ["in", entry_names], "parenttype": "Havano Payroll Entry"},
+		filters={"parent": ["in", entry_names], "parenttype": "Havano Payroll Entry", "parentfield": "employee_earnings"},
 		fields=["parent", "components", "amount_usd", "amount_zwg"]
 	)
 
 	# Fetch Deductions
 	deductions = frappe.get_all(
-		"havano_payroll_deductions",
-		filters={"parent": ["in", entry_names], "parenttype": "Havano Payroll Entry"},
+		"havano_payroll_earnings",
+		filters={"parent": ["in", entry_names], "parenttype": "Havano Payroll Entry", "parentfield": "employee_deductions"},
 		fields=["parent", "components", "amount_usd", "amount_zwg"]
 	)
 

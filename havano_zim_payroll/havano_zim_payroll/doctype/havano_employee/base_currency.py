@@ -461,7 +461,7 @@ def ensure_deductions(self):
 
                 if always_calc:
                     # Check DB directly in case row exists but was dropped from in-memory doc
-                    existing_name = frappe.db.get_value("havano_payroll_deductions", {
+                    existing_name = frappe.db.get_value("havano_payroll_earnings", {
                         "parent": self.name,
                         "parentfield": "employee_deductions",
                         "components": comp_name
