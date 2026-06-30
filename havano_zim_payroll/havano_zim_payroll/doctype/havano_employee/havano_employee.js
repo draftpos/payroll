@@ -138,13 +138,13 @@ frappe.ui.form.on("havano_employee", {
 				frappe.model.set_value(frm.doctype, frm.docname, 'national_id', val);
 			}
 
-			// Validate: 2 numbers, hyphen, 6 numbers, 1 letter, 2 numbers
-			let regex = /^\d{2}-\d{6}[A-Z]\d{2}$/;
+			// Validate: 2 numbers, hyphen, 6-12 numbers, 1 letter, 2 numbers
+			let regex = /^\d{2}-\d{6,12}[A-Z]\d{2}$/;
 			if (val.length >= 12 && !regex.test(val)) {
 				frappe.msgprint({
 					title: __('Invalid National ID'),
 					indicator: 'orange',
-					message: __('National ID must have 2 numbers, a hyphen, 6 numbers, a letter, and 2 numbers (e.g., 12-345678A12)')
+					message: __('National ID must have 2 numbers, a hyphen, 6 to 12 numbers, a letter, and 2 numbers (e.g., 12-345678A12)')
 				});
 			}
 		}
@@ -164,12 +164,12 @@ frappe.ui.form.on("havano_employee", {
 	},
 	validate(frm) {
 		if (frm.doc.national_id) {
-			let regex = /^\d{2}-\d{6}[A-Z]\d{2}$/;
+			let regex = /^\d{2}-\d{6,12}[A-Z]\d{2}$/;
 			if (!regex.test(frm.doc.national_id)) {
 				frappe.msgprint({
 					title: __('Invalid National ID'),
 					indicator: 'red',
-					message: __('National ID must have 2 numbers, a hyphen, 6 numbers, a letter, and 2 numbers (e.g., 12-345678A12)')
+					message: __('National ID must have 2 numbers, a hyphen, 6 to 12 numbers, a letter, and 2 numbers (e.g., 12-345678A12)')
 				});
 				frappe.validated = false;
 			}
