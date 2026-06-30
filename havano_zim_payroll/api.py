@@ -693,6 +693,8 @@ def run_payroll(month, year, work_date, daily, employee=None):
                         "account": acc_gl,
                         "debit_in_account_currency": row.dr,
                         "credit_in_account_currency": row.cr,
+                        "debit": row.dr,
+                        "credit": row.cr,
                         "cost_center": setting_cost_center
                     })
                     
@@ -794,6 +796,8 @@ def run_payroll(month, year, work_date, daily, employee=None):
                         "account": acc_gl,
                         "debit_in_account_currency": row.dr,
                         "credit_in_account_currency": row.cr,
+                        "debit": row.dr,
+                        "credit": row.cr,
                         "cost_center": setting_cost_center
                     })
                     
