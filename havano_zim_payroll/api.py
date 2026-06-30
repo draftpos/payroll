@@ -729,7 +729,9 @@ def run_payroll(month, year, work_date, daily, employee=None):
                     je.insert(ignore_permissions=True)
                     
                     if je.name != je_name:
-                        frappe.rename_doc("Journal Entry", je.name, je_name, force=True, ignore_permissions=True)
+                        frappe.flags.ignore_permissions = True
+                        frappe.rename_doc("Journal Entry", je.name, je_name, force=True)
+                        frappe.flags.ignore_permissions = False
                         
                     frappe.db.commit()
                     
@@ -842,7 +844,9 @@ def run_payroll(month, year, work_date, daily, employee=None):
                     je.insert(ignore_permissions=True)
                     
                     if je.name != je_name:
-                        frappe.rename_doc("Journal Entry", je.name, je_name, force=True, ignore_permissions=True)
+                        frappe.flags.ignore_permissions = True
+                        frappe.rename_doc("Journal Entry", je.name, je_name, force=True)
+                        frappe.flags.ignore_permissions = False
                         
                     frappe.db.commit()
                     
