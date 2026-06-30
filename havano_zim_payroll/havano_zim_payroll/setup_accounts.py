@@ -37,7 +37,7 @@ def create_accounts_and_components():
                             "parent_account": parent_account,
                             "company": company.name,
                             "is_group": 0,
-                            "account_type": "Current Liability"
+                            "account_type": "Payable"
                         })
                         acc.insert(ignore_permissions=True)
                     except Exception as e:
