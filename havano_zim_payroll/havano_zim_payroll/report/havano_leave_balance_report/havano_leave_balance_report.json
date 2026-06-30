@@ -9,8 +9,9 @@
  "filters": [],
  "idx": 0,
  "is_standard": "Yes",
- "letter_head": null,
- "modified": "2026-06-30 12:14:27.253164",
+ "javascript": "\nfrappe.query_reports[\"Havano Leave Balance Report\"] = {\n    \"filters\": [\n        {\n            \"fieldname\": \"to_date\",\n            \"label\": __(\"To Date\"),\n            \"fieldtype\": \"Date\",\n            \"default\": frappe.datetime.get_today(),\n            \"reqd\": 1\n        }\n    ]\n};\n",
+ "letterhead": null,
+ "modified": "2026-06-30 13:31:18.606951",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
  "name": "Havano Leave Balance Report",
@@ -18,6 +19,7 @@
  "prepared_report": 0,
  "ref_doctype": "Havano Leave Ledger Entry",
  "report_name": "Havano Leave Balance Report",
+ "report_script": "\nimport frappe\nfrom frappe import _\n\ndef execute(filters=None):\n    columns = [\n        {\"fieldname\": \"employee\", \"label\": \"Employee\", \"fieldtype\": \"Link\", \"options\": \"havano_employee\", \"width\": 200},\n        {\"fieldname\": \"employee_name\", \"label\": \"Employee Name\", \"fieldtype\": \"Data\", \"width\": 200},\n        {\"fieldname\": \"balance\", \"label\": \"Historical Balance\", \"fieldtype\": \"Float\", \"width\": 150}\n    ]\n\n    data = []\n    \n    # Get ALL employees using a massive limit\n    employees = frappe.get_all(\"havano_employee\", fields=[\"name\", \"employee_name\"], limit=1000000)\n    \n    to_date = filters.get(\"to_date\")\n    if not to_date:\n        to_date = frappe.utils.today()\n        \n    for emp in employees:\n        latest_entry = frappe.get_all(\n            \"Havano Leave Ledger Entry\",\n            filters={\"employee\": emp.name, \"posting_date\": [\"<=\", to_date]},\n            fields=[\"balance_after_transaction\"],\n            order_by=\"posting_date desc, creation desc\",\n            limit=1\n        )\n        \n        balance = latest_entry[0].balance_after_transaction if latest_entry else 0.0\n        \n        data.append({\n            \"employee\": emp.name,\n            \"employee_name\": emp.employee_name,\n            \"balance\": balance\n        })\n        \n    return columns, data\n",
  "report_type": "Script Report",
  "roles": [
   {
