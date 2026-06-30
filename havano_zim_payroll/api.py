@@ -706,14 +706,30 @@ def run_payroll(month, year, work_date, daily, employee=None):
                     for existing_je in existing_jes:
                         frappe.delete_doc("Journal Entry", existing_je.name, ignore_permissions=True)
                         
+                    # Calculate Custom Name
+                    jes = frappe.get_all("Journal Entry", filters={"name": ["like", "EmployeeJournal-%"]}, fields=["name"])
+                    max_id = 0
+                    for je_rec in jes:
+                        try:
+                            num = int(je_rec.name.replace("EmployeeJournal-", ""))
+                            if num > max_id:
+                                max_id = num
+                        except:
+                            pass
+                    je_name = f"EmployeeJournal-{str(max_id + 1).zfill(4)}"
+                        
                     je = frappe.new_doc("Journal Entry")
                     je.voucher_type = "Journal Entry"
                     je.company = comp
                     je.posting_date = work_date or nowdate()
                     je.user_remark = remark
+                    je.title = f"Payroll Journal - {month_name} {year}"
                     for e in je_entries:
                         je.append("accounts", e)
                     je.insert(ignore_permissions=True)
+                    
+                    if je.name != je_name:
+                        frappe.rename_doc("Journal Entry", je.name, je_name, force=True, ignore_permissions=True)
                         
                     frappe.db.commit()
                     
@@ -803,14 +819,30 @@ def run_payroll(month, year, work_date, daily, employee=None):
                     for existing_je in existing_jes:
                         frappe.delete_doc("Journal Entry", existing_je.name, ignore_permissions=True)
                         
+                    # Calculate Custom Name
+                    jes = frappe.get_all("Journal Entry", filters={"name": ["like", "EmployerJournal-%"]}, fields=["name"])
+                    max_id = 0
+                    for je_rec in jes:
+                        try:
+                            num = int(je_rec.name.replace("EmployerJournal-", ""))
+                            if num > max_id:
+                                max_id = num
+                        except:
+                            pass
+                    je_name = f"EmployerJournal-{str(max_id + 1).zfill(4)}"
+                        
                     je = frappe.new_doc("Journal Entry")
                     je.voucher_type = "Journal Entry"
                     je.company = comp
                     je.posting_date = work_date or nowdate()
                     je.user_remark = remark
+                    je.title = f"Employer Contributions - {month_name} {year}"
                     for e in je_entries:
                         je.append("accounts", e)
                     je.insert(ignore_permissions=True)
+                    
+                    if je.name != je_name:
+                        frappe.rename_doc("Journal Entry", je.name, je_name, force=True, ignore_permissions=True)
                         
                     frappe.db.commit()
                     
