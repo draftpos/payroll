@@ -56,9 +56,7 @@ def main(self):
         amount = flt(e.amount_usd) if default_currency == "USD" else flt(e.amount_zwg)
         
 
-        # Always read is_tax_applicable from component master (row value can be stale)
-        is_taxable = cint(frappe.db.get_value("havano_salary_component", e.components, "is_tax_applicable") or 0)
-        e.is_tax_applicable = is_taxable  # Sync back so UI reflects correctly
+        is_taxable = cint(getattr(e, "is_tax_applicable", 0))
 
         # Motoring Benefit Logic
         if e.components.upper() == "MOTORING BENEFIT":
