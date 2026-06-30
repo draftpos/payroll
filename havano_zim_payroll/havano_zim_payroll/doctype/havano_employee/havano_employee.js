@@ -224,15 +224,17 @@ function calculate_totals_server(frm) {
 
 function _calculate_totals_server_now(frm) {
 	if (frm.doc.company) {
-		// ── STEP 1: Snapshot is_tax_applicable for ALL rows BEFORE server call ──
-		let tax_snapshot = {};
+		// ── STEP 1: Snapshot state for ALL rows BEFORE server call ──
+		let snapshot = {};
 		["employee_earnings", "employee_deductions"].forEach(function(table) {
 			(frm.doc[table] || []).forEach(function(row) {
-				// Prefer locals[] (what user currently sees) over frm.doc
-				let live = (locals[row.doctype] && locals[row.doctype][row.name])
-					? locals[row.doctype][row.name].is_tax_applicable
-					: row.is_tax_applicable;
-				tax_snapshot[row.name] = live ? 1 : 0;
+				let l = (locals[row.doctype] && locals[row.doctype][row.name]) ? locals[row.doctype][row.name] : row;
+				snapshot[row.name] = {
+					is_tax_applicable: l.is_tax_applicable ? 1 : 0,
+					amount_usd: l.amount_usd,
+					amount_zwg: l.amount_zwg,
+					components: l.components
+				};
 			});
 		});
 
@@ -275,7 +277,7 @@ function _calculate_totals_server_now(frm) {
 						}
 					});
 
-					// ── STEP 4: Sync child tables, restoring is_tax_applicable from snapshot ──
+					// ── STEP 4: Sync child tables, avoiding race conditions ──
 					["employee_earnings", "employee_deductions"].forEach(function(table) {
 						if (r.message[table]) {
 							let server_rows = r.message[table];
@@ -304,14 +306,11 @@ function _calculate_totals_server_now(frm) {
 							let server_names = server_rows.map(row => row.name).filter(Boolean);
 
 							// Remove rows not present in server response
-							// BUT only remove rows that have a real DB name AND are not matched by component name in server rows
 							let server_components = server_rows.map(r => (r.components || "").toUpperCase());
 							let i = frm.doc[table].length;
 							while (i--) {
 								let cur = frm.doc[table][i];
-								// If row has a DB name and server didn't return it, remove it
 								if (cur.name && !cur.name.startsWith('new-') && !server_names.includes(cur.name)) {
-									// Double-check: server might have returned this component without a name (newly injected)
 									let comp_upper = (cur.components || "").toUpperCase();
 									if (!server_components.includes(comp_upper)) {
 										frappe.model.clear_doc(cur.doctype, cur.name);
@@ -326,25 +325,46 @@ function _calculate_totals_server_now(frm) {
 									: null;
 
 								if (existing) {
-									// ── KEY FIX: use pre-call snapshot, not locals[] (already stale) ──
-									let preserved_tax = (tax_snapshot[existing.name] !== undefined)
-										? tax_snapshot[existing.name]
+									let snap = snapshot[existing.name] || {};
+									
+									// Anti-Race Condition: If server just echoed what we sent, DO NOT overwrite it.
+									// This allows the user's actively typing keystrokes (which changed the local value while in-flight) to survive.
+									if (row_data.amount_usd === snap.amount_usd) delete row_data.amount_usd;
+									if (row_data.amount_zwg === snap.amount_zwg) delete row_data.amount_zwg;
+									if (row_data.components === snap.components) delete row_data.components;
+
+									let preserved_tax = (snap.is_tax_applicable !== undefined)
+										? snap.is_tax_applicable
 										: (row_data.is_tax_applicable ? 1 : 0);
 
 									Object.assign(existing, row_data);
 									existing.is_tax_applicable = preserved_tax;
 
-									// Also restore in locals[] so the grid shows correctly
 									if (locals[existing.doctype] && locals[existing.doctype][existing.name]) {
 										locals[existing.doctype][existing.name].is_tax_applicable = preserved_tax;
 									}
 								} else {
-									let new_row = frappe.model.add_child(frm.doc, table);
-									delete row_data.name;
-									Object.assign(new_row, row_data);
-									new_row.is_tax_applicable = new_row.is_tax_applicable ? 1 : 0;
-									// New rows: also put in snapshot for future calls
-									tax_snapshot[new_row.name] = new_row.is_tax_applicable;
+									// It's not in local anymore. Did we send it?
+									let was_sent = false;
+									if (row_data.name && snapshot[row_data.name]) {
+										was_sent = true;
+									}
+									
+									if (!was_sent) {
+										// Server generated a brand new row (e.g. NSSA, Overtime Double)
+										let new_row = frappe.model.add_child(frm.doc, table);
+										delete row_data.name;
+										Object.assign(new_row, row_data);
+										new_row.is_tax_applicable = new_row.is_tax_applicable ? 1 : 0;
+										
+										// Add to snapshot for future calls
+										snapshot[new_row.name] = {
+											is_tax_applicable: new_row.is_tax_applicable,
+											amount_usd: new_row.amount_usd,
+											amount_zwg: new_row.amount_zwg,
+											components: new_row.components
+										};
+									}
 								}
 							});
 
