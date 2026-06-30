@@ -655,10 +655,16 @@ def apply_cash_in_lieu(self, basic_salary, default_currency):
 
     days_to_sell = flt(getattr(self, "leave_days_to_sell", 0.0)) or 0.0
 
+    cil_comp_name = frappe.db.get_value("havano_salary_component", {"salary_component": ["like", "Cash in lieu%"]}, "salary_component")
+    if not cil_comp_name:
+        cil_comp_name = frappe.db.get_value("havano_salary_component", {"salary_component": ["like", "Cash in leau%"]}, "salary_component")
+    if not cil_comp_name:
+        cil_comp_name = "Cash in Lieu of Leave"
+
     # Find existing cash in lieu row
     existing_row = None
     for e in self.employee_earnings:
-        if (e.components or "").upper() == "CASH IN LIEU OF LEAVE":
+        if (e.components or "").upper() == cil_comp_name.upper():
             existing_row = e
             break
 
@@ -685,9 +691,9 @@ def apply_cash_in_lieu(self, basic_salary, default_currency):
         existing_row.amount_usd = amount_usd
         existing_row.amount_zwg = amount_zwg
     else:
-        is_tax = frappe.db.get_value("havano_salary_component", "cash in lieu of leave", "is_tax_applicable") or 0
+        is_tax = frappe.db.get_value("havano_salary_component", cil_comp_name, "is_tax_applicable") or 0
         self.append("employee_earnings", {
-            "components": "cash in lieu of leave",
+            "components": cil_comp_name,
             "amount_usd": amount_usd,
             "amount_zwg": amount_zwg,
             "is_tax_applicable": is_tax
