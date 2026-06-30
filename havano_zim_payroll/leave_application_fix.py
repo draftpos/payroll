@@ -17,6 +17,21 @@ def on_submit(doc, method=None):
         if balance:
             new_balance = (balance.leave_balance or 0) - total_days
             frappe.db.set_value("Havano Leave Balances", balance.name, "leave_balance", new_balance)
+            
+            # Create Ledger Entry
+            try:
+                ledger = frappe.new_doc("Havano Leave Ledger Entry")
+                ledger.employee = doc.employee
+                ledger.posting_date = getattr(doc, "posting_date", None) or frappe.utils.today()
+                ledger.transaction_type = "Leave Application"
+                ledger.transaction_name = doc.name
+                ledger.days_added = 0.0
+                ledger.days_deducted = total_days
+                ledger.balance_after_transaction = new_balance
+                ledger.insert(ignore_permissions=True)
+            except Exception as e:
+                frappe.log_error(f"Failed to create Havano Leave Ledger Entry: {str(e)}", "Leave Ledger Error")
+
             frappe.msgprint(_("Havano Leave Balance updated. New balance: {0}").format(new_balance))
 
 def before_insert(doc, method=None):
@@ -47,6 +62,21 @@ def on_cancel(doc, method=None):
         if balance:
             new_balance = (balance.leave_balance or 0) + total_days
             frappe.db.set_value("Havano Leave Balances", balance.name, "leave_balance", new_balance)
+            
+            # Create Ledger Entry for Reversal
+            try:
+                ledger = frappe.new_doc("Havano Leave Ledger Entry")
+                ledger.employee = doc.employee
+                ledger.posting_date = getattr(doc, "posting_date", None) or frappe.utils.today()
+                ledger.transaction_type = "Leave Reversal"
+                ledger.transaction_name = f"Cancelled: {doc.name}"
+                ledger.days_added = total_days
+                ledger.days_deducted = 0.0
+                ledger.balance_after_transaction = new_balance
+                ledger.insert(ignore_permissions=True)
+            except Exception as e:
+                frappe.log_error(f"Failed to create Havano Leave Ledger Entry: {str(e)}", "Leave Ledger Error")
+
             frappe.msgprint(_("Havano Leave Balance restored. New balance: {0}").format(new_balance))
 
 def validate_leave_balance(doc, method=None):
