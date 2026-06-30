@@ -938,6 +938,21 @@ def add_sdl_report(employee=None,date=None, amount=None, department=None, name=N
     return f"SDL Report created: {doc.name}"
 
 
+def create_havano_leave_ledger_entry(employee, transaction_type, transaction_name, days_added, days_deducted, balance):
+    try:
+        from frappe.utils import nowdate
+        doc = frappe.new_doc("Havano Leave Ledger Entry")
+        doc.employee = employee
+        doc.posting_date = nowdate()
+        doc.transaction_type = transaction_type
+        doc.transaction_name = transaction_name
+        doc.days_added = days_added
+        doc.days_deducted = days_deducted
+        doc.balance_after_transaction = balance
+        doc.insert(ignore_permissions=True)
+    except Exception as e:
+        frappe.log_error(title="Leave Ledger Entry Failed", message=frappe.get_traceback())
+
 @frappe.whitelist()
 def update_employee_annual_leave(employee, days_to_add=2.5, payroll_period=None):
     """
@@ -972,6 +987,7 @@ def update_employee_annual_leave(employee, days_to_add=2.5, payroll_period=None)
         # Add to total_days
         new_total = (existing_allocation.get("total_days") or 0) + float(days_to_add)
         frappe.db.set_value("Havano Annual Leave Allocation", existing_allocation.get("name"), "total_days", new_total)
+        create_havano_leave_ledger_entry(employee, "Leave Allocation", payroll_period, float(days_to_add), 0.0, new_total)
         frappe.db.commit()
         return new_total
     else:
@@ -983,6 +999,7 @@ def update_employee_annual_leave(employee, days_to_add=2.5, payroll_period=None)
             "payment_period": payroll_period
         })
         new_doc.insert(ignore_permissions=True)
+        create_havano_leave_ledger_entry(employee, "Leave Allocation", payroll_period, float(days_to_add), 0.0, float(days_to_add))
         frappe.db.commit()
         return new_doc.total_days
 
@@ -1486,7 +1503,9 @@ def reverse_leave_for_employee(employee, days_to_deduct=2.5):
     allocation = frappe.db.get_value("Havano Annual Leave Allocation", {"employee": employee}, "name")
     if allocation:
         current_alloc = flt(frappe.db.get_value("Havano Annual Leave Allocation", allocation, "total_days") or 0)
-        frappe.db.set_value("Havano Annual Leave Allocation", allocation, "total_days", current_alloc - days_to_deduct)
+        new_bal = current_alloc - days_to_deduct
+        frappe.db.set_value("Havano Annual Leave Allocation", allocation, "total_days", new_bal)
+        create_havano_leave_ledger_entry(employee, "Leave Reversal", "Payroll Cancelled", 0.0, float(days_to_deduct), new_bal)
 
     # 2. Deduct from Havano Leave Balances
     actual_leave_type = "Annual Leave"
