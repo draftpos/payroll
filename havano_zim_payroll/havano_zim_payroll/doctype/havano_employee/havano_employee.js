@@ -230,7 +230,7 @@ function _calculate_totals_server_now(frm) {
 			(frm.doc[table] || []).forEach(function(row) {
 				let l = (locals[row.doctype] && locals[row.doctype][row.name]) ? locals[row.doctype][row.name] : row;
 				snapshot[row.name] = {
-					is_tax_applicable: l.is_tax_applicable ? 1 : 0,
+					is_tax_applicable: cint(l.is_tax_applicable),
 					amount_usd: l.amount_usd,
 					amount_zwg: l.amount_zwg,
 					components: l.components
@@ -243,7 +243,7 @@ function _calculate_totals_server_now(frm) {
 			(frm.doc[table] || []).forEach(function(row) {
 				if (locals[row.doctype] && locals[row.doctype][row.name]) {
 					let l = locals[row.doctype][row.name];
-					row.is_tax_applicable = l.is_tax_applicable;
+					row.is_tax_applicable = cint(l.is_tax_applicable);
 					if (l.amount_usd !== undefined) row.amount_usd = l.amount_usd;
 					if (l.amount_zwg !== undefined) row.amount_zwg = l.amount_zwg;
 					if (l.components !== undefined) row.components = l.components;
@@ -335,7 +335,7 @@ function _calculate_totals_server_now(frm) {
 
 									let preserved_tax = (snap.is_tax_applicable !== undefined)
 										? snap.is_tax_applicable
-										: (row_data.is_tax_applicable ? 1 : 0);
+										: cint(row_data.is_tax_applicable);
 
 									Object.assign(existing, row_data);
 									existing.is_tax_applicable = preserved_tax;
@@ -355,7 +355,7 @@ function _calculate_totals_server_now(frm) {
 										let new_row = frappe.model.add_child(frm.doc, table);
 										delete row_data.name;
 										Object.assign(new_row, row_data);
-										new_row.is_tax_applicable = new_row.is_tax_applicable ? 1 : 0;
+										new_row.is_tax_applicable = cint(new_row.is_tax_applicable);
 										
 										// Add to snapshot for future calls
 										snapshot[new_row.name] = {
