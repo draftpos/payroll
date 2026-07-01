@@ -143,8 +143,7 @@ def calculate_fds_tax(employee_id, first_name, last_name, current_taxable_income
         
         if slip_ytd and slip_ytd[0][0]:
             ytd_taxable_income = flt(slip_ytd[0][0])
-            print(f"
-✅ FDS: Found YTD Taxable Income from Salary Slips: {ytd_taxable_income}")
+            print(f"✅ FDS: Found YTD Taxable Income from Salary Slips: {ytd_taxable_income}")
         else:
             ytd_taxable_income = current_taxable_income * (current_month_num - 1)
 

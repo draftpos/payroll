@@ -174,6 +174,32 @@ def run_payroll(month, year, work_date, daily, employee=None):
         _, end_date = get_month_range(year, month_int)
         work_date = end_date
 
+    # Ensure Payroll Period exists to avoid LinkValidationError
+    period_name = f"{month_name} {year}"
+    if not frappe.db.exists("Payroll Period", period_name):
+        try:
+            start_dt, end_dt = get_month_range(year, month_int)
+            company = frappe.defaults.get_user_default("Company")
+            if not company:
+                company_doc = frappe.get_all("Company", limit=1)
+                if company_doc:
+                    company = company_doc[0].name
+            
+            p_doc = frappe.new_doc("Payroll Period")
+            # For ERPNext standard Payroll Period
+            p_doc.name = period_name
+            # In case it has a specific field for name like payroll_period_name
+            if p_doc.meta.has_field("payroll_period_name"):
+                p_doc.payroll_period_name = period_name
+            p_doc.start_date = start_dt
+            p_doc.end_date = end_dt
+            if company and p_doc.meta.has_field("company"):
+                p_doc.company = company
+            p_doc.insert(ignore_permissions=True)
+            frappe.db.commit()
+        except Exception as e:
+            frappe.log_error(f"Failed to auto-create Payroll Period {period_name}: {e}", "Payroll Period Creation")
+
     # Initialize default account for SDL report/invoice
     basic_comp_accounts = get_basic_salary_component()
     acc = basic_comp_accounts[0] if basic_comp_accounts else None
