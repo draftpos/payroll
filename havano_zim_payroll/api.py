@@ -99,7 +99,7 @@ def add_basic_hourly(employee_id, amount):
     return f"Basic Salary updated for {employee_id}"
 
 @frappe.whitelist()
-def run_payroll(month, year, work_date, daily, employee=None):
+def run_payroll(month, year, work_date=None, daily=0, employee=None):
     settin=get_payroll_settings()
     setting_cost_center=settin["cost_center"]
     setting_supplier=settin["supplier"]
