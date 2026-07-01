@@ -175,16 +175,22 @@ def run_payroll(month, year, work_date, daily, employee=None):
         work_date = end_date
 
     # Ensure Payroll Period exists to avoid LinkValidationError
-    period_name = f"{month_name} {year}"
-    if not frappe.db.exists("Payroll Period", period_name):
+    start_dt, end_dt = get_month_range(year, month_int)
+    company = frappe.defaults.get_user_default("Company")
+    if not company:
+        company_doc = frappe.get_all("Company", limit=1)
+        if company_doc:
+            company = company_doc[0].name
+
+    period_name = frappe.db.get_value("Payroll Period", {
+        "start_date": start_dt,
+        "end_date": end_dt,
+        "company": company
+    }, "name")
+
+    if not period_name:
+        period_name = f"{month_name} {year}"
         try:
-            start_dt, end_dt = get_month_range(year, month_int)
-            company = frappe.defaults.get_user_default("Company")
-            if not company:
-                company_doc = frappe.get_all("Company", limit=1)
-                if company_doc:
-                    company = company_doc[0].name
-            
             p_doc = frappe.new_doc("Payroll Period")
             # For ERPNext standard Payroll Period
             p_doc.name = period_name
@@ -198,7 +204,10 @@ def run_payroll(month, year, work_date, daily, employee=None):
             p_doc.insert(ignore_permissions=True)
             frappe.db.commit()
         except Exception as e:
-            frappe.log_error(f"Failed to auto-create Payroll Period {period_name}: {e}", "Payroll Period Creation")
+            frappe.log_error(
+                message=f"Failed to auto-create Payroll Period {period_name}: {e}",
+                title="Payroll Period Creation Error"
+            )
 
     # Initialize default account for SDL report/invoice
     basic_comp_accounts = get_basic_salary_component()
@@ -295,7 +304,7 @@ def run_payroll(month, year, work_date, daily, employee=None):
         payroll = frappe.new_doc("Havano Payroll Entry")
         payroll.first_name = emp_doc.first_name
         payroll.last_name = emp_doc.last_name
-        payroll.payroll_period = f"{month_name} {year}"
+        payroll.payroll_period = period_name
         payroll.date = work_date or nowdate()
         payroll.payroll_frequency=emp_doc.payroll_frequency
         nssa_usd=0
