@@ -156,12 +156,12 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
     if employee:
         employees = [e for e in employees if e.name == employee]
 
-    frappe.log_error(f"Found {len(employees)} active employees for payroll run (Daily={daily})", "Payroll Debug")
+    frappe.log_error(title="Payroll Debug", message=f"Found {len(employees)} active employees for payroll run (Daily={daily})")
     if not employees:
-        frappe.log_error("No employees found for payroll run", "Payroll Error")
+        frappe.log_error(title="Payroll Error", message="No employees found for payroll run")
         return "No employees found."
     
-    frappe.log_error(f"Starting payroll run for {len(employees)} employees", "Payroll Progress")
+    frappe.log_error(title="Payroll Progress", message=f"Starting payroll run for {len(employees)} employees")
     total_net_salary_now=0
     total_sdl=0
     total_loan = 0
@@ -212,7 +212,7 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
     acc = basic_comp_accounts[0] if basic_comp_accounts else None
     
     if not acc:
-        frappe.log_error("Basic Salary component accounting is not configured. Cannot create invoices.", "Payroll Configuration Error")
+        frappe.log_error(title="Payroll Configuration Error", message="Basic Salary component accounting is not configured. Cannot create invoices.")
 
     for emp in employees:
         frappe.logger().info(f"Processing payroll for: {emp.name}")
@@ -401,7 +401,7 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                         nssa_rep_name = f"NSSA-EMP-{emp.name}-{month_name}-{year}"
                         create_payroll_report(emp_doc.first_name,emp_doc.last_name, d.amount_zwg,0,d.amount_usd,0,period_name,emp_doc.wcif_usd,emp_doc.wcif_zwg, nssa_rep_name)
                     except Exception as e:
-                        frappe.log_error(f"NSSA Report Error for {emp.name}: {e}")
+                        frappe.log_error(title="Payroll Error", message=f"NSSA Report Error for {emp.name}: {e}")
                     nssa_usd = d.amount_usd
                     nssa_zwg = d.amount_zwg
 
@@ -427,7 +427,7 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                             name=nec_rep_name
                         )
                     except Exception as e:
-                        frappe.log_error(f"NEC Report Error for {emp.name}: {e}")
+                        frappe.log_error(title="Payroll Error", message=f"NEC Report Error for {emp.name}: {e}")
 
                 payroll.append("employee_deductions", {
                     "components": d.components,
@@ -468,7 +468,7 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                 create_zimra_itf16(surname=emp_doc.last_name, first_name=emp_doc.first_name, employee_id=emp_doc.name, gross_paye=emp_doc.total_income if emp_doc.payslip_type == "Base Currency" else emp_doc.total_income_zwg, payee=emp_doc.payee if emp_doc.payslip_type == "Base Currency" else emp_doc.payee_zwg, aids_levy=emp_doc.aids_levy if emp_doc.payslip_type == "Base Currency" else emp_doc.aids_levy_zwg, currency="ZWG", dob=emp_doc.date_of_birth, start_date=emp_doc.final_confirmation_date, end_date=emp_doc.contract_end_date, department=emp_doc.department, name=itf16_name)
                 add_sdl_report(employee=emp_doc.name, date=period_name, amount=flt(emp_doc.total_income) * 0.05, department=emp_doc.department, name=sdl_name)
         except Exception as e:
-            frappe.log_error(f"Statutory Report Error for {emp.name}: {e}")
+            frappe.log_error(title="Payroll Error", message=f"Statutory Report Error for {emp.name}: {e}")
 
         # Auto-Create Custom Report Stores (Funeral, Medical Aid, Leave, Overtime)
         try:
@@ -556,17 +556,17 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                     }).insert(ignore_permissions=True)
             
         except Exception as e:
-            frappe.log_error(f"Custom Report Store Error for {emp.name}: {e}")
+            frappe.log_error(title="Payroll Error", message=f"Custom Report Store Error for {emp.name}: {e}")
 
         try:
             update_employee_annual_leave(emp.name, payroll_period=period_name)
         except Exception as e:
-            frappe.log_error(f"Error updating annual leave allocation for {emp.name}: {str(e)}", "Payroll Error")
+            frappe.log_error(title="Payroll Error", message=f"Error updating annual leave allocation for {emp.name}: {str(e)}")
 
         try:
             update_havano_leave_balances(emp.name)
         except Exception as e:
-            frappe.log_error(f"Error updating leave balances for {emp.name}: {str(e)}", "Payroll Error")        
+            frappe.log_error(title="Payroll Error", message=f"Error updating leave balances for {emp.name}: {str(e)}")        
         # --- Journal Entry Aggregation ---
         emp_company = emp_doc.company
         currency = emp_doc.salary_currency or frappe.get_cached_value("Company", emp_company, "default_currency")
@@ -650,7 +650,7 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
     # --- Auto-create Havano Payroll Journal ---
     for comp, data in pj_data.items():
         if not comp:
-            frappe.log_error("Skipping Havano Payroll Journal creation for employee with no company", "Payroll Warning")
+            frappe.log_error(title="Payroll Warning", message="Skipping Havano Payroll Journal creation for employee with no company")
             continue
             
         if data["total_earnings"] > 0:
@@ -719,7 +719,7 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                         err_msg = f"Missing GL Account for '{row.detail}' in Havano Payroll Settings > Setup Accounts"
                         if row.detail == "Salaries and Wages":
                             err_msg = f"Missing GL Account for 'Basic Salary' in Havano Salary Component > Setup Accounts"
-                        frappe.log_error(err_msg, "Accounting JE Error")
+                        frappe.log_error(title="Accounting JE Error", message=err_msg)
                         frappe.msgprint(err_msg, indicator="orange", alert=True)
                         missing_account = True
                         break
@@ -770,7 +770,7 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                     
                 frappe.msgprint(f"Havano Payroll Journal created for {comp}", alert=True)
             except Exception as e:
-                frappe.log_error(frappe.get_traceback(), f"Havano Payroll Journal Error for {comp}")
+                frappe.log_error(title=f"Havano Payroll Journal Error for {comp}", message=frappe.get_traceback())
                 frappe.msgprint(f"Failed to create Havano Payroll Journal for {comp}. Check Error Log.", indicator="red")
 
     # --- Auto-create Havano Employer Contributions Journal ---
@@ -834,7 +834,7 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                         err_msg = f"Missing GL Account for '{row.detail}' in Havano Payroll Settings > Setup Accounts"
                         if row.detail == "Salaries and Wages":
                             err_msg = f"Missing GL Account for 'Basic Salary' in Havano Salary Component > Setup Accounts (used for Employer Contributions expense)"
-                        frappe.log_error(err_msg, "Accounting JE Error")
+                        frappe.log_error(title="Accounting JE Error", message=err_msg)
                         frappe.msgprint(err_msg, indicator="orange", alert=True)
                         missing_account = True
                         break
@@ -885,7 +885,7 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                     
                 frappe.msgprint(f"Havano Employer Contributions Journal created for {comp}", alert=True)
             except Exception as e:
-                frappe.log_error(frappe.get_traceback(), f"Employer Contributions Journal Error for {comp}")
+                frappe.log_error(title=f"Employer Contributions Journal Error for {comp}", message=frappe.get_traceback())
                 frappe.msgprint(f"Failed to create Employer Contributions Journal for {comp}. Check Error Log.", indicator="red")
     
     return f"Payroll created for {len(employees)} employees for {month_name} {year}."
@@ -1112,7 +1112,7 @@ def update_havano_leave_balances(employee):
                 frappe.db.set_value("Havano Leave Balances", existing_record, "leave_balance", new_balance)
                 frappe.db.commit()
                 
-                frappe.log_error(f"Updated Annual Leave for {emp.name}: {current_balance} -> {new_balance}", "Leave Update")
+                frappe.log_error(title="Leave Update", message=f"Updated Annual Leave for {emp.name}: {current_balance} -> {new_balance}")
                 frappe.logger().info(f"Updated Annual Leave for {emp.name} to {new_balance} (capped at {max_annual})")
             else:
                 frappe.logger().info(f"{leave_type} already exists for {emp.name}, skipped.")
@@ -1127,7 +1127,7 @@ def update_havano_leave_balances(employee):
             })
             new_doc.insert(ignore_permissions=True)
             frappe.db.commit()
-            frappe.log_error(f"Created new {actual_leave_type} for {emp.name} with balance {balance}", "Leave Update")
+            frappe.log_error(title="Leave Update", message=f"Created new {actual_leave_type} for {emp.name} with balance {balance}")
             frappe.logger().info(f"Created {actual_leave_type} for {emp.name}")
 
     return f"Leave balances updated for {emp.employee_name}"
@@ -1176,7 +1176,7 @@ def create_zimra_itf16(*,
         frappe.db.commit()
         return {"status": "success", "name": doc.name}
     except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "ZIMRA ITF16 Creation Failed")
+        frappe.log_error(title="ZIMRA ITF16 Creation Failed", message=frappe.get_traceback())
         return {"status": "error", "message": str(e)}
 
 
@@ -1215,7 +1215,7 @@ def create_zimra_p2form(*,
         return {"status": "success", "name": doc.name}
 
     except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "ZIMRA P2FORM Creation Failed")
+        frappe.log_error(title="ZIMRA P2FORM Creation Failed", message=frappe.get_traceback())
         return {"status": "error", "message": str(e)}
 
 
@@ -1518,7 +1518,7 @@ def cancel_payroll_func(month, year, reason):
             try:
                 reverse_leave_for_employee(emp)
             except Exception as e:
-                frappe.log_error(f"Error reversing leave for {emp} during cancel: {str(e)}", "Leave Reversal Error")
+                frappe.log_error(title="Leave Reversal Error", message=f"Error reversing leave for {emp} during cancel: {str(e)}")
 
     # Call period-wide deletes once outside the loop
     payroll_period_str = f"{month} {int(year)}"
