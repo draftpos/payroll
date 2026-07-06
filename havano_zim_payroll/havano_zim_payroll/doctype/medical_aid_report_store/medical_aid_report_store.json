@@ -56,10 +56,11 @@
   },
   {
    "fieldname": "payroll_period",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Payroll Period"
+   "label": "Payroll Period",
+   "options": "Havano Payroll Period"
   },
   {
    "fieldname": "employer_contribution",
