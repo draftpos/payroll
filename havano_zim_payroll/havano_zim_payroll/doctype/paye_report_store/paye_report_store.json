@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "format:{employee}-{payroll_period}",
- "creation": "2026-06-29 16:15:18.994200",
+ "creation": "2026-07-06 09:00:00.000000",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -13,8 +13,14 @@
   "national_id",
   "department",
   "payroll_period",
-  "overtime_hours",
-  "amount"
+  "taxable_income_usd",
+  "taxable_income_zwg",
+  "paye_usd",
+  "paye_zwg",
+  "aids_levy_usd",
+  "aids_levy_zwg",
+  "total_tax_usd",
+  "total_tax_zwg"
  ],
  "fields": [
   {
@@ -61,25 +67,61 @@
    "label": "Payroll Period"
   },
   {
-   "fieldname": "overtime_hours",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Overtime Hours"
-  },
-  {
-   "fieldname": "amount",
+   "fieldname": "taxable_income_usd",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Overtime Amount"
+   "label": "Taxable Income (USD)"
+  },
+  {
+   "fieldname": "taxable_income_zwg",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Taxable Income (ZWG)"
+  },
+  {
+   "fieldname": "paye_usd",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "PAYE (USD)"
+  },
+  {
+   "fieldname": "paye_zwg",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "PAYE (ZWG)"
+  },
+  {
+   "fieldname": "aids_levy_usd",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Aids Levy (USD)"
+  },
+  {
+   "fieldname": "aids_levy_zwg",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Aids Levy (ZWG)"
+  },
+  {
+   "fieldname": "total_tax_usd",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total Tax (USD)"
+  },
+  {
+   "fieldname": "total_tax_zwg",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total Tax (ZWG)"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-29 16:15:18.994200",
+ "modified": "2026-07-06 09:00:00.000000",
  "modified_by": "Administrator",
  "module": "Havano Zim Payroll",
- "name": "Overtime Report Store",
+ "name": "Paye Report Store",
  "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
