@@ -648,6 +648,10 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
         
         frappe.db.commit()
     # --- Auto-create Havano Payroll Journal ---
+    if not create_journal_entry:
+        pj_data = {}
+        ecj_data = {}
+
     for comp, data in pj_data.items():
         if not comp:
             frappe.log_error(title="Payroll Warning", message="Skipping Havano Payroll Journal creation for employee with no company")
@@ -661,7 +665,7 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                     frappe.delete_doc("Havano Payroll Journal", pj_rec.name, ignore_permissions=True)
                     
                 pj = frappe.new_doc("Havano Payroll Journal")
-                pj.name = f"{month_name}-{year}"
+                pj.name = f"{month_name}-{year}-{comp}"
                 pj.payroll_period = period_name
                 pj.company = comp
                 
@@ -766,6 +770,7 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                         frappe.rename_doc("Journal Entry", je.name, je_name, force=True)
                         frappe.flags.ignore_permissions = False
                         
+                    je.submit()
                     frappe.db.commit()
                     
                 frappe.msgprint(f"Havano Payroll Journal created for {comp}", alert=True)
@@ -795,7 +800,7 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                     frappe.delete_doc("Havano Employer Contributions Journal", ecj_rec.name, ignore_permissions=True)
                     
                 ecj = frappe.new_doc("Havano Employer Contributions Journal")
-                ecj.name = f"{month_name}-{year}"
+                ecj.name = f"{month_name}-{year}-{comp}"
                 ecj.payroll_period = period_name
                 ecj.company = comp
                 
@@ -881,6 +886,7 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                         frappe.rename_doc("Journal Entry", je.name, je_name, force=True)
                         frappe.flags.ignore_permissions = False
                         
+                    je.submit()
                     frappe.db.commit()
                     
                 frappe.msgprint(f"Havano Employer Contributions Journal created for {comp}", alert=True)
