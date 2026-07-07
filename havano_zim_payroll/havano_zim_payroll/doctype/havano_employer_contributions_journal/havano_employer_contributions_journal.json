@@ -18,7 +18,7 @@
    "in_list_view": 1,
    "label": "Payroll Period",
    "reqd": 1,
-   "options": "Payroll Period"
+   "options": "Havano Payroll Period"
   },
   {
    "fieldname": "company",

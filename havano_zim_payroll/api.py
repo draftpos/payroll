@@ -716,6 +716,8 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                 for row in pj.journal_details:
                     if row.detail == "Salaries and Wages":
                         acc_gl = get_account("Basic Salary", comp)
+                    elif row.detail == "Payroll Payables":
+                        acc_gl = default_payable_account or mapped_components.get("payroll payables", "")
                     else:
                         acc_gl = mapped_components.get(row.detail.strip().lower() if row.detail else "")
                         
@@ -723,6 +725,8 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                         err_msg = f"Missing GL Account for '{row.detail}' in Havano Payroll Settings > Setup Accounts"
                         if row.detail == "Salaries and Wages":
                             err_msg = f"Missing GL Account for 'Basic Salary' in Havano Salary Component > Setup Accounts"
+                        elif row.detail == "Payroll Payables":
+                            err_msg = f"Missing Default Payroll Payable Account in Havano Payroll Settings"
                         frappe.log_error(title="Accounting JE Error", message=err_msg)
                         frappe.msgprint(err_msg, indicator="orange", alert=True)
                         missing_account = True
