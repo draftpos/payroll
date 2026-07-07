@@ -731,14 +731,19 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                         frappe.msgprint(err_msg, indicator="orange", alert=True)
                         missing_account = True
                         break
-                    je_entries.append({
+                    acc_type = frappe.db.get_value("Account", acc_gl, "account_type")
+                    entry = {
                         "account": acc_gl,
                         "debit_in_account_currency": row.dr,
                         "credit_in_account_currency": row.cr,
                         "debit": row.dr,
                         "credit": row.cr,
                         "cost_center": setting_cost_center
-                    })
+                    }
+                    if acc_type in ["Payable", "Receivable"] and setting_supplier:
+                        entry["party_type"] = "Supplier"
+                        entry["party"] = setting_supplier
+                    je_entries.append(entry)
                     
                 if not missing_account and je_entries:
                     
@@ -847,14 +852,19 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                         frappe.msgprint(err_msg, indicator="orange", alert=True)
                         missing_account = True
                         break
-                    je_entries.append({
+                    acc_type = frappe.db.get_value("Account", acc_gl, "account_type")
+                    entry = {
                         "account": acc_gl,
                         "debit_in_account_currency": row.dr,
                         "credit_in_account_currency": row.cr,
                         "debit": row.dr,
                         "credit": row.cr,
                         "cost_center": setting_cost_center
-                    })
+                    }
+                    if acc_type in ["Payable", "Receivable"] and setting_supplier:
+                        entry["party_type"] = "Supplier"
+                        entry["party"] = setting_supplier
+                    je_entries.append(entry)
                     
                 if not missing_account and je_entries:
                     
