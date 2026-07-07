@@ -25,6 +25,8 @@
   "max_special_leave_days",
   "max_bereavement_leave_days",
   "payroll_journals_settings_section",
+  "create_journal_entry",
+  "default_payroll_payable_account",
   "allow_forecast_fds_method",
   "allow_averaging_fds_method",
   "payroll_journal_accounts"
@@ -140,6 +142,18 @@
    "fieldname": "payroll_journals_settings_section",
    "fieldtype": "Section Break",
    "label": "Payroll Journals Settings"
+  },
+  {
+   "default": "1",
+   "fieldname": "create_journal_entry",
+   "fieldtype": "Check",
+   "label": "Create Journal Entry"
+  },
+  {
+   "fieldname": "default_payroll_payable_account",
+   "fieldtype": "Link",
+   "label": "Default Payroll Payable Account",
+   "options": "Account"
   },
   {
    "default": "0",
