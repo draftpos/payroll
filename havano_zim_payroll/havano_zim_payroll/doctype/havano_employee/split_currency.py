@@ -688,6 +688,8 @@ def apply_cash_in_lieu(self, basic_salary, default_currency_split):
     if use_formula:
         if not basic_salary or days_to_sell <= 0:
             self.cash_in_lieu_amount = 0.0
+            if existing_row:
+                self.employee_earnings.remove(existing_row)
             return
         daily_rate = basic_salary / 26.0
         amount = round(days_to_sell * daily_rate, 2)

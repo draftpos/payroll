@@ -8,9 +8,43 @@ from frappe.utils import getdate, flt
 class HavanoPayrollEntry(Document):
     def on_submit(self):
         self.update_historical_paye(cancel=False)
+        self.clear_cash_in_lieu()
         
     def on_cancel(self):
         self.update_historical_paye(cancel=True)
+
+    def clear_cash_in_lieu(self):
+        if not self.first_name:
+            return
+            
+        emp = frappe.get_all("havano_employee", filters={"first_name": self.first_name, "last_name": self.last_name or ""}, limit=1)
+        if not emp:
+            return
+            
+        emp_name = emp[0].name
+        
+        has_cash_in_lieu = False
+        for d in self.employee_earnings:
+            comp = (d.components or "").upper()
+            if "CASH IN LIEU" in comp or "CASH IN LEAU" in comp:
+                has_cash_in_lieu = True
+                break
+                
+        if has_cash_in_lieu:
+            e = frappe.get_doc("havano_employee", emp_name)
+            if e.cash_in_lieu_amount or e.leave_days_to_sell:
+                e.db_set("cash_in_lieu_amount", 0)
+                e.db_set("leave_days_to_sell", 0)
+                
+                to_remove = []
+                for row in e.employee_earnings:
+                    comp = (row.components or "").upper()
+                    if "CASH IN LIEU" in comp or "CASH IN LEAU" in comp:
+                        to_remove.append(row)
+                for r in to_remove:
+                    e.employee_earnings.remove(r)
+                
+                e.save(ignore_permissions=True)
         
     def update_historical_paye(self, cancel=False):
         if not self.date:
