@@ -666,6 +666,15 @@ def apply_cash_in_lieu(self, basic_salary, default_currency):
             existing_row = e
             break
 
+    if not existing_row and not self.is_new():
+        old_doc = self.get_doc_before_save()
+        if old_doc:
+            old_has_cil = any((e.components or "").upper() == cil_comp_name.upper() for e in old_doc.employee_earnings)
+            if old_has_cil:
+                self.cash_in_lieu_amount = 0.0
+                self.leave_days_to_sell = 0.0
+                return
+
     use_formula = frappe.db.get_single_value("Havano Payroll Settings", "use_formula_cash_in_lieu")
 
     if use_formula:
