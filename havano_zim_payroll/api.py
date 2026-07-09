@@ -217,6 +217,25 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
     for emp in employees:
         frappe.logger().info(f"Processing payroll for: {emp.name}")
         emp_doc = frappe.get_doc("havano_employee", emp.name)
+        # Deal with Cash in lieu (Leave encashment) for this period
+        encashments = frappe.get_all("havano_leave_encashment", filters={"employee": emp.name, "payroll_period": period_name, "docstatus": 1}, fields=["days_being_encashed", "encashment_amount"])
+        needs_save = False
+        if encashments:
+            total_encashment_days = sum([flt(e.days_being_encashed) for e in encashments])
+            total_encashment_amount = sum([flt(e.encashment_amount) for e in encashments])
+            if flt(emp_doc.leave_days_to_sell) != total_encashment_days or flt(emp_doc.cash_in_lieu_amount) != total_encashment_amount:
+                emp_doc.leave_days_to_sell = total_encashment_days
+                emp_doc.cash_in_lieu_amount = total_encashment_amount
+                needs_save = True
+        else:
+            if flt(emp_doc.leave_days_to_sell) or flt(emp_doc.cash_in_lieu_amount):
+                emp_doc.leave_days_to_sell = 0
+                emp_doc.cash_in_lieu_amount = 0
+                needs_save = True
+
+        if needs_save:
+            emp_doc.save(ignore_permissions=True)
+
         # 1. Clean existing loan components to prevent duplicates or lingering ones from past months
         emp_doc.employee_earnings = [e for e in getattr(emp_doc, "employee_earnings", []) if e.components != "Loan Amount"]
         emp_doc.employee_deductions = [d for d in getattr(emp_doc, "employee_deductions", []) if d.components != "Loan Repayment"]

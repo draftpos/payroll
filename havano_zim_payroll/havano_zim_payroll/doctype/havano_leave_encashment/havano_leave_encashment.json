@@ -13,6 +13,7 @@
   "column_break_tvhj",
   "leave_period",
   "leave_type",
+  "payroll_period",
   "encashment_details_section",
   "current_leave_balance",
   "days_being_encashed",
@@ -76,6 +77,14 @@
    "fieldtype": "Link",
    "label": "Leave Type",
    "options": "Havano Leave Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "payroll_period",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Payroll Period",
+   "options": "Havano Payroll Period",
    "reqd": 1
   },
   {
@@ -164,3 +173,4 @@
  "sort_order": "DESC",
  "states": []
 }
+
