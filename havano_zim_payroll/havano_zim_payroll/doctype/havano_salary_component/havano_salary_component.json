@@ -161,7 +161,7 @@
    "options": "Gross Salary\nBasic Only"
   },
   {
-   "depends_on": "eval:doc.salary_component && doc.salary_component.toUpperCase() === 'NEC'",
+   "depends_on": "eval:doc.salary_component && doc.salary_component.toUpperCase().includes('NEC')",
    "fieldname": "nec_percentage",
    "fieldtype": "Float",
    "label": "NEC Percentage"

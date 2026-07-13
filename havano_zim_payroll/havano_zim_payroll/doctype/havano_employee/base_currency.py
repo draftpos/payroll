@@ -285,8 +285,10 @@ def main(self):
             amt = flt(d.amount_usd) if self.salary_currency == "USD" else flt(d.amount_zwg)
             
             # Special logic for NEC
-            if d.components.upper() == "NEC":
-                amt = basic_salary * 0.015
+            if d.components and "NEC" in d.components.upper():
+                nec_pct = frappe.db.get_value("havano_salary_component", d.components, "nec_percentage")
+                nec_multiplier = flt(nec_pct) / 100.0 if flt(nec_pct) > 0 else 0.015
+                amt = basic_salary * nec_multiplier
                 if self.salary_currency == "USD":
                     d.amount_usd = amt
                 else:

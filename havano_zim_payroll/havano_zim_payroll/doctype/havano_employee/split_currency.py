@@ -146,7 +146,7 @@ def main(self):
             total_deduction_zwg += d.amount_zwg
             continue
 
-        elif d.components.upper() == "NEC":
+        elif d.components and "NEC" in d.components.upper():
             nec_pct = frappe.db.get_value("havano_salary_component", d.components, "nec_percentage")
             nec_multiplier = flt(nec_pct) / 100.0 if flt(nec_pct) > 0 else 0.015
 
