@@ -11,6 +11,7 @@
  "engine": "InnoDB",
  "field_order": [
   "basic_details_tab",
+  "is_on_attachment",
   "basic_information",
   "employee",
   "first_name",
@@ -261,6 +262,12 @@
    "fieldname": "basic_information",
    "fieldtype": "Section Break",
    "oldfieldtype": "Section Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_on_attachment",
+   "fieldtype": "Check",
+   "label": "Is on attachment"
   },
   {
    "fieldname": "employee",

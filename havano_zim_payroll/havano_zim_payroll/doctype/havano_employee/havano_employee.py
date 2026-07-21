@@ -27,6 +27,8 @@ class havano_employee(Document):
         elif payslip_type == "Split Currency":
             split_currency.main(self)
 
+        self.remove_deductions_if_on_attachment()
+
         # Push is_tax_applicable changes back to havano_salary_component master
         self._sync_tax_applicable_to_components()
 
@@ -73,6 +75,47 @@ class havano_employee(Document):
             self.native_employee_id = employee_doc.name
             #frappe.msgprint(f"Created Employee: {employee_doc.name}")
 
+    def remove_deductions_if_on_attachment(self):
+        if not getattr(self, "is_on_attachment", 0):
+            return
+            
+        self.employee_deductions = []
+        self.total_deductions = 0
+        self.total_deduction_usd = 0
+        self.total_deduction_zwg = 0
+        self.payee = 0
+        self.aids_levy = 0
+        self.payee_usd = 0
+        self.aids_levy_usd = 0
+        self.payee_zwg = 0
+        self.aids_levy_zwg = 0
+        self.wcif_usd = 0
+        self.nec_usd = 0
+        self.wcif_zwg = 0
+        self.nec_zwg = 0
+        self.nec_employee = 0
+        self.necwei = 0
+        self.nec_employer = 0
+        self.cimas_employee = 0
+        self.cimas_employer = 0
+        self.funeral_employee = 0
+        self.funeral_employer = 0
+        self.lapf_employee = 0
+        self.lapf_employer = 0
+        self.allowable_deductions = 0
+        self.total_allowable_deductions_usd = 0
+        self.total_allowable_deductions_zwg = 0
+        
+        self.net_income = self.total_income
+        if getattr(self, "payslip_type", "") == "Base Currency":
+            if getattr(self, "salary_currency", "") == "USD":
+                self.total_net_income_usd = self.total_income
+            else:
+                self.total_net_income_zwg = self.total_income
+        elif getattr(self, "payslip_type", "") == "Split Currency":
+            self.total_net_income_usd = flt(getattr(self, "total_earnings_usd", 0))
+            self.total_net_income_zwg = flt(getattr(self, "total_earnings_zwg", 0))
+
     def _sync_tax_applicable_to_components(self):
         """When user changes is_tax_applicable on a row, update the salary component master."""
         all_rows = list(self.employee_earnings or []) + list(self.employee_deductions or [])
@@ -109,6 +152,8 @@ class havano_employee(Document):
             base_currency.main(self)
         elif payslip_type == "Split Currency":
             split_currency.main(self)
+        
+        self.remove_deductions_if_on_attachment()
         
         # Return the modified fields so the client can update the UI
         return self.as_dict()
