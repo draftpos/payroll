@@ -51,6 +51,7 @@ frappe.ui.form.on("havano_employee", {
 			);
 		}
 		apply_overtime_visibility(frm);
+		render_historical_taxable_income(frm);
 	},
 	date_of_joining(frm) {
 		check_fds_and_set_annual(frm);
@@ -482,6 +483,58 @@ function sync_always_calculate_deductions(frm) {
 			if (changed) {
 				frm.refresh_field("employee_deductions");
 			}
+		}
+	});
+}
+
+function render_historical_taxable_income(frm) {
+	if (!frm.doc.name) return;
+	
+	let current_year = new Date().getFullYear().toString();
+	
+	frappe.call({
+		method: "frappe.client.get_list",
+		args: {
+			doctype: "Havano Historical PAYE",
+			filters: { "employee": frm.doc.name, "tax_year": current_year },
+			fields: ["*"],
+			limit: 1
+		},
+		callback: function(r) {
+			let html = "";
+			if (r.message && r.message.length > 0) {
+				let doc = r.message[0];
+				let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+				
+				html += `<div style="overflow-x:auto;">
+					<table class="table table-bordered table-hover">
+					<thead>
+						<tr>
+							<th>Month</th>
+							<th>Taxable Income (USD)</th>
+							<th>Taxable Income (ZWG)</th>
+						</tr>
+					</thead>
+					<tbody>`;
+					
+				for (let i = 1; i <= 12; i++) {
+					let usd = flt(doc[`month_${i}_income_usd`]);
+					let zwg = flt(doc[`month_${i}_income_zwg`]);
+					if (usd > 0 || zwg > 0) {
+						html += `<tr>
+							<td>${months[i-1]}</td>
+							<td>${format_currency(usd, "USD")}</td>
+							<td>${format_currency(zwg, "ZWG")}</td>
+						</tr>`;
+					}
+				}
+				html += `</tbody></table></div>`;
+			} else {
+				html = `<div class="text-muted">No historical taxable income data found for ${current_year}.</div>`;
+			}
+			
+			let wrapper = frm.get_field("historical_taxable_income_html").$wrapper;
+			wrapper.html(html);
 		}
 	});
 }

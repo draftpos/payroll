@@ -545,6 +545,20 @@
    "width": "50%"
   },
   {
+   "fieldname": "historical_taxable_income_section",
+   "fieldtype": "Section Break",
+   "label": "Total Taxable Income Historical Report",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "historical_taxable_income_html",
+   "fieldtype": "HTML"
+  },
+  {
+   "fieldname": "salary_mode_section",
+   "fieldtype": "Section Break"
+  },
+  {
    "default": "Cash",
    "fieldname": "salary_mode",
    "fieldtype": "Select",

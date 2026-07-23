@@ -90,13 +90,43 @@ class HavanoPayrollEntry(Document):
             
         current_usd = flt(doc.get(f"month_{month_num}_usd"))
         current_zwg = flt(doc.get(f"month_{month_num}_zwg"))
+        current_income_usd = flt(doc.get(f"month_{month_num}_income_usd"))
+        current_income_zwg = flt(doc.get(f"month_{month_num}_income_zwg"))
+        
+        # Calculate Taxable Income for this entry
+        taxable_components = [c.name for c in frappe.get_all("havano_salary_component", filters={"is_tax_applicable": 1})]
+        allowable_components = [c.name for c in frappe.get_all("havano_salary_component", filters={"type": "Deduction"}) if "allowable" in (frappe.get_value("havano_salary_component", c.name, "component_mode") or "").lower()]
+        
+        if not frappe.db.get_single_value("Havano Payroll Settings", "include_nssa_in_taxable_income"):
+            allowable_components.append("NSSA")
+            
+        entry_taxable_usd = 0.0
+        entry_taxable_zwg = 0.0
+        for e in self.employee_earnings:
+            if e.components in taxable_components:
+                entry_taxable_usd += flt(e.amount_usd)
+                entry_taxable_zwg += flt(e.amount_zwg)
+                
+        entry_allowable_usd = 0.0
+        entry_allowable_zwg = 0.0
+        for d in self.employee_deductions:
+            if d.components in allowable_components:
+                entry_allowable_usd += flt(d.amount_usd)
+                entry_allowable_zwg += flt(d.amount_zwg)
+                
+        net_taxable_usd = max(entry_taxable_usd - entry_allowable_usd, 0.0)
+        net_taxable_zwg = max(entry_taxable_zwg - entry_allowable_zwg, 0.0)
         
         if cancel:
             doc.set(f"month_{month_num}_usd", max(0, current_usd - paye_usd))
             doc.set(f"month_{month_num}_zwg", max(0, current_zwg - paye_zwg))
+            doc.set(f"month_{month_num}_income_usd", max(0, current_income_usd - net_taxable_usd))
+            doc.set(f"month_{month_num}_income_zwg", max(0, current_income_zwg - net_taxable_zwg))
         else:
             doc.set(f"month_{month_num}_usd", current_usd + paye_usd)
             doc.set(f"month_{month_num}_zwg", current_zwg + paye_zwg)
+            doc.set(f"month_{month_num}_income_usd", current_income_usd + net_taxable_usd)
+            doc.set(f"month_{month_num}_income_zwg", current_income_zwg + net_taxable_zwg)
             
         doc.flags.ignore_permissions = True
         doc.save()
