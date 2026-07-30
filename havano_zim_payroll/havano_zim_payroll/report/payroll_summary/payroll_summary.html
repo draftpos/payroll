@@ -1,7 +1,7 @@
 <style>
 	.print-format table, .print-format tr, 
 	.print-format td, .print-format div, .print-format p {
-		font-family: 'Helvetica Neue', Helvetica, Arial, 'Open Sans', sans-serif;
+		font-family: "Helvetica Neue", Helvetica, Arial, "Open Sans", sans-serif;
 	}
 	.payslip-header {
 		text-align: center;
@@ -43,9 +43,9 @@
 
 <div class="payslip-header">
 	<div class="payslip-title">Combined Payroll Summary</div>
-	{% if filters and filters.get('month') %}
-	<p>For the month of {{ filters.month }}</p>
-	{% endif %}
+	{% if (filters && filters.payroll_period) { %}
+	<p>For the month of {%= filters.payroll_period %}</p>
+	{% } %}
 </div>
 
 <table class="summary-table">
@@ -58,22 +58,24 @@
 		</tr>
 	</thead>
 	<tbody>
-		{% for row in data %}
-			{% set is_total = (row.earnings == 'Total Earnings' or row.earnings == 'Net Balance') %}
-			<tr {% if is_total %}class="total-row"{% endif %}>
-				<td>{{ row.earnings or "" }}</td>
+		{% for (var i=0, l=data.length; i<l; i++) { 
+			var row = data[i]; 
+			var is_total = (row.earnings == "Total Earnings" || row.earnings == "Net Balance");
+		%}
+			<tr {% if (is_total) { %}class="total-row"{% } %}>
+				<td>{%= row.earnings || "" %}</td>
 				<td class="text-right">
-					{% if row.earnings_amount_usd is not none %}
-						{{ frappe.format(row.earnings_amount_usd, {"fieldtype": "Currency"}) }}
-					{% endif %}
+					{% if (row.earnings_amount_usd != null) { %}
+						{%= frappe.format(row.earnings_amount_usd, {"fieldtype": "Currency"}) %}
+					{% } %}
 				</td>
-				<td>{{ row.deductions or "" }}</td>
+				<td>{%= row.deductions || "" %}</td>
 				<td class="text-right">
-					{% if row.deductions_amount_usd is not none %}
-						{{ frappe.format(row.deductions_amount_usd, {"fieldtype": "Currency"}) }}
-					{% endif %}
+					{% if (row.deductions_amount_usd != null) { %}
+						{%= frappe.format(row.deductions_amount_usd, {"fieldtype": "Currency"}) %}
+					{% } %}
 				</td>
 			</tr>
-		{% endfor %}
+		{% } %}
 	</tbody>
 </table>

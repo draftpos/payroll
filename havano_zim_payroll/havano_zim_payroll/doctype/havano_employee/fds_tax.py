@@ -160,7 +160,12 @@ def calculate_fds_tax(employee_id, first_name, last_name, current_taxable_income
     
     annual_tax = get_annual_tax(forecasted_annual_income, currency)
     
-    total_paye_for_remaining_months = max(annual_tax - ytd_paye, 0.0)
+    # BUG FIX: Fetch current tax credits and add YTD credits to YTD PAYE
+    emp_doc = frappe.get_doc("havano_employee", employee_id)
+    ytd_credits = flt(emp_doc.total_tax_credits) * (cint(current_month_num) - 1)
+    ytd_paye_pre_credit = ytd_paye + ytd_credits
+    
+    total_paye_for_remaining_months = max(annual_tax - ytd_paye_pre_credit, 0.0)
     
     current_month_base_paye = total_paye_for_remaining_months / (remaining_months + 1)
     

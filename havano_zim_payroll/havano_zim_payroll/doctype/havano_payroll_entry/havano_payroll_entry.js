@@ -8,7 +8,8 @@ function fetch_leave_data(frm) {
 			args: {
 				doctype: "havano_employee",
 				filters: {
-					first_name: frm.doc.first_name
+					first_name: frm.doc.first_name,
+					last_name: frm.doc.last_name
 				},
 				fields: ["name", "middle_name", "last_name", "total_leave_taken"]
 			},

@@ -11,7 +11,7 @@ frappe.query_reports["Payroll Summary"] = {
 			"fieldname": "payroll_period",
 			"label": __("Payroll Period"),
 			"fieldtype": "Link",
-			"options": "Payroll Period",
+			"options": "Havano Payroll Period",
 			"default": ""
 		},
 		{
