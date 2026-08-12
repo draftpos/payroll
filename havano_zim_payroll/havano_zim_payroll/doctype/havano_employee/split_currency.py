@@ -461,13 +461,20 @@ def payee_against_slab(amount, mode="Monthly", currency="USD"):
         slab_name = f"{currency}-{mode}"
         if not frappe.db.exists("Havano Tax Slab", slab_name):
             slab_name = currency
+            
+        if not frappe.db.exists("Havano Tax Slab", slab_name):
+            frappe.log_error(f"PAYE Tax Slab not found for {currency} ({mode})", "PAYE Calculation Error")
+            return 0.0
+            
         slab_doc = frappe.get_doc("Havano Tax Slab", slab_name)
         for slab in slab_doc.tax_brackets:
-            if flt(slab.lower_limit) <= flt(amount) <= flt(slab.upper_limit):
-                payee = (flt(amount) * (flt(slab.percent) / 100)) - flt(slab.fixed_amount)
-                break
-    except Exception:
-        pass
+            upper_limit = flt(slab.upper_limit)
+            if flt(slab.lower_limit) <= flt(amount):
+                if upper_limit == 0.0 or flt(amount) <= upper_limit:
+                    payee = (flt(amount) * (flt(slab.percent) / 100)) - flt(slab.fixed_amount)
+                    break
+    except Exception as e:
+        frappe.log_error(f"PAYE Calculation Error for {currency}: {e}", "PAYE Calculation Error")
     return max(flt(payee), 0.0)
 
 

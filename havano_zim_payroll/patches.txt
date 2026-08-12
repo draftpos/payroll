@@ -6,3 +6,4 @@
 # Patches added in this section will be executed after doctypes are migrated
 havano_zim_payroll.patches.auto_create_component_stores
 havano_zim_payroll.patches.update_january_payroll_details
+havano_zim_payroll.patches.rename_payee_to_paye.execute

@@ -132,14 +132,25 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
 
     """Runs payroll for all employees immediately (synchronous)."""
     # Cast parameters to ensure correct type
-    from frappe.utils import cint
+    from frappe.utils import cint, getdate
     daily = cint(daily)
+    
+    # Normalize year and month at the start
+    year, month_int = normalize_year_month(year, month)
+    month_name = calendar.month_name[month_int]
+
+    # Default work_date to end of month if not provided
+    if not work_date:
+        _, end_date = get_month_range(year, month_int)
+        work_date = end_date
+        
+    work_date_obj = getdate(work_date)
     
     if daily:
         employees = frappe.get_all(
             "havano_employee",
             filters={"payroll_frequency": "Daily", "status": "Active"},
-            fields=["name", "first_name", "last_name", "net_income", "payroll_frequency"],
+            fields=["name", "first_name", "last_name", "net_income", "payroll_frequency", "date_of_joining"],
             ignore_permissions=True,
             limit_page_length=0
         )
@@ -148,10 +159,18 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
         employees = frappe.get_all(
             "havano_employee",
             filters={"status": "Active"},
-            fields=["name", "first_name", "last_name", "net_income", "payroll_frequency"],
+            fields=["name", "first_name", "last_name", "net_income", "payroll_frequency", "date_of_joining"],
             ignore_permissions=True,
             limit_page_length=0
         )
+
+    # Filter out employees who joined after the work_date
+    valid_employees = []
+    for e in employees:
+        if e.date_of_joining and getdate(e.date_of_joining) > work_date_obj:
+            continue
+        valid_employees.append(e)
+    employees = valid_employees
 
     if employee:
         employees = [e for e in employees if e.name == employee]
@@ -165,14 +184,6 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
     total_net_salary_now=0
     total_sdl=0
     total_loan = 0
-    # Normalize year and month at the start
-    year, month_int = normalize_year_month(year, month)
-    month_name = calendar.month_name[month_int]
-
-    # Default work_date to end of month if not provided
-    if not work_date:
-        _, end_date = get_month_range(year, month_int)
-        work_date = end_date
 
     # Ensure Havano Payroll Period exists (auto-create if missing)
     start_dt, end_dt = get_month_range(year, month_int)
@@ -1544,20 +1555,20 @@ def cancel_payroll_func(month, year, reason):
         fields=["name", "first_name", "last_name"]
     )
 
-    if not payroll_entries:
-        return f"No submitted payroll found for {month} {year}."
-
-    # Print entries to the server log and reverse leave for each employee
-    for entry in payroll_entries:
-        print(f"Payroll: {entry['name']}, Employee: {entry.get('first_name')}, Reason: {reason}")
-        
-        # Reverse leave
-        emp = frappe.db.get_value("havano_employee", {"first_name": entry.get("first_name"), "last_name": entry.get("last_name") or ""}, "name")
-        if emp:
-            try:
-                reverse_leave_for_employee(emp)
-            except Exception as e:
-                frappe.log_error(title="Leave Reversal Error", message=f"Error reversing leave for {emp} during cancel: {str(e)}")
+    if payroll_entries:
+        # Print entries to the server log and reverse leave for each employee
+        for entry in payroll_entries:
+            print(f"Payroll: {entry['name']}, Employee: {entry.get('first_name')}, Reason: {reason}")
+            
+            # Reverse leave
+            emp = frappe.db.get_value("havano_employee", {"first_name": entry.get("first_name"), "last_name": entry.get("last_name") or ""}, "name")
+            if emp:
+                try:
+                    reverse_leave_for_employee(emp)
+                except Exception as e:
+                    frappe.log_error(title="Leave Reversal Error", message=f"Error reversing leave for {emp} during cancel: {str(e)}")
+    else:
+        frappe.log_error("Cancel Payroll", f"No Havano Payroll Entry found for {month} {year}, but proceeding with cleanup.")
 
     # Call period-wide deletes once outside the loop
     payroll_period_str = f"{month} {int(year)}"
@@ -1805,6 +1816,9 @@ def delete_journal_entries_for_period(period_str):
     deleted_jes = 0
     for name in jes:
         try:
+            doc = frappe.get_doc("Journal Entry", name)
+            if doc.docstatus == 1:
+                doc.cancel()
             frappe.delete_doc("Journal Entry", name, force=1, ignore_permissions=True)
             deleted_jes += 1
         except Exception:
@@ -1814,6 +1828,9 @@ def delete_journal_entries_for_period(period_str):
     pjs = frappe.get_all("Havano Payroll Journal", filters={"payroll_period": period_str}, pluck="name")
     for name in pjs:
         try:
+            doc = frappe.get_doc("Havano Payroll Journal", name)
+            if getattr(doc, "docstatus", 0) == 1:
+                doc.cancel()
             frappe.delete_doc("Havano Payroll Journal", name, force=1, ignore_permissions=True)
         except Exception:
             pass
@@ -1822,6 +1839,9 @@ def delete_journal_entries_for_period(period_str):
     ecjs = frappe.get_all("Havano Employer Contributions Journal", filters={"payroll_period": period_str}, pluck="name")
     for name in ecjs:
         try:
+            doc = frappe.get_doc("Havano Employer Contributions Journal", name)
+            if getattr(doc, "docstatus", 0) == 1:
+                doc.cancel()
             frappe.delete_doc("Havano Employer Contributions Journal", name, force=1, ignore_permissions=True)
         except Exception:
             pass

@@ -7,41 +7,41 @@ def get_annual_tax(forecasted_income, currency="USD"):
     If currency is ZWG, the USD thresholds are converted using the current exchange rate.
     """
     income = flt(forecasted_income)
+    annual_tax = 0.0
+    amount = flt(forecasted_income)
     
-    # 1. Exchange Rate Handling for ZWG
-    exchange_rate = 1.0
-    if currency in ["ZWL", "ZWG"]:
-        exchange_rate = flt(
-            frappe.db.get_value(
-                "Currency Exchange",
-                {"from_currency": "USD", "to_currency": ["in", ["ZWG", "ZWL"]]},
-                "exchange_rate"
-            )
-            or 1.0
-        )
+    try:
+        slab_name = f"{currency}-Annual"
+        is_annual_slab = True
         
-    # Annual Table rules (USD base):
-    # 0 to 1,200: 0%, Deduct 0
-    # 1,201 to 3,600: 20%, Deduct 240
-    # 3,601 to 12,000: 25%, Deduct 420
-    # 12,001 to 24,000: 30%, Deduct 1,020
-    # 24,001 to 36,000: 35%, Deduct 2,220
-    # 36,001 and above: 40%, Deduct 4,020
-    
-    thresholds = [
-        {"limit": 1200 * exchange_rate, "rate": 0.00, "deduct": 0 * exchange_rate},
-        {"limit": 3600 * exchange_rate, "rate": 0.20, "deduct": 240 * exchange_rate},
-        {"limit": 12000 * exchange_rate, "rate": 0.25, "deduct": 420 * exchange_rate},
-        {"limit": 24000 * exchange_rate, "rate": 0.30, "deduct": 1020 * exchange_rate},
-        {"limit": 36000 * exchange_rate, "rate": 0.35, "deduct": 2220 * exchange_rate},
-        {"limit": float('inf'), "rate": 0.40, "deduct": 4020 * exchange_rate}
-    ]
-    
-    for slab in thresholds:
-        if income <= slab["limit"]:
-            return (income * slab["rate"]) - slab["deduct"]
+        if not frappe.db.exists("Havano Tax Slab", slab_name):
+            slab_name = f"{currency}-Monthly"
+            is_annual_slab = False
             
-    return 0.0
+            if not frappe.db.exists("Havano Tax Slab", slab_name):
+                slab_name = currency
+                is_annual_slab = False
+                
+        if not frappe.db.exists("Havano Tax Slab", slab_name):
+            frappe.log_error(f"PAYE Tax Slab not found for {currency} (Annual/Monthly) during FDS", "FDS Calculation Error")
+            return 0.0
+            
+        slab_doc = frappe.get_doc("Havano Tax Slab", slab_name)
+        for slab in slab_doc.tax_brackets:
+            multiplier = 1.0 if is_annual_slab else 12.0
+            
+            lower = flt(slab.lower_limit) * multiplier
+            upper = flt(slab.upper_limit) * multiplier
+            fixed = flt(slab.fixed_amount) * multiplier
+            
+            if lower <= amount:
+                if upper == 0.0 or amount <= upper:
+                    annual_tax = (amount * (flt(slab.percent) / 100)) - fixed
+                    break
+    except Exception as e:
+        frappe.log_error(f"Annual Tax Calculation Error for {currency}: {e}", "FDS Calculation Error")
+        
+    return max(flt(annual_tax), 0.0)
 
 
 def calculate_fds_tax(employee_id, first_name, last_name, current_taxable_income, currency, current_month_num, current_year):
@@ -136,10 +136,10 @@ def calculate_fds_tax(employee_id, first_name, last_name, current_taxable_income
             SELECT SUM(custom_total_taxable_income) as sum_taxable
             FROM `tabSalary Slip`
             WHERE employee = %s 
-              AND docstatus IN (1, 2)
+              AND docstatus = 1
               AND YEAR(start_date) = %s 
               AND MONTH(start_date) < %s
-        """, (employee, current_year, current_month_num))
+        """, (employee_id, current_year, current_month_num))
         
         if slip_ytd and slip_ytd[0][0]:
             ytd_taxable_income = flt(slip_ytd[0][0])
