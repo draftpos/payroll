@@ -1729,13 +1729,17 @@ def delete_salary_summary_for_period(period_str):
     for a given period string e.g. 'January 2025'
     """
 
-    summaries = frappe.get_all(
-        "Salary Summary On Payroll Run",
-        filters={
-            "period": period_str
-        },
-        pluck="name"
-    )
+    try:
+        summaries = frappe.get_all(
+            "Salary Summary On Payroll Run",
+            filters={
+                "period": period_str
+            },
+            pluck="name"
+        )
+    except Exception as e:
+        frappe.log_error(title="Salary Summary Delete", message=f"DocType missing or error: {e}")
+        return
 
     if not summaries:
         frappe.log_error(
