@@ -335,6 +335,9 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
         payroll.payroll_period = period_name
         payroll.date = work_date or nowdate()
         payroll.payroll_frequency=emp_doc.payroll_frequency
+        payroll.total_taxable_income = getattr(emp_doc, "total_taxable_income", 0.0)
+        payroll.total_taxable_income_usd = getattr(emp_doc, "total_taxable_income_usd", 0.0)
+        payroll.total_taxable_income_zwg = getattr(emp_doc, "total_taxable_income_zwg", 0.0)
         nssa_usd=0
         nssa_zwg=0
         try:

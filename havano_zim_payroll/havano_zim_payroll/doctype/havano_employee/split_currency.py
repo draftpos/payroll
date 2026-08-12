@@ -128,12 +128,20 @@ def main(self):
                 pass
 
 
-            nssa_limit_usd = 700
+            nssa_doc = frappe.get_doc("havano_salary_component", d.components)
+            nssa_limit_usd_config = flt(getattr(nssa_doc, "usd_ceiling", 0))
+            nssa_limit_usd = nssa_limit_usd_config if nssa_limit_usd_config > 0 else 700
+
+            nssa_limit_zwg_config = flt(getattr(nssa_doc, "zwg_ceiling", 0))
+            nssa_limit_zwg = nssa_limit_zwg_config if nssa_limit_zwg_config > 0 else (700 * exchange_rate)
+
+            nssa_pct_config = flt(getattr(nssa_doc, "percentage", 0))
+            nssa_percent = (nssa_pct_config / 100.0) if nssa_pct_config > 0 else 0.045
+
             nssa_income_usd = min(nssa_base_usd, nssa_limit_usd)
-            d.amount_usd = round(nssa_income_usd * 0.045, 2)
-            nssa_limit_zwg = 700 * exchange_rate
+            d.amount_usd = round(nssa_income_usd * nssa_percent, 2)
             nssa_income_zwg = min(nssa_base_zwg, nssa_limit_zwg)
-            d.amount_zwg = round(nssa_income_zwg * 0.045, 2)
+            d.amount_zwg = round(nssa_income_zwg * nssa_percent, 2)
 
             if zero_out_zwg:
                 d.amount_zwg = 0.0
@@ -463,8 +471,13 @@ def payee_against_slab(amount, mode="Monthly", currency="USD"):
             slab_name = currency
             
         if not frappe.db.exists("Havano Tax Slab", slab_name):
-            frappe.log_error(f"PAYE Tax Slab not found for {currency} ({mode})", "PAYE Calculation Error")
-            return 0.0
+            if currency == "ZWG" and frappe.db.exists("Havano Tax Slab", "ZWL"):
+                slab_name = "ZWL"
+            elif currency == "ZWL" and frappe.db.exists("Havano Tax Slab", "ZWG"):
+                slab_name = "ZWG"
+            else:
+                frappe.log_error(f"PAYE Tax Slab not found for {currency} ({mode})", "PAYE Calculation Error")
+                return 0.0
             
         slab_doc = frappe.get_doc("Havano Tax Slab", slab_name)
         for slab in slab_doc.tax_brackets:

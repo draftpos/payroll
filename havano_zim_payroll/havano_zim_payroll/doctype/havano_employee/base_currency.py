@@ -126,6 +126,17 @@ def main(self):
         if d.components.upper() == "NSSA":
             # Read calculation basis from the salary component
             nssa_basis = frappe.db.get_value("havano_salary_component", d.components, "nssa_calculation_basis") or "Gross Salary"
+            
+            nssa_doc = frappe.get_doc("havano_salary_component", d.components)
+            nssa_limit_usd_config = flt(getattr(nssa_doc, "usd_ceiling", 0))
+            nssa_limit_usd = nssa_limit_usd_config if nssa_limit_usd_config > 0 else 700
+
+            nssa_limit_zwg_config = flt(getattr(nssa_doc, "zwg_ceiling", 0))
+            nssa_limit_zwg = nssa_limit_zwg_config if nssa_limit_zwg_config > 0 else (700 * exchange_rate)
+
+            nssa_pct_config = flt(getattr(nssa_doc, "percentage", 0))
+            nssa_percent = (nssa_pct_config / 100.0) if nssa_pct_config > 0 else 0.045
+            
             # Use basic salary or gross income depending on setting
             nssa_base_income = basic_salary if nssa_basis == "Basic Only" else total_income
             
@@ -138,9 +149,9 @@ def main(self):
             except Exception:
                 pass
             
-            nssa_limit = 700 if self.salary_currency == "USD" else 700 * exchange_rate
+            nssa_limit = nssa_limit_usd if self.salary_currency == "USD" else nssa_limit_zwg
             nssa_income = min(nssa_base_income, nssa_limit)
-            nssa_amt = nssa_income * 0.045
+            nssa_amt = nssa_income * nssa_percent
             if self.salary_currency == "USD":
                 d.amount_usd = nssa_amt
                 d.amount_zwg = 0
@@ -519,8 +530,13 @@ def payee_against_slab(amount, mode="Monthly", currency="USD"):
             slab_name = currency
             
         if not frappe.db.exists("Havano Tax Slab", slab_name):
-            frappe.log_error(f"PAYE Tax Slab not found for {currency} ({mode})", "PAYE Calculation Error")
-            return 0.0
+            if currency == "ZWG" and frappe.db.exists("Havano Tax Slab", "ZWL"):
+                slab_name = "ZWL"
+            elif currency == "ZWL" and frappe.db.exists("Havano Tax Slab", "ZWG"):
+                slab_name = "ZWG"
+            else:
+                frappe.log_error(f"PAYE Tax Slab not found for {currency} ({mode})", "PAYE Calculation Error")
+                return 0.0
             
         slab_doc = frappe.get_doc("Havano Tax Slab", slab_name)
         for slab in slab_doc.tax_brackets:
