@@ -35,7 +35,7 @@
   {
    "fieldname": "sdl_purchase_invoice_section",
    "fieldtype": "Section Break",
-   "label": "SDL Purchase Invoice"
+   "label": "SDL Configuration"
   },
   {
    "fieldname": "supplier",

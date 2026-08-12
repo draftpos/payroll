@@ -218,12 +218,12 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                 title="Payroll Period Creation Error"
             )
 
-    # Initialize default account for SDL report/invoice
+    # Initialize default account for SDL report/journal
     basic_comp_accounts = get_basic_salary_component()
     acc = basic_comp_accounts[0] if basic_comp_accounts else None
     
     if not acc:
-        frappe.log_error(title="Payroll Configuration Error", message="Basic Salary component accounting is not configured. Cannot create invoices.")
+        frappe.log_error(title="Payroll Configuration Error", message="Basic Salary component accounting is not configured.")
 
     for emp in employees:
         frappe.logger().info(f"Processing payroll for: {emp.name}")
@@ -1572,7 +1572,6 @@ def cancel_payroll_func(month, year, reason):
 
     # Call period-wide deletes once outside the loop
     payroll_period_str = f"{month} {int(year)}"
-    cancel_payroll_purchase_invoices(payroll_period_str)
     delete_sdl_for_period(payroll_period_str)
     delete_nassa_reports_for_period(payroll_period_str)
     delete_salary_summary_for_period(payroll_period_str)
@@ -1602,41 +1601,6 @@ def reverse_leave_for_employee(employee, days_to_deduct=2.5):
         frappe.db.set_value("Havano Leave Balances", leave_balance, "leave_balance", current_bal - days_to_deduct)
 
     frappe.db.commit()
-
-def cancel_payroll_purchase_invoices(payroll_period):
-
-    invoices = frappe.get_all(
-        "Purchase Invoice",
-        filters={
-            "custom_from_payroll": 1,
-            "custom_payroll_period": payroll_period,
-            "docstatus": 1  # Submitted only (uncancelled)
-        },
-        pluck="name"
-    )
-
-    if not invoices:
-        frappe.log_error(
-            title="Payroll PI Cancel",
-            message=f"No Purchase Invoices found for payroll period: {payroll_period}"
-        )
-        return
-
-    for pi_name in invoices:
-        try:
-            pi = frappe.get_doc("Purchase Invoice", pi_name)
-            pi.cancel()
-
-            frappe.log_error(
-                title="Payroll PI Cancelled",
-                message=f"Purchase Invoice {pi_name} cancelled for payroll period {payroll_period}"
-            )
-
-        except Exception:
-            frappe.log_error(
-                title="Payroll PI Cancel Failed",
-                message=frappe.get_traceback()
-            )
 
 def delete_sdl_for_period(period_str):
     """
@@ -1855,57 +1819,6 @@ import frappe
 from frappe.utils import flt
 import os
 import json
-
-@frappe.whitelist()
-def add_payroll_fields_to_purchase_invoice():
-    # Path to Purchase Invoice DocType JSON
-    module_path = frappe.get_module_path("accounts")
-    json_path = os.path.join(module_path, "doctype/purchase_invoice/purchase_invoice.json")
-
-    # Load existing JSON
-    with open(json_path, "r") as f:
-        data = json.load(f)
-
-    # Define new fields
-    new_fields = [
-        {
-            "fieldname": "custom_payroll_period",
-            "label": "Payroll Period",
-            "fieldtype": "Data",
-            "insert_after": "posting_date",  # adjust where you want it
-            "hidden": 0,
-            "reqd": 0
-        },
-        {
-            "fieldname": "custom_from_payroll",
-            "label": "From Payroll",
-            "fieldtype": "Check",
-            "insert_after": "company",
-            "hidden": 0,
-            "reqd": 0
-        }
-    ]
-    # Add fields if they don't exist
-    existing_fieldnames = [f["fieldname"] for f in data.get("fields", [])]
-    added = False
-
-    for field in new_fields:
-        if field["fieldname"] not in existing_fieldnames:
-            data["fields"].append(field)
-            added = True
-
-    if added:
-        # Save JSON back
-        with open(json_path, "w") as f:
-            json.dump(data, f, indent=4)
-
-        # Reload DocType
-        frappe.reload_doc("accounts", "doctype", "purchase_invoice", force=True)
-        frappe.clear_cache(doctype="Purchase Invoice")
-
-        return "Payroll Period and From Payroll fields added successfully"
-
-    return "Fields already exist"
 
 @frappe.whitelist()
 def cleanup_obsolete_doctypes():

@@ -269,12 +269,6 @@ fixtures = [
         ]
     },
 
-    {
-        "doctype": "Custom Field",
-        "filters": [
-            ["dt", "=", "Purchase Invoice"]
-        ]
-    },
     # Company Custom Fields (existing)
     {
         "doctype": "Custom Field",
