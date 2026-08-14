@@ -1,0 +1,246 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+    font-size: 10px;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.payslip {
+    width: 105%;
+    margin-left: -2.5%;
+    padding: 10px;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.header {
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.logo img {
+    height: 60px;
+}
+
+.sub-header {
+    width: 100%;
+    max-width: 100%;
+    word-wrap: break-word;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.info-table, .earnings-table {
+    width: 105%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.info-table td {
+    padding: 5px 8px;
+    font-weight: 300;
+}
+
+.earnings-table th, .earnings-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+    font-weight: 300;
+}
+
+.earnings-table th {
+    background-color: #000;
+    color: #fff;
+    font-weight: 400;
+}
+
+.total-row td {
+    font-weight: 400;
+}
+
+.signature {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+.signature span {
+    display: inline-block;
+    width: 48%;
+    white-space: nowrap;
+}
+
+footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 9px;
+    color: #555;
+}
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+<table class="table table-sm">
+  <tbody>
+    <tr>
+      <!-- Company Info -->
+      <td>
+        <div class="text-start">
+          <h3 class="text-uppercase" style="font-size:18px;font-weight:bold;">
+            <strong>{{ frappe.db.get_value("Company", doc.company, "company_name") or "" }}</strong>
+          </h3>
+          {% set address = "" %}
+          {% if "custom_address_1" in frappe.get_meta("Company").fields | map(attribute='fieldname') %}
+              {% set address = frappe.db.get_value("Company", doc.company, "custom_address_1") or "" %}
+          {% endif %}
+          <p><b>{{ address }}</b></p>
+          <p>{{ frappe.db.get_value("Company", doc.company, "phone_no") or "" }}</p>
+          <p>{{ frappe.db.get_value("Company", doc.company, "email") or "" }}</p>
+        </div>
+      </td>
+
+      <!-- Logo -->
+      <td style="width: 30%;">
+        <img 
+          alt="Logo" 
+          style="width:80% !important; margin-top:22px;" 
+          src="{{ frappe.db.get_single_value('Website Settings', 'app_logo') or '' }}"
+        >
+      </td>
+
+      <!-- Payslip Header -->
+      <td style="width: 35%;">
+        <div class="text-end">
+          <h1 style="margin-bottom:0;font-size:18px;font-weight:bold;">Salary Slip</h1>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="payslip">
+  <table class="info-table table table-bordered table-striped table-sm">
+    <!-- 1. Safely lookup the employee using safe .get() strings. Include department & designation! -->
+    {% set matched_employee = frappe.get_all("havano_employee",
+        filters=[["first_name", "like", "%" + (doc.get("first_name", "")).strip() + "%"], ["last_name", "=", (doc.get("last_name", "")).strip()]],
+        fields=["name", "date_of_joining", "department", "designation"],
+        limit=1
+    ) %}
+    
+    <!-- 2. Store the resolved employee details -->
+    {% set employee_id = matched_employee[0].name if matched_employee else "" %}
+    {% set emp_date_of_joining = matched_employee[0].date_of_joining if matched_employee else "" %}
+    {% set emp_department = matched_employee[0].department if matched_employee else "" %}
+    {% set emp_designation = matched_employee[0].designation if matched_employee else "" %}
+
+    {% set payroll_entry = frappe.get_all("Havano Payroll Entry",
+        filters=[["first_name", "like", "%" + (doc.get("first_name", "")).strip() + "%"], ["last_name", "=", (doc.get("last_name", "")).strip()]],
+        fields=["payroll_period"],
+        order_by="name desc",
+        limit=1
+    ) %}
+    {% set pe = payroll_entry[0] if payroll_entry else None %}
+
+    <tr>
+        <td><strong>Employee Id:</strong> {{ employee_id or doc.name }}</td>
+        <td><strong>Name:</strong> {{ doc.get("first_name", "") }} {{ doc.get("last_name", "") }}</td>
+    </tr>
+    <tr>
+        <!-- 3. Use .get() and fallback to matched employee fields -->
+        <td><strong>Department:</strong> {{ doc.get("department") or emp_department }}</td>
+        <td><strong>Designation:</strong> {{ doc.get("designation") or emp_designation }}</td>
+    </tr>
+    <tr>
+        <td><strong>Date of Joining:</strong> {{ frappe.utils.formatdate(emp_date_of_joining) if emp_date_of_joining else "" }}</td>
+        <td id="total_leave_days">
+            <strong>Total Leave Days:</strong> 
+            <!-- Use the resolved employee_id instead of doc.name -->
+            {% if employee_id %}
+                {{ frappe.db.get_value("Havano Leave Balances", {"employee": employee_id, "havano_leave_type": "Annual Leave"}, "leave_balance") or 0 }}
+            {% else %}
+                0
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td><strong>Payroll Period:</strong> {{ pe.payroll_period if pe else doc.get("payroll_period", "") }}</td>
+        <!-- 4. Safe fetching for total leave taken as well -->
+        <td><strong>Leave Days Taken:</strong> {{ doc.get("total_leave_taken", "0") }}</td>
+    </tr>
+  </table>
+
+  <table class="earnings-table table table-bordered table-striped table-sm">
+    <thead class="table-dark">
+      <tr>
+        <th>Earnings</th>
+        <th>Amount (USD)</th>
+        <th>Deductions</th>
+        <th>Amount (USD)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set totals = namespace(earn_usd=0, ded_usd=0) %}
+      
+      <!-- Safely fetch earnings and deductions lists, defaulting to empty arrays -->
+      {% set earnings = doc.get("employee_earnings", []) %}
+      {% set deductions = doc.get("employee_deductions", []) %}
+      {% set max_length = [earnings|length, deductions|length] | max %}
+
+      {% for i in range(max_length) %}
+      <tr>
+        {% if i < earnings|length %}
+          {% set earn = earnings[i] %}
+          <td>{{ earn.components }}</td>
+          <td>{{ "%.2f"|format(earn.amount_usd or 0) }}</td>
+          {% if earn.components != "Loan Amount" %}
+            {% set totals.earn_usd = totals.earn_usd + (earn.amount_usd or 0) %}
+          {% endif %}
+        {% else %}
+          <td></td><td></td>
+        {% endif %}
+
+        {% if i < deductions|length %}
+          {% set ded = deductions[i] %}
+          <td>{{ ded.components }}</td>
+          <td>{{ "%.2f"|format(ded.amount_usd or 0) }}</td>
+          {% set totals.ded_usd = totals.ded_usd + (ded.amount_usd or 0) %}
+        {% else %}
+          <td></td><td></td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+
+      <tr class="total-row fw-bold">
+        <td>Total Earnings</td>
+        <td>{{ "%.2f"|format(totals.earn_usd) }}</td>
+        <td>Total Deductions</td>
+        <td>{{ "%.2f"|format(totals.ded_usd) }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="sub-header" style="margin-left: 30px;">
+      Net Pay: {{ "%.2f"|format(totals.earn_usd - totals.ded_usd) }} USD
+  </div>
+
+  <div class="signature" style="margin-left: 30px;">
+      <span>HR's Signature ________________</span>
+      <span>Employee's Signature ________________</span>
+  </div>
+
+  <footer>Powered by @ Havano ERP Integration</footer>
+
+</div>

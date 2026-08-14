@@ -1,3 +1,24 @@
+
+def _get_inferred_payroll_date(employee_id):
+    import frappe
+    from frappe.utils import nowdate
+    if not employee_id:
+        return nowdate()
+        
+    # User requested that Havano Employee shows the exact same amount as the latest Havano Payroll Entry
+    # So we should infer the date of the LAST processed month, NOT the next month!
+    hist = frappe.get_all("Havano Historical PAYE", filters={"employee": employee_id}, order_by="tax_year desc", limit=1, fields=["*"])
+    if not hist:
+        return nowdate()
+        
+    h = hist[0]
+    tax_year = h.tax_year
+    
+    for i in range(12, 0, -1):
+        if frappe.utils.flt(h.get(f"month_{i}_usd")) > 0 or frappe.utils.flt(h.get(f"month_{i}_income_usd")) > 0 or            frappe.utils.flt(h.get(f"month_{i}_zwg")) > 0 or frappe.utils.flt(h.get(f"month_{i}_income_zwg")) > 0:
+            return f"{tax_year}-{str(i).zfill(2)}-28"
+                
+    return f"{tax_year}-01-28"
 import frappe
 from frappe.utils import flt, now_datetime, nowdate, cint
 from frappe import _
@@ -321,20 +342,24 @@ def main(self):
 
     # 7. PAYE CALCULATION
     base_payee = payee_against_slab(self.ensuarable_earnings, self.payroll_frequency, self.salary_currency)
+    print(f'-> base_payee from slab: {base_payee}')
     
     try:
         from havano_zim_payroll.havano_zim_payroll.doctype.havano_employee.fds_tax import calculate_fds_tax
         from frappe.utils import nowdate, getdate
         
         if frappe.db.get_single_value("Havano Payroll Settings", "allow_forecast_fds_method"):
-            current_month = nowdate().split("-")[1]
-            current_year = int(nowdate().split("-")[0])
+            date_val = str(getattr(self, "date", None) or getattr(self, "payroll_date", None) or _get_inferred_payroll_date(self.name))
+            print(f'-> date_val: {date_val}')
+            current_month = date_val.split("-")[1]
+            current_year = int(date_val.split("-")[0])
             
             doj = getdate(self.date_of_joining) if self.date_of_joining else None
             is_fds_eligible = doj and doj.year < current_year
             
             if is_fds_eligible and self.ensuarable_earnings > 0:
                 base_payee = calculate_fds_tax(
+                    
                     employee_id=self.name,
                     first_name=self.first_name,
                     last_name=self.last_name,
@@ -345,8 +370,10 @@ def main(self):
                 )
         elif frappe.db.get_single_value("Havano Payroll Settings", "allow_averaging_fds_method"):
             from havano_zim_payroll.havano_zim_payroll.doctype.havano_employee.fds_tax import calculate_averaging_fds_tax
-            current_month = nowdate().split("-")[1]
-            current_year = int(nowdate().split("-")[0])
+            date_val = str(getattr(self, "date", None) or getattr(self, "payroll_date", None) or _get_inferred_payroll_date(self.name))
+            print(f'-> date_val: {date_val}')
+            current_month = date_val.split("-")[1]
+            current_year = int(date_val.split("-")[0])
             
             doj = getdate(self.date_of_joining) if self.date_of_joining else None
             is_fds_eligible = doj and doj.year < current_year
@@ -365,15 +392,12 @@ def main(self):
                 )
     except Exception as e:
         frappe.log_error(f"FDS Calculation Error for {self.name}: {e}")
+    print(f'-> base_payee after FDS block: {base_payee}')
     
     # Final Payee = Base Payee - Total Tax Credits
     final_payee = round(max(base_payee - tax_credits, 0), 2)
     
-    # Aids Levy = 3% of Payee
-    # Backwards split: extract base PAYE so that (PAYE + Aids Levy) = Total Tax
-    total_tax = final_payee
-    final_payee = round(total_tax / 1.03, 2)
-    aids_levy = round(total_tax - final_payee, 2)
+    aids_levy = round(final_payee * 0.03, 2)
     
     # SDL = 5% of Gross (reference only, not a deduction)
     # self.sdl = round(self.total_income * 0.05, 2)

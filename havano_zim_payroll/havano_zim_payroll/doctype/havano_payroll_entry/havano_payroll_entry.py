@@ -6,11 +6,11 @@ from frappe.model.document import Document
 from frappe.utils import getdate, flt
 
 class HavanoPayrollEntry(Document):
-    def after_insert(self):
+    def on_submit(self):
         self.update_historical_paye(cancel=False)
         self.clear_cash_in_lieu()
         
-    def on_trash(self):
+    def on_cancel(self):
         self.update_historical_paye(cancel=True)
 
     def clear_cash_in_lieu(self):

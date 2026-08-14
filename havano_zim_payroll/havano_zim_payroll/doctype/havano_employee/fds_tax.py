@@ -69,6 +69,7 @@ def calculate_fds_tax(employee_id, first_name, last_name, current_taxable_income
         filters={
             "first_name": first_name,
             "last_name": last_name,
+            "docstatus": 1,
             "date": ["between", [f"{current_year}-01-01", f"{current_year}-12-31"]]
         },
         fields=["name", "date"]
@@ -192,6 +193,7 @@ def calculate_averaging_fds_tax(employee_id, first_name, last_name, current_taxa
         filters={
             "first_name": first_name,
             "last_name": last_name,
+            "docstatus": 1,
             "date": ["between", [f"{current_year}-01-01", f"{current_year}-12-31"]]
         },
         fields=["name", "date"]
@@ -269,12 +271,12 @@ def calculate_averaging_fds_tax(employee_id, first_name, last_name, current_taxa
     ytd_credits = tax_credits * current_month_num
 
     net_paye_before_levy = max(total_tax_chargeable_before_credits - ytd_credits, 0.0)
-    total_paye_chargeable = net_paye_before_levy * 1.03
+    total_paye_chargeable = net_paye_before_levy
 
     current_paye_payable = max(total_paye_chargeable - ytd_paye, 0.0)
 
     # Back-calculate base_payee for base_currency.py
-    target_final_paye = current_paye_payable / 1.03
+    target_final_paye = current_paye_payable
     required_base_paye = target_final_paye + tax_credits
 
     return max(flt(required_base_paye), 0.0)

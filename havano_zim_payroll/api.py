@@ -320,6 +320,7 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
         # Ensure fresh calculations by saving the employee doc
         # This triggers before_save logic which calculates PAYE, Net Income, etc. including the loans we just dynamically added!
         try:
+            emp_doc.date = work_date or frappe.utils.nowdate()
             emp_doc.save(ignore_permissions=True)
         except Exception as e:
             frappe.log_error(
