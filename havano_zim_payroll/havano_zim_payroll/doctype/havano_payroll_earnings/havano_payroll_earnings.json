@@ -107,7 +107,8 @@
    "fieldname": "exclude_from_gross_tax_30",
    "fieldtype": "Check",
    "label": "Exclude From Gross (Tax 30%)",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "depends_on": "eval:doc.components == 'Airtime'"
   }
  ],
  "grid_page_length": 50,
