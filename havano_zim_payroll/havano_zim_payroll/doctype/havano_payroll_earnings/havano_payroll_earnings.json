@@ -16,7 +16,8 @@
   "column_break_cqgn",
   "is_tax_applicable",
   "original_amount_usd",
-  "original_amount_zwg"
+  "original_amount_zwg",
+  "exclude_from_gross_tax_30"
  ],
  "fields": [
   {
@@ -100,6 +101,13 @@
    "fieldtype": "Float",
    "hidden": 1,
    "label": "Original Foreign Amount"
+  },
+  {
+   "default": "0",
+   "fieldname": "exclude_from_gross_tax_30",
+   "fieldtype": "Check",
+   "label": "Exclude From Gross (Tax 30%)",
+   "in_list_view": 1
   }
  ],
  "grid_page_length": 50,

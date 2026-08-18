@@ -55,6 +55,12 @@ def main(self):
         amt_usd = flt(e.amount_usd)
         amt_zwg = flt(e.amount_zwg)
         
+        if getattr(e, "exclude_from_gross_tax_30", 0):
+            if getattr(e, "is_tax_applicable", 0):
+                taxable_earnings_usd += amt_usd * 0.3
+                taxable_earnings_zwg += amt_zwg * 0.3
+            continue
+
         if e.components.upper() == "MOTORING BENEFIT":
             if getattr(e, "is_tax_applicable", 0):
                 taxable_earnings_usd += amt_usd

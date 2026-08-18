@@ -78,6 +78,12 @@ def main(self):
         
 
         is_taxable = cint(getattr(e, "is_tax_applicable", 0))
+        exclude_from_gross_tax_30 = cint(getattr(e, "exclude_from_gross_tax_30", 0))
+
+        if exclude_from_gross_tax_30:
+            if is_taxable:
+                taxable_earnings += amount * 0.3
+            continue # Excluded from gross, only 30% taxable
 
         # Motoring Benefit Logic
         if e.components.upper() == "MOTORING BENEFIT":
