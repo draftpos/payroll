@@ -83,6 +83,7 @@ def main(self):
         if exclude_from_gross_tax_30 and e.components and "Airtime" in e.components:
             if is_taxable:
                 taxable_earnings += amount * 0.3
+            total_income += amount
             continue # Excluded from gross, only 30% taxable
 
         # Motoring Benefit Logic

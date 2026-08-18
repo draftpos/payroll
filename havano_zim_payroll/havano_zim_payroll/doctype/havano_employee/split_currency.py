@@ -59,6 +59,8 @@ def main(self):
             if getattr(e, "is_tax_applicable", 0):
                 taxable_earnings_usd += amt_usd * 0.3
                 taxable_earnings_zwg += amt_zwg * 0.3
+            total_earnings_usd += amt_usd
+            total_earnings_zwg += amt_zwg
             continue
 
         if e.components.upper() == "MOTORING BENEFIT":
