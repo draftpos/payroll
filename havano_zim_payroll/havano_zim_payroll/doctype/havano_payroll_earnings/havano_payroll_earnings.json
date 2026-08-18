@@ -109,7 +109,7 @@
    "label": "Exclude From Gross (Tax 30%)",
    "in_list_view": 1,
    "fetch_from": "components.exclude_from_gross_tax_30",
-   "depends_on": "eval:doc.components && doc.components.includes('Airtime')"
+   "depends_on": "eval:doc.components && doc.components.indexOf('Airtime') !== -1"
   }
  ],
  "grid_page_length": 50,
