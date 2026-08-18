@@ -23,6 +23,7 @@ class HavanoPayrollEntry(Document):
             filters["last_name"] = ["in", ["", None]]
             
         emp = frappe.get_all("havano_employee", filters=filters, limit=1)
+        if not emp:
             return
             
         emp_name = emp[0].name
