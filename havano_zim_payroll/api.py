@@ -244,6 +244,16 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                 emp_doc.cash_in_lieu_amount = 0
                 needs_save = True
 
+            to_remove = []
+            for e in emp_doc.get("employee_earnings", []):
+                comp = (e.components or "").upper()
+                if "CASH IN LIEU" in comp or "CASH IN LEAU" in comp:
+                    to_remove.append(e)
+            if to_remove:
+                for r in to_remove:
+                    emp_doc.employee_earnings.remove(r)
+                needs_save = True
+                
         if needs_save:
             emp_doc.save(ignore_permissions=True)
 

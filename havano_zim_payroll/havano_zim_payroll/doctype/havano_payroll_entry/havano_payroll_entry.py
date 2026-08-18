@@ -16,9 +16,13 @@ class HavanoPayrollEntry(Document):
     def clear_cash_in_lieu(self):
         if not self.first_name:
             return
+        filters = {"first_name": self.first_name}
+        if self.last_name:
+            filters["last_name"] = self.last_name
+        else:
+            filters["last_name"] = ["in", ["", None]]
             
-        emp = frappe.get_all("havano_employee", filters={"first_name": self.first_name, "last_name": self.last_name or ""}, limit=1)
-        if not emp:
+        emp = frappe.get_all("havano_employee", filters=filters, limit=1)
             return
             
         emp_name = emp[0].name
@@ -71,7 +75,13 @@ class HavanoPayrollEntry(Document):
             
         # Try to resolve employee Link if they don't have it directly on the entry
         # The report uses first_name + last_name
-        emp = frappe.get_all("havano_employee", filters={"first_name": self.first_name, "last_name": self.last_name or ""}, limit=1)
+        filters = {"first_name": self.first_name}
+        if self.last_name:
+            filters["last_name"] = self.last_name
+        else:
+            filters["last_name"] = ["in", ["", None]]
+            
+        emp = frappe.get_all("havano_employee", filters=filters, limit=1)
         if not emp:
             return
             
