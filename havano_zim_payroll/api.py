@@ -255,11 +255,20 @@ def run_payroll(month, year, work_date=None, daily=0, employee=None):
                 needs_save = True
                 
         if needs_save:
-            emp_doc.save(ignore_permissions=True)
+            try:
+                emp_doc.save(ignore_permissions=True)
+            except Exception as e:
+                frappe.log_error(frappe.get_traceback(), f"Payroll CIL Save Error - {emp.name}")
+                pass
 
         # 1. Clean existing loan components to prevent duplicates or lingering ones from past months
-        emp_doc.employee_earnings = [e for e in getattr(emp_doc, "employee_earnings", []) if e.components != "Loan Amount"]
-        emp_doc.employee_deductions = [d for d in getattr(emp_doc, "employee_deductions", []) if d.components != "Loan Repayment"]
+        to_remove_earnings = [e for e in getattr(emp_doc, "employee_earnings", []) if e.components == "Loan Amount"]
+        for r in to_remove_earnings:
+            emp_doc.employee_earnings.remove(r)
+            
+        to_remove_deductions = [d for d in getattr(emp_doc, "employee_deductions", []) if d.components == "Loan Repayment"]
+        for r in to_remove_deductions:
+            emp_doc.employee_deductions.remove(r)
 
         # Dealing with employee loan and deduction
         employee_loan_record = get_employee_loan(emp.name)
