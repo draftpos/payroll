@@ -334,8 +334,9 @@ def main(self):
     self.total_taxable_income_zwg = round(self.total_ensuarable_earnings_zwg - total_allowable_deductions_zwg, 2)
 
     # 7. PAYE CALCULATION
-    payee_usd = payee_against_slab(self.total_taxable_income_usd, self.payroll_frequency, "USD")
-    payee_zwg = payee_against_slab(self.total_taxable_income_zwg, self.payroll_frequency, "ZWG")
+    frequency = "Monthly" if frappe.db.get_single_value("Havano Payroll Settings", "allow_averaging_fds_method") else self.payroll_frequency
+    payee_usd = payee_against_slab(self.total_taxable_income_usd, frequency, "USD")
+    payee_zwg = payee_against_slab(self.total_taxable_income_zwg, frequency, "ZWG")
 
     try:
         from havano_zim_payroll.havano_zim_payroll.doctype.havano_employee.fds_tax import calculate_fds_tax

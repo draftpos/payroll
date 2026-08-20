@@ -348,7 +348,8 @@ def main(self):
     self.ensuarable_earnings = round(self.total_taxable_income - self.allowable_deductions, 2)
 
     # 7. PAYE CALCULATION
-    base_payee = payee_against_slab(self.ensuarable_earnings, self.payroll_frequency, self.salary_currency)
+    frequency = "Monthly" if frappe.db.get_single_value("Havano Payroll Settings", "allow_averaging_fds_method") else self.payroll_frequency
+    base_payee = payee_against_slab(self.ensuarable_earnings, frequency, self.salary_currency)
     print(f'-> base_payee from slab: {base_payee}')
     
     try:
