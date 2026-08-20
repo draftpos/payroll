@@ -26,7 +26,7 @@ app_license = "mit"
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/havano_zim_payroll/css/havano_zim_payroll.css"
-# app_include_js = "/assets/havano_zim_payroll/js/havano_zim_payroll.js"
+# app_include_js = ["/assets/havano_zim_payroll/js/promote_report_print.js", "/assets/havano_zim_payroll/js/havano_zim_payroll.js"]
 
 # include js, css files in header of web template
 # web_include_css = "/assets/havano_zim_payroll/css/havano_zim_payroll.css"

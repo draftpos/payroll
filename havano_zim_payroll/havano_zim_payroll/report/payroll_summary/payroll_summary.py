@@ -25,39 +25,57 @@ def get_columns(filters=None):
 	return columns
 
 def get_data(filters):
-	query_filters = {"status": "Active"}
-	if filters and filters.get("department"):
-		query_filters["department"] = filters.get("department")
+	entry_filters = {}
+	if filters and filters.get("payroll_period"):
+		entry_filters["payroll_period"] = filters.get("payroll_period")
 
 	if filters and filters.get("employee_id"):
-		query_filters["name"] = filters.get("employee_id")
+		emp_doc = frappe.get_doc("havano_employee", filters.get("employee_id"))
+		entry_filters["first_name"] = emp_doc.first_name
+		if emp_doc.last_name:
+			entry_filters["last_name"] = emp_doc.last_name
 
-	employees = frappe.get_all(
-		"havano_employee",
-		filters=query_filters,
-		pluck="name"
+	payroll_entries = frappe.get_all(
+		"Havano Payroll Entry",
+		filters=entry_filters,
+		fields=["name"]
 	)
 
 	earnings = {}
 	deductions = {}
-	
 	total_earnings = 0.0
 	total_deductions = 0.0
 
-	for emp_name in employees:
-		doc = frappe.get_doc("havano_employee", emp_name)
-		
-		for e in doc.employee_earnings:
+	if not payroll_entries:
+		pass
+	else:
+		entry_names = [e.name for e in payroll_entries]
+
+		earnings_data = frappe.get_all(
+			"havano_payroll_earnings",
+			filters={"parent": ["in", entry_names], "parenttype": "Havano Payroll Entry", "parentfield": "employee_earnings"},
+			fields=["components", "amount_usd", "amount_zwg"]
+		)
+
+		for e in earnings_data:
 			if not e.components: continue
 			comp = e.components
-			earnings[comp] = earnings.get(comp, 0.0) + flt(e.amount_usd)
-			total_earnings += flt(e.amount_usd)
+			amt = flt(e.amount_usd) + flt(e.amount_zwg)
+			earnings[comp] = earnings.get(comp, 0.0) + amt
+			total_earnings += amt
 
-		for d in doc.employee_deductions:
+		deductions_data = frappe.get_all(
+			"havano_payroll_earnings",
+			filters={"parent": ["in", entry_names], "parenttype": "Havano Payroll Entry", "parentfield": "employee_deductions"},
+			fields=["components", "amount_usd", "amount_zwg"]
+		)
+
+		for d in deductions_data:
 			if not d.components: continue
 			comp = d.components
-			deductions[comp] = deductions.get(comp, 0.0) + flt(d.amount_usd)
-			total_deductions += flt(d.amount_usd)
+			amt = flt(d.amount_usd) + flt(d.amount_zwg)
+			deductions[comp] = deductions.get(comp, 0.0) + amt
+			total_deductions += amt
 
 	earning_items = sorted(earnings.items(), key=lambda x: x[0])
 	deduction_items = sorted(deductions.items(), key=lambda x: x[0])
@@ -76,7 +94,6 @@ def get_data(filters):
 			"deductions_amount_usd": d_amt if d_name else None,
 		})
 
-	# Add Total Row
 	data.append({
 		"earnings": "Total Earnings",
 		"earnings_amount_usd": total_earnings,
@@ -84,7 +101,6 @@ def get_data(filters):
 		"deductions_amount_usd": total_deductions,
 	})
 
-	# Add Net Balance Row
 	data.append({
 		"earnings": "Net Balance",
 		"earnings_amount_usd": total_earnings - total_deductions,
