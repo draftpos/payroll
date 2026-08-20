@@ -745,6 +745,15 @@ def apply_cash_in_lieu(self, basic_salary, default_currency_split):
         existing_row.amount_usd = amount_usd
         existing_row.amount_zwg = amount_zwg
     else:
+        if not frappe.db.exists("havano_salary_component", cil_comp_name):
+            comp_doc = frappe.new_doc("havano_salary_component")
+            comp_doc.salary_component = cil_comp_name
+            comp_doc.type = "Earning"
+            comp_doc.is_tax_applicable = 1
+            comp_doc.always_calculate = 0
+            comp_doc.code = ""
+            comp_doc.insert(ignore_permissions=True, ignore_mandatory=True)
+            
         is_tax = frappe.db.get_value("havano_salary_component", cil_comp_name, "is_tax_applicable") or 0
         self.append("employee_earnings", {
             "components": cil_comp_name,

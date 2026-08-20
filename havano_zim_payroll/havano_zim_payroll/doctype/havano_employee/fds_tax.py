@@ -105,15 +105,22 @@ def calculate_fds_tax(employee_id, first_name, last_name, current_taxable_income
             allowable_components.append("NSSA")
             
         entry_allowable = 0.0
+        entry_paye = 0.0
         for d in doc.employee_deductions:
             if d.components in allowable_components:
                 if currency == "USD":
                     entry_allowable += flt(d.amount_usd)
                 else:
                     entry_allowable += flt(d.amount_zwg)
+            if d.components == "PAYE":
+                if currency == "USD":
+                    entry_paye += flt(d.amount_usd)
+                else:
+                    entry_paye += flt(d.amount_zwg)
                     
         # YTD Taxable = Taxable Earnings - Allowable Deductions
         ytd_taxable_income += max(entry_taxable - entry_allowable, 0.0)
+        ytd_paye += entry_paye
 
     historical_paye = frappe.get_all(
         "Havano Historical PAYE",
@@ -183,7 +190,7 @@ def calculate_averaging_fds_tax(employee_id, first_name, last_name, current_taxa
     # We assume allowable deductions have already been netted out of current_taxable_income.
     current_regular = max(flt(current_taxable_income) - current_irregular, 0.0)
 
-    # 2. Sum YTD historical regular and irregular taxable income
+    # 2. Sum YTD historical regular and irregular taxable income AND YTD PAYE from Payroll Entries ONLY
     ytd_regular = 0.0
     ytd_irregular = 0.0
     ytd_paye = 0.0
@@ -230,6 +237,8 @@ def calculate_averaging_fds_tax(employee_id, first_name, last_name, current_taxa
         for d in doc.employee_deductions:
             if d.components in allowable_components:
                 entry_allowable += flt(d.amount_usd) if currency == "USD" else flt(d.amount_zwg)
+            if (d.components or "").upper() == "PAYE":
+                ytd_paye += flt(d.amount_usd) if currency == "USD" else flt(d.amount_zwg)
 
         net_entry_taxable = max(entry_taxable - entry_allowable, 0.0)
         entry_regular = max(net_entry_taxable - entry_irregular, 0.0)
@@ -243,7 +252,8 @@ def calculate_averaging_fds_tax(employee_id, first_name, last_name, current_taxa
         fields=["*"]
     )
     for hp in historical_paye:
-        for i in range(1, current_month_num):
+        # Sum only for strictly historical months
+        for i in range(1, cint(current_month_num)):
             if currency == "USD":
                 ytd_paye += flt(hp.get(f"month_{i}_usd"))
                 ytd_regular += flt(hp.get(f"month_{i}_income_usd"))
@@ -251,35 +261,32 @@ def calculate_averaging_fds_tax(employee_id, first_name, last_name, current_taxa
                 ytd_paye += flt(hp.get(f"month_{i}_zwg"))
                 ytd_regular += flt(hp.get(f"month_{i}_income_zwg"))
 
+    if (ytd_regular + ytd_irregular) <= 0 and current_month_num > 1:
+        slip_ytd = frappe.db.sql("""
+            SELECT SUM(custom_total_taxable_income) as sum_taxable
+            FROM `tabSalary Slip`
+            WHERE employee = %s 
+              AND docstatus = 1
+              AND YEAR(start_date) = %s 
+              AND MONTH(start_date) < %s
+        """, (employee_id, current_year, current_month_num))
+        
+        if slip_ytd and slip_ytd[0][0]:
+            ytd_regular = flt(slip_ytd[0][0])
+            print(f"✅ FDS Averaging: Found YTD Taxable Income from Salary Slips: {ytd_regular}")
+        else:
+            ytd_regular = current_regular * (current_month_num - 1)
+
     cumulative_regular = ytd_regular + current_regular
     cumulative_irregular = ytd_irregular + current_irregular
 
-    average_taxable = cumulative_regular / current_month_num
-    projected_annual = average_taxable * 12.0
+    from havano_zim_payroll.havano_zim_payroll.doctype.havano_employee.base_currency import payee_against_slab
+
+    average_taxable = (cumulative_regular + cumulative_irregular) / current_month_num
+    average_monthly_tax = payee_against_slab(average_taxable, "Monthly", currency)
     
-    annual_tax_base = get_annual_tax(projected_annual, currency)
-    average_monthly_tax = annual_tax_base / 12.0
-    cumulative_tax_base = average_monthly_tax * current_month_num
-
-    tax_on_irregular = 0.0
-    if cumulative_irregular > 0:
-        total_taxable_with_irregular = projected_annual + cumulative_irregular
-        annual_tax_with_irregular = get_annual_tax(total_taxable_with_irregular, currency)
-        tax_on_irregular = annual_tax_with_irregular - annual_tax_base
-
-    total_tax_chargeable_before_credits = cumulative_tax_base + tax_on_irregular
-    ytd_credits = tax_credits * current_month_num
-
-    net_paye_before_levy = max(total_tax_chargeable_before_credits - ytd_credits, 0.0)
-    total_paye_chargeable = net_paye_before_levy
-
-    current_paye_payable = max(total_paye_chargeable - ytd_paye, 0.0)
-
-    # Back-calculate base_payee for base_currency.py
-    target_final_paye = current_paye_payable
-    required_base_paye = target_final_paye + tax_credits
-
-    return max(flt(required_base_paye), 0.0)
+    # Return the monthly tax on the average taxable income
+    return max(flt(average_monthly_tax), 0.0)
 
 @frappe.whitelist()
 def test_taxes():

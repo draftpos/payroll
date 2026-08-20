@@ -205,7 +205,7 @@ footer {
           {% set earn = earnings[i] %}
           <td>{{ earn.components }}</td>
           <td>{{ "%.2f"|format(earn.amount_usd or 0) }}</td>
-          {% if earn.components != "Loan Amount" %}
+          {% if earn.components != "Loan Amount" and "Airtime" not in earn.components %}
             {% set totals.earn_usd = totals.earn_usd + (earn.amount_usd or 0) %}
           {% endif %}
         {% else %}
