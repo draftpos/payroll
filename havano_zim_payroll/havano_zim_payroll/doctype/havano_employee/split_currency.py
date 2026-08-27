@@ -42,7 +42,7 @@ def main(self):
     apply_overtime(self, _ot_basic, _ot_currency)
 
     # --- SHORT TIME ---
-    apply_short_time(self, _ot_basic, _ot_currency)
+    apply_short_time(self, basic_salary_usd, basic_salary_zwg)
 
     # 4. CALCULATE TOTAL EARNINGS AND TAXABLE INCOME
     taxable_earnings_usd = 0.0
@@ -810,26 +810,42 @@ def apply_motoring_benefit(self, default_currency, exchange_rate=1.0):
         })
 
 
-def apply_short_time(self, basic_salary, default_currency_split):
+def apply_short_time(self, basic_salary_usd, basic_salary_zwg):
     """Short Time: removes row then re-adds with negative amount if has_short_time is checked."""
+    from frappe.utils import flt
+    import frappe
     existing_row = None
     for e in self.employee_earnings:
         if (e.components or "").upper() == "SHORT TIME":
             existing_row = e
             break
+            
     if not getattr(self, "has_short_time", 0):
         if existing_row:
             self.employee_earnings.remove(existing_row)
         return
+        
     days_worked = flt(getattr(self, "short_time_days_worked", 0))
     standard_days = 26.0
-    if not basic_salary or not (0 < days_worked < standard_days):
+    
+    if not (0 < days_worked < standard_days):
         return
+        
     short_days = standard_days - days_worked
-    daily_rate = basic_salary / standard_days
-    short_amount = round(daily_rate * short_days, 2)
-    amount_usd = -short_amount if default_currency_split == "USD" else 0.0
-    amount_zwg = -short_amount if default_currency_split != "USD" else 0.0
+    
+    amount_usd = 0.0
+    amount_zwg = 0.0
+    
+    if basic_salary_usd:
+        daily_rate_usd = basic_salary_usd / standard_days
+        amount_usd = -round(daily_rate_usd * short_days, 2)
+        
+    if basic_salary_zwg:
+        daily_rate_zwg = basic_salary_zwg / standard_days
+        amount_zwg = -round(daily_rate_zwg * short_days, 2)
+        
+    if amount_usd == 0 and amount_zwg == 0:
+        return
     
     if existing_row:
         existing_row.amount_usd = amount_usd

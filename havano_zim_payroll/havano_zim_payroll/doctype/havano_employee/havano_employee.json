@@ -1753,5 +1753,6 @@
  "sort_order": "DESC",
  "states": [],
  "title_field": "employee_name",
- "track_changes": 1
+ "track_changes": 1,
+ "max_attachments": 100
 }

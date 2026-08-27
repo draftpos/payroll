@@ -15,7 +15,7 @@
    "fieldtype": "Attach",
    "in_list_view": 1,
    "label": "Document",
-   "reqd": 1
+   "reqd": 0
   },
   {
    "fieldname": "description",
@@ -34,5 +34,6 @@
  "permissions": [],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "max_attachments": 100
 }
