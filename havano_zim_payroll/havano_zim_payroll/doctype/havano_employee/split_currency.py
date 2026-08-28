@@ -814,15 +814,15 @@ def apply_short_time(self, basic_salary_usd, basic_salary_zwg):
     """Short Time: removes row then re-adds with negative amount if has_short_time is checked."""
     from frappe.utils import flt
     import frappe
-    existing_row = None
+    to_remove = []
     for e in self.employee_earnings:
         if (e.components or "").upper() == "SHORT TIME":
-            existing_row = e
-            break
+            to_remove.append(e)
+            
+    for e in to_remove:
+        self.employee_earnings.remove(e)
             
     if not getattr(self, "has_short_time", 0):
-        if existing_row:
-            self.employee_earnings.remove(existing_row)
         return
         
     days_worked = flt(getattr(self, "short_time_days_worked", 0))
@@ -847,14 +847,10 @@ def apply_short_time(self, basic_salary_usd, basic_salary_zwg):
     if amount_usd == 0 and amount_zwg == 0:
         return
     
-    if existing_row:
-        existing_row.amount_usd = amount_usd
-        existing_row.amount_zwg = amount_zwg
-    else:
-        is_tax = frappe.db.get_value("havano_salary_component", "Short Time", "is_tax_applicable") or 0
-        self.append("employee_earnings", {
-            "components": "Short Time",
-            "amount_usd": amount_usd,
-            "amount_zwg": amount_zwg,
-            "is_tax_applicable": is_tax
-        })
+    is_tax = frappe.db.get_value("havano_salary_component", "Short Time", "is_tax_applicable") or 0
+    self.append("employee_earnings", {
+        "components": "Short Time",
+        "amount_usd": amount_usd,
+        "amount_zwg": amount_zwg,
+        "is_tax_applicable": is_tax
+    })
