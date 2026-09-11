@@ -81,6 +81,9 @@
   "column_break_44",
   "holiday_list",
   "salary_information",
+  "category",
+  "usd_percentage",
+  "zig_percentage",
   "ctc",
   "salary_currency",
   "salary_mode",
@@ -543,6 +546,24 @@
    "label": "Salary",
    "oldfieldtype": "Section Break",
    "width": "50%"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "label": "Category",
+   "options": "Zig only\nBoth (Zig and USD)"
+  },
+  {
+   "fieldname": "usd_percentage",
+   "fieldtype": "Percent",
+   "label": "USD %",
+   "depends_on": "eval:doc.category == 'Both (Zig and USD)'"
+  },
+  {
+   "fieldname": "zig_percentage",
+   "fieldtype": "Percent",
+   "label": "ZiG %",
+   "depends_on": "eval:doc.category == 'Both (Zig and USD)'"
   },
   {
    "fieldname": "historical_taxable_income_section",

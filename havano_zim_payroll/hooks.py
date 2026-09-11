@@ -43,7 +43,10 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-doctype_js = {"Leave Application" : "havano_zim_payroll/public/js/leave_application.js"}
+doctype_js = {
+	"Leave Application" : "havano_zim_payroll/public/js/leave_application.js",
+	"Havano Employee" : "public/js/currency_conversions.js"
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -147,6 +150,12 @@ doc_events = {
 	},
 	"Havano Leave Balances": {
 		"validate": "havano_zim_payroll.leave_application_fix.validate_leave_balance"
+	},
+	"Havano Payroll Entry": {
+		"validate": "havano_zim_payroll.currency_conversions.validate_currency_conversions"
+	},
+	"Havano Employee Payslip": {
+		"validate": "havano_zim_payroll.currency_conversions.validate_currency_conversions"
 	}
 }
 

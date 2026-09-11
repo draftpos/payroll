@@ -29,7 +29,8 @@
   "default_payroll_payable_account",
   "allow_forecast_fds_method",
   "allow_averaging_fds_method",
-  "payroll_journal_accounts"
+  "payroll_journal_accounts",
+  "dual_currency_with_conversions"
  ],
  "fields": [
   {
@@ -172,6 +173,12 @@
    "fieldtype": "Table",
    "label": "Payroll Journal Accounts",
    "options": "Havano Payroll Journal Account"
+  },
+  {
+   "default": "0",
+   "fieldname": "dual_currency_with_conversions",
+   "fieldtype": "Check",
+   "label": "Dual Currency with Conversions"
   }
  ],
  "grid_page_length": 50,
