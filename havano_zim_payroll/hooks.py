@@ -45,7 +45,6 @@ app_license = "mit"
 # include js in doctype views
 doctype_js = {
 	"Leave Application" : "havano_zim_payroll/public/js/leave_application.js",
-	"havano_employee" : "havano_zim_payroll/public/js/currency_conversions.js"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
