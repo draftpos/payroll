@@ -8,7 +8,7 @@ frappe.ui.form.on('Havano Employee', {
         // Fetch Payroll Settings to see if dual currency is enabled
         frappe.db.get_single_value('Havano Payroll Settings', 'dual_currency_with_conversions')
             .then(enabled => {
-                if (enabled) {
+                if (enabled == 1 || enabled === true) {
                     frm.set_df_property('employee_category', 'hidden', 0);
                     // The depends_on condition handles the percentage fields visibility
                 } else {
