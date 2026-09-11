@@ -543,21 +543,28 @@ function render_historical_taxable_income(frm) {
 // --- DUAL CURRENCY CONVERSIONS ADDITION ---
 frappe.ui.form.on('havano_employee', {
     refresh: function(frm) {
-        // Fetch Payroll Settings to see if dual currency is enabled
-        frappe.db.get_single_value('Havano Payroll Settings', 'dual_currency_with_conversions')
-            .then(enabled => {
-                if (enabled == 1 || enabled === "1" || enabled === true) {
-                    frm.set_df_property('employee_category', 'hidden', 0);
-                    // The depends_on condition handles the percentage fields visibility
+        // Robust fetch of Payroll Settings
+        frappe.call({
+            method: 'frappe.client.get_value',
+            args: {
+                doctype: 'Havano Payroll Settings',
+                fieldname: 'dual_currency_with_conversions'
+            },
+            callback: function(r) {
+                if (r.message) {
+                    let enabled = r.message.dual_currency_with_conversions;
+                    console.log("Dual Currency Enabled:", enabled);
+                    let is_enabled = (enabled == 1 || enabled === '1' || enabled === true || enabled === 'true');
+                    
+                    frm.set_df_property('employee_category', 'hidden', is_enabled ? 0 : 1);
+                    frm.refresh_field('employee_category');
                 } else {
-                    frm.set_df_property('employee_category', 'hidden', 1);
-                    frm.set_df_property('usd_percentage', 'hidden', 1);
-                    frm.set_df_property('zig_percentage', 'hidden', 1);
+                    console.log("Could not fetch Havano Payroll Settings");
                 }
-            });
+            }
+        });
     },
     employee_category: function(frm) {
-        // Just in case depends_on doesn't trigger immediately
         if (frm.doc.employee_category === 'Both (Zig and USD)') {
             frm.set_df_property('usd_percentage', 'hidden', 0);
             frm.set_df_property('zig_percentage', 'hidden', 0);
@@ -565,6 +572,8 @@ frappe.ui.form.on('havano_employee', {
             frm.set_df_property('usd_percentage', 'hidden', 1);
             frm.set_df_property('zig_percentage', 'hidden', 1);
         }
+        frm.refresh_field('usd_percentage');
+        frm.refresh_field('zig_percentage');
     }
 });
 // ------------------------------------------
