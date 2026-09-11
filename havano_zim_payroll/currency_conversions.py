@@ -11,7 +11,7 @@ def validate_currency_conversions(doc, method):
     if not employee_id:
         return
 
-    employee = frappe.get_doc("Havano Employee", employee_id)
+    employee = frappe.get_doc("havano_employee", employee_id)
     category = employee.get("employee_category")
 
     if not category:

@@ -1,4 +1,4 @@
-frappe.ui.form.on('Havano Employee', {
+frappe.ui.form.on('havano_employee', {
     onload: function(frm) {
         frm.set_df_property('employee_category', 'hidden', 1);
         frm.set_df_property('usd_percentage', 'hidden', 1);
