@@ -81,7 +81,7 @@
   "column_break_44",
   "holiday_list",
   "salary_information",
-  "category",
+  "employee_category",
   "usd_percentage",
   "zig_percentage",
   "ctc",
@@ -548,7 +548,7 @@
    "width": "50%"
   },
   {
-   "fieldname": "category",
+   "fieldname": "employee_category",
    "fieldtype": "Select",
    "label": "Category",
    "options": "Zig only\nBoth (Zig and USD)",
