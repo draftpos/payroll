@@ -551,19 +551,22 @@
    "fieldname": "category",
    "fieldtype": "Select",
    "label": "Category",
-   "options": "Zig only\nBoth (Zig and USD)"
+   "options": "Zig only\nBoth (Zig and USD)",
+   "hidden": 1
   },
   {
    "fieldname": "usd_percentage",
    "fieldtype": "Percent",
    "label": "USD %",
-   "depends_on": "eval:doc.category == 'Both (Zig and USD)'"
+   "depends_on": "eval:doc.category == 'Both (Zig and USD)'",
+   "hidden": 1
   },
   {
    "fieldname": "zig_percentage",
    "fieldtype": "Percent",
    "label": "ZiG %",
-   "depends_on": "eval:doc.category == 'Both (Zig and USD)'"
+   "depends_on": "eval:doc.category == 'Both (Zig and USD)'",
+   "hidden": 1
   },
   {
    "fieldname": "historical_taxable_income_section",
