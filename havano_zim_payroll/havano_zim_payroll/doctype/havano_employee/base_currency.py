@@ -44,14 +44,15 @@ def main(self):
         or 1
     )
 
-    # 2. FIND BASIC SALARY FIRST
+    # 2. FIND BASIC SALARY FIRST (+ Backpay, taxable and treated the same as Basic Salary)
     basic_salary = 0.0
     for e in self.employee_earnings:
         if not e.components:
             continue
         amount = flt(e.amount_usd) if default_currency == "USD" else flt(e.amount_zwg)
-        if (e.components or "").strip().title().startswith("Basic Salary"):
-            basic_salary = amount
+        comp_upper = (e.components or "").strip().upper()
+        if comp_upper.startswith("BASIC SALARY") or comp_upper == "BACKPAY":
+            basic_salary += amount
 
     self.basic_salary_calculated = basic_salary
 

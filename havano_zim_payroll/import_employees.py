@@ -1,174 +1,89 @@
 import frappe
 import csv
-from frappe.utils import getdate,flt
+from datetime import datetime
 
-
-@frappe.whitelist()
-def import_employees(file_url):
-    """
-    Enqueue payroll in background and return job info.
-    """
-    job = frappe.enqueue(
-        "havano_zim_payroll.import_employees.employees_import",
-        file_url=file_url,
-        queue="long",
-        timeout=15000
-    )
-
-    # Return only simple data — avoid returning the Job object itself
-    return {
-        "message": f"Employee import job queued",
-        "job_id": job.id
-    }
-def safe_float(val):
+def parse_date(date_str):
+    if not date_str:
+        return None
     try:
-        return float(str(val).strip())
-    except:
-        return 0.0
+        return datetime.strptime(date_str.strip(), "%d/%m/%Y").strftime("%Y-%m-%d")
+    except Exception:
+        try:
+            return datetime.strptime(date_str.strip(), "%m/%d/%Y").strftime("%Y-%m-%d")
+        except:
+            return None
 
-@frappe.whitelist()
-def employees_import(file_url):
-    """
-    Import employees with salary components.
-    CSV columns:
-        ID, First Name, Last Name, Gender, Date of Birth, Date of Joining, Status, Company,
-        Salary Mode, Employee Number, Mobile, Offer Date, Confirmation Date, Bank Name,
-        Payment Account, Payroll Frequency, Salary Currency, BankAccountNo.,
-        <Salary Components starting from Basic Salary>
-    """
-
-    file_doc = frappe.get_doc("File", {"file_url": file_url})
-    file_path = file_doc.get_full_path() 
-
-    imported = 0
-    errors = []
-
-    # Get all salary components from DB
-    components = frappe.get_all("havano_salary_component", fields=["name", "type"])
-    type_map = {c["name"]: c["type"] for c in components}
-    with open(file_path, newline='', encoding='latin-1') as csvfile:
-        reader = csv.DictReader(csvfile)
-        
-        # Normalize headers
-        reader.fieldnames = [fn.strip().replace('\ufeff','') for fn in reader.fieldnames]
-        
-        # Optional: create a map for flexible lookup
-        header_map = {fn.strip().lower().replace(' ', ''): fn for fn in reader.fieldnames}
-
-        for idx, row in enumerate(reader, start=2):
-            try:
-                row = {k.strip(): v for k, v in row.items()}
-                
-                # Flexible lookup
-                first_name = row.get(header_map.get("firstname")) or row.get(header_map.get("first"))
-                last_name = row.get(header_map.get("lastname")) or row.get(header_map.get("last"))
-
-
-                company_name = row.get("Company")
-                if not frappe.db.exists("Company", company_name):
-                    frappe.log_error(f"Could not find Company: {company_name}", "Employee CSV Import")
-                    continue  # skip this employee
-
-                payment_account = row.get("Payment Account")
-                if not frappe.db.exists("Account", payment_account):
-                    frappe.log_error(f"Could not find Payment Account: {payment_account}", "Employee CSV Import")
-                    continue
-
+def execute():
+    csv_file = "/mnt/c/Users/Ashley/OneDrive/Desktop/Master_Contact_Directory_ Havano Template3578a7.csv"
+    try:
+        with open(csv_file, mode="r", encoding="utf-8-sig") as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                first_name = row.get("First Name", "").strip()
+                last_name = row.get("Last Name", "").strip()
                 if not first_name:
-                    raise ValueError("Missing First Name or Employee ID")
-            
-                # Skip if employee exists
-                emp_exists = frappe.db.exists("havano_employee", {"first_name": first_name, "last_name": last_name})
-                if emp_exists:
                     continue
-                # Create employee
-                emp_doc = frappe.get_doc({
-                    "doctype": "havano_employee",
+                    
+                currency = row.get("Currency", "").strip()
+                category = "Zig only"
+                usd_perc = 0
+                zig_perc = 100
+                
+                if "Dual" in currency:
+                    category = "Both (Zig and USD)"
+                    usd_perc = 50
+                    zig_perc = 50
+                
+                doc_data = {
                     "first_name": first_name,
                     "last_name": last_name,
-                    "gender": row.get("Gender"),
-                    "date_of_birth": getdate(row.get("Date of Birth")) if row.get("Date of Birth") else None,
-                    "date_of_joining": getdate(row.get("Date of Joining")) if row.get("Date of Joining") else None,
-                    "status": row.get("Status"),
-                    "company": row.get("Company"),
-                    "salary_mode": row.get("Salary Mode"),
-                    "mobile": row.get("Mobile"),
-                    "bank_name": row.get("Bank Name"),
-                    "payment_account": row.get("Payment Account"),
-                    "payroll_frequency": row.get("Payroll Frequency"),
-                    "salary_currency": row.get("Salary Currency"),
-                    "bank_ac_no": row.get("BankAccountNo"),
-                    "total_days_worked":26,
-                    "cimas_employer_": safe_float(row.get("Cimas Employer %")),
-                    "cimas_employee_": safe_float(row.get("Cimas Employee %")),
-                    "funeral_policy_employer_": safe_float(row.get("Funeral Policy Employer %")),
-                    "funeral_policy_employee_": safe_float(row.get("Funeral Policy Employee %")),
-                })
-
-                                # # Add salary components to child tables-----------------------------
-
-                NON_COMPONENT_COLUMNS = {
-                    "ID", "First Name", "Last Name", "Bank A/C No","Gender",
-                    "Date of Birth", "Date of Joining", "Status", "Company",
-                    "Salary Mode", "Employee Number", "Mobile",
-                    "Offer Date", "Confirmation Date",
-                    "Bank Name", "Payment Account",
-                    "Payroll Frequency", "Salary Currency", "BankAccountNo","Employee","Funeral Policy Employer %","Funeral Policy Employee %","Cimas Employer %","Cimas Employee %"
+                    "gender": row.get("Gender", "").strip(),
+                    "salary_mode": row.get("Salary Mode", "").strip(),
+                    "company": row.get("Company", "").strip(),
+                    "status": row.get("Status", "").strip() if row.get("Status", "").strip() else "Active",
+                    "date_of_joining": parse_date(row.get("Date of Joining", "")),
+                    "current_address": row.get("Address", "").strip(),
+                    "date_of_birth": parse_date(row.get("Date of Birth", "")),
+                    "cell_number": row.get("Mobile", "").strip(),
+                    "payment_account": row.get("Payment Account", "").strip(),
+                    "employee_category": category,
+                    "usd_percentage": usd_perc,
+                    "zig_percentage": zig_perc,
                 }
-
-                for column, value in row.items():
-                    print(f"Processing column: {column} with value: {value}")
-                    frappe.logger().info(f"{column} => {value}")
-                    # Skip non-component columns
-                    if column in NON_COMPONENT_COLUMNS:
-                        continue
-
-                    # Skip empty values
-                    # if not value or not str(value).strip():
-                    #     continue
-
-                    component_name = column.strip()
-                    component_type = type_map.get(component_name)
-
-                    # Component not found in havano_salary_component
-                    if not component_type:
-                        frappe.log_error(
-                            f"Unknown salary component in CSV: {component_name}",
-                            "Employee CSV Import"
-                        )
-                        continue
-                    if not value or not str(value).strip():
-                        continue  # skip empty values
-
+                
+                doc_data = {k: v for k, v in doc_data.items() if v}
+                
+                filters = {"first_name": first_name, "last_name": last_name}
+                existing = frappe.get_all("havano_employee", filters=filters, limit=1)
+                
+                if existing:
                     try:
-                        amount = float(value)
-                    except:
-                        amount = 0
-
-                    # Route to correct child table
-                    if component_type.lower() == "earning":
-                        emp_doc.append("employee_earnings", {
-                            "components": component_name,
-                            "is_tax_applicable" : 1 if component_name.lower() == "basic salary" else 0,
-                            "amount_usd": amount
+                        doc = frappe.get_doc("havano_employee", existing[0].name)
+                        doc.update({
+                            "employee_category": category,
+                            "usd_percentage": usd_perc,
+                            "zig_percentage": zig_perc,
+                            "salary_mode": doc_data.get("salary_mode", doc.salary_mode),
+                            "payment_account": doc_data.get("payment_account", doc.payment_account)
                         })
-
-                    elif component_type.lower() == "deduction":
-                        emp_doc.append("employee_deductions", {
-                            "components": component_name,
-                            "amount_usd": amount
-                        })
-
-                emp_doc.insert(ignore_permissions=True)
-                frappe.log_error(
-                    f"Employee {first_name} {last_name} imported successfully.",
-                    "Employee CSV Import"
-                )
-                imported += 1
-            except Exception as e:
-                errors.append(f"Row {idx}: {str(e)}")
-
-    msg = f"{imported} employees imported successfully."
-    if errors:
-        msg += "\n\nErrors:\n" + "\n".join(errors)
-    return msg
+                        doc.save(ignore_permissions=True)
+                        frappe.db.commit()
+                        print(f"Updated existing: {first_name} {last_name}")
+                    except Exception as e:
+                        print(f"Error updating {first_name} {last_name}: {e}")
+                else:
+                    doc_data["doctype"] = "havano_employee"
+                    if "basic_salary_calculated" not in doc_data and row.get("Basic Salary"):
+                        doc_data["basic_salary_calculated"] = row.get("Basic Salary")
+                    
+                    try:
+                        doc = frappe.get_doc(doc_data)
+                        doc.insert(ignore_permissions=True)
+                        frappe.db.commit()
+                        print(f"Inserted new: {first_name} {last_name}")
+                    except Exception as e:
+                        print(f"Failed to insert {first_name} {last_name}: {e}")
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"Error reading CSV file: {e}")

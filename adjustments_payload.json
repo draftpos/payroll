@@ -1,0 +1,1218 @@
+[
+  {
+    "posting_date": "2026-01-31",
+    "items": [
+      {
+        "item_code": "YEAST (kgs)",
+        "qty": 12.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 7.29
+      },
+      {
+        "item_code": "LACTIC ACID (kgs)",
+        "qty": 54.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 4.12
+      },
+      {
+        "item_code": "SORGHUM MALT (kgs )",
+        "qty": 4600.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.21
+      },
+      {
+        "item_code": "SUGAR (kgs)",
+        "qty": 20.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.25
+      },
+      {
+        "item_code": "MAIZE MEAL (kgs )",
+        "qty": 9795.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.45
+      },
+      {
+        "item_code": "COAL",
+        "qty": 10340.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.14
+      },
+      {
+        "item_code": "DIESEL",
+        "qty": 50.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.35
+      },
+      {
+        "item_code": "FIREWOOD",
+        "qty": 6000.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.0535
+      },
+      {
+        "item_code": "BULK BEER",
+        "qty": 21581.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.15
+      },
+      {
+        "item_code": "2L PUNGWE",
+        "qty": 253.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.8
+      },
+      {
+        "item_code": "LOOSE BOTTLES",
+        "qty": 350.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "SHAKE-SHAKE CLOSURES",
+        "qty": 11200.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.02
+      },
+      {
+        "item_code": "SHAKE-SHAKE SLEEVES",
+        "qty": 10150.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.15
+      },
+      {
+        "item_code": "CRATES IN CIRCULATION",
+        "qty": 2066.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 7.08
+      },
+      {
+        "item_code": "BOTTLES IN CIRCULATION",
+        "qty": 12396.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "CLOSURES (unit )",
+        "qty": 44000.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.06
+      },
+      {
+        "item_code": "SAFIER SET (kgs)",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.25
+      },
+      {
+        "item_code": "BIOCHEMELL(ltrs)",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.0
+      },
+      {
+        "item_code": "CHEMELL 160 (ltrs)",
+        "qty": 23.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.0
+      },
+      {
+        "item_code": "BACTERGENT (kgs)",
+        "qty": 100.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 2.4
+      },
+      {
+        "item_code": "FLOOR CLEANER (kgs)",
+        "qty": 20.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 2.6
+      },
+      {
+        "item_code": "TANK CLEANER (LTRS )",
+        "qty": 40.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.0
+      },
+      {
+        "item_code": "DAMAGED BOTTLES",
+        "qty": 1180.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "DAMAGED CRATES",
+        "qty": 90.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 8.0
+      }
+    ]
+  },
+  {
+    "posting_date": "2026-02-28",
+    "items": [
+      {
+        "item_code": "YEAST (kgs)",
+        "qty": 36.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 7.29
+      },
+      {
+        "item_code": "LACTIC ACID (kgs)",
+        "qty": 17.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 4.12
+      },
+      {
+        "item_code": "SORGHUM MALT (kgs )",
+        "qty": 4960.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.21
+      },
+      {
+        "item_code": "SUGAR (kgs)",
+        "qty": 120.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.25
+      },
+      {
+        "item_code": "MAIZE MEAL (kgs )",
+        "qty": 697.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.35
+      },
+      {
+        "item_code": "COAL",
+        "qty": 10340.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.14
+      },
+      {
+        "item_code": "DIESEL",
+        "qty": 80.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.35
+      },
+      {
+        "item_code": "FIREWOOD",
+        "qty": 4000.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.0535
+      },
+      {
+        "item_code": "BULK BEER",
+        "qty": 3294.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.15
+      },
+      {
+        "item_code": "2L PUNGWE",
+        "qty": 917.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.8
+      },
+      {
+        "item_code": "LOOSE BOTTLES",
+        "qty": 2400.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "SHAKE-SHAKE CLOSURES",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.02
+      },
+      {
+        "item_code": "SHAKE-SHAKE SLEEVES",
+        "qty": 10150.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.15
+      },
+      {
+        "item_code": "CRATES IN CIRCULATION",
+        "qty": 1770.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 7.52
+      },
+      {
+        "item_code": "BOTTLES IN CIRCULATION",
+        "qty": 10620.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "CLOSURES (unit )",
+        "qty": 24000.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.06
+      },
+      {
+        "item_code": "SAFIER SET (kgs)",
+        "qty": 50.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.0
+      },
+      {
+        "item_code": "REDCAST",
+        "qty": 50.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.2
+      },
+      {
+        "item_code": "BIOCHEMELL(ltrs)",
+        "qty": 33.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.0
+      },
+      {
+        "item_code": "CHEMELL 160 (ltrs)",
+        "qty": 10.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.0
+      },
+      {
+        "item_code": "BACTERGENT (kgs)",
+        "qty": 75.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 2.4
+      },
+      {
+        "item_code": "FLOOR CLEANER (kgs)",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 2.6
+      },
+      {
+        "item_code": "ONLINE DESCALENT",
+        "qty": 25.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.2
+      },
+      {
+        "item_code": "DAMAGED BOTTLES",
+        "qty": 980.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "DAMAGED CRATES",
+        "qty": 134.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 8.0
+      }
+    ]
+  },
+  {
+    "posting_date": "2026-03-31",
+    "items": [
+      {
+        "item_code": "YEAST (kgs)",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 7.29
+      },
+      {
+        "item_code": "LACTIC ACID (kgs)",
+        "qty": 39.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 4.12
+      },
+      {
+        "item_code": "SORGHUM MALT (kgs )",
+        "qty": 1600.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.2564
+      },
+      {
+        "item_code": "SUGAR (kgs)",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.225
+      },
+      {
+        "item_code": "MAIZE MEAL (kgs )",
+        "qty": 1168.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.47
+      },
+      {
+        "item_code": "COAL",
+        "qty": 10340.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.14
+      },
+      {
+        "item_code": "DIESEL",
+        "qty": 60.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.35
+      },
+      {
+        "item_code": "FIREWOOD",
+        "qty": 1000.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.0535
+      },
+      {
+        "item_code": "BULK BEER",
+        "qty": 15099.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.15
+      },
+      {
+        "item_code": "2L PUNGWE",
+        "qty": 734.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.8
+      },
+      {
+        "item_code": "LOOSE BOTTLES",
+        "qty": 1450.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "SHAKE-SHAKE CLOSURES",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.02
+      },
+      {
+        "item_code": "SHAKE-SHAKE SLEEVES",
+        "qty": 10150.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.15
+      },
+      {
+        "item_code": "CRATES IN CIRCULATION",
+        "qty": 1658.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 7.52
+      },
+      {
+        "item_code": "BOTTLES IN CIRCULATION",
+        "qty": 9948.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "CLOSURES (unit )",
+        "qty": 35600.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.06
+      },
+      {
+        "item_code": "SAFIER SET (kgs)",
+        "qty": 30.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.0
+      },
+      {
+        "item_code": "REDCAST",
+        "qty": 30.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.2
+      },
+      {
+        "item_code": "BIOCHEMELL(ltrs)",
+        "qty": 30.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.0
+      },
+      {
+        "item_code": "CHEMELL 160 (ltrs)",
+        "qty": 23.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.0
+      },
+      {
+        "item_code": "BACTERGENT (kgs)",
+        "qty": 45.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 2.4
+      },
+      {
+        "item_code": "FLOOR CLEANER (kgs)",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 2.6
+      },
+      {
+        "item_code": "ONLINE DESCALENT",
+        "qty": 30.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.2
+      },
+      {
+        "item_code": "DAMAGED BOTTLES",
+        "qty": 762.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "DAMAGED CRATES",
+        "qty": 55.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 8.0
+      }
+    ]
+  },
+  {
+    "posting_date": "2026-04-30",
+    "items": [
+      {
+        "item_code": "YEAST (kgs)",
+        "qty": 11.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 7.666
+      },
+      {
+        "item_code": "LACTIC ACID (kgs)",
+        "qty": 71.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.71
+      },
+      {
+        "item_code": "SORGHUM MALT (kgs )",
+        "qty": 3080.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.26
+      },
+      {
+        "item_code": "SUGAR (kgs)",
+        "qty": 20.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.25
+      },
+      {
+        "item_code": "MAIZE MEAL (kgs )",
+        "qty": 12409.2,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.35
+      },
+      {
+        "item_code": "COAL",
+        "qty": 10340.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.14
+      },
+      {
+        "item_code": "DIESEL",
+        "qty": 50.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.35
+      },
+      {
+        "item_code": "FIREWOOD",
+        "qty": 2000.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.05
+      },
+      {
+        "item_code": "BULK BEER",
+        "qty": 17187.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.15
+      },
+      {
+        "item_code": "2L PUNGWE",
+        "qty": 11580.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.6
+      },
+      {
+        "item_code": "LOOSE BOTTLES",
+        "qty": 750.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.0
+      },
+      {
+        "item_code": "CLOSURES (unit )",
+        "qty": 33000.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "SHAKE-SHAKE SLEEVES",
+        "qty": 10150.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.15
+      },
+      {
+        "item_code": "CRATES IN CIRCULATION",
+        "qty": 925.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.0
+      },
+      {
+        "item_code": "BOTTLES IN CIRCULATION",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.0
+      },
+      {
+        "item_code": "SAFIER SET (kgs)",
+        "qty": 30.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.0
+      },
+      {
+        "item_code": "REDCAST",
+        "qty": 28.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.2
+      },
+      {
+        "item_code": "BIOCHEMELL(ltrs)",
+        "qty": 30.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.0
+      },
+      {
+        "item_code": "CHEMELL 160 (ltrs)",
+        "qty": 8.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.0
+      },
+      {
+        "item_code": "BACTERGENT (kgs)",
+        "qty": 105.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 2.4
+      },
+      {
+        "item_code": "FLOOR CLEANER (kgs)",
+        "qty": 25.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 2.6
+      },
+      {
+        "item_code": "ONLINE DESCALENT",
+        "qty": 12.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.2
+      },
+      {
+        "item_code": "DAMAGED BOTTLES",
+        "qty": 0.52,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.0
+      },
+      {
+        "item_code": "DAMAGED CRATES",
+        "qty": 8.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.0
+      }
+    ]
+  },
+  {
+    "posting_date": "2026-05-31",
+    "items": [
+      {
+        "item_code": "YEAST (kgs)",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 7.29
+      },
+      {
+        "item_code": "LACTIC ACID (kgs)",
+        "qty": 39.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 4.12
+      },
+      {
+        "item_code": "SORGHUM MALT (kgs )",
+        "qty": 1600.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.2564
+      },
+      {
+        "item_code": "SUGAR (kgs)",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.225
+      },
+      {
+        "item_code": "MAIZE MEAL (kgs )",
+        "qty": 1168.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.47
+      },
+      {
+        "item_code": "COAL",
+        "qty": 10340.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.14
+      },
+      {
+        "item_code": "DIESEL",
+        "qty": 60.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.35
+      },
+      {
+        "item_code": "FIREWOOD",
+        "qty": 1000.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.0535
+      },
+      {
+        "item_code": "BULK BEER",
+        "qty": 15099.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.15
+      },
+      {
+        "item_code": "2L PUNGWE",
+        "qty": 734.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.8
+      },
+      {
+        "item_code": "LOOSE BOTTLES",
+        "qty": 1450.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "SHAKE-SHAKE CLOSURES",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.02
+      },
+      {
+        "item_code": "SHAKE-SHAKE SLEEVES",
+        "qty": 10150.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.15
+      },
+      {
+        "item_code": "CRATES IN CIRCULATION",
+        "qty": 1658.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 7.52
+      },
+      {
+        "item_code": "BOTTLES IN CIRCULATION",
+        "qty": 9948.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "CLOSURES (unit )",
+        "qty": 35600.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.06
+      },
+      {
+        "item_code": "SAFIER SET (kgs)",
+        "qty": 30.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.0
+      },
+      {
+        "item_code": "REDCAST",
+        "qty": 30.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.2
+      },
+      {
+        "item_code": "BIOCHEMELL(ltrs)",
+        "qty": 30.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.0
+      },
+      {
+        "item_code": "CHEMELL 160 (ltrs)",
+        "qty": 23.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.0
+      },
+      {
+        "item_code": "BACTERGENT (kgs)",
+        "qty": 45.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 2.4
+      },
+      {
+        "item_code": "FLOOR CLEANER (kgs)",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 2.6
+      },
+      {
+        "item_code": "ONLINE DESCALENT",
+        "qty": 30.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.2
+      },
+      {
+        "item_code": "DAMAGED BOTTLES",
+        "qty": 762.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "DAMAGED CRATES",
+        "qty": 55.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 8.0
+      }
+    ]
+  },
+  {
+    "posting_date": "2026-06-30",
+    "items": [
+      {
+        "item_code": "YEAST (kgs)",
+        "qty": 6.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 7.666
+      },
+      {
+        "item_code": "LACTIC ACID (kgs)",
+        "qty": 22.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.71
+      },
+      {
+        "item_code": "SORGHUM MALT (kgs )",
+        "qty": 740.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.26
+      },
+      {
+        "item_code": "SUGAR (kgs)",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.25
+      },
+      {
+        "item_code": "MAIZE MEAL (kgs )",
+        "qty": 19203.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.35
+      },
+      {
+        "item_code": "COAL",
+        "qty": 10340.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.14
+      },
+      {
+        "item_code": "DIESEL",
+        "qty": 50.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.9
+      },
+      {
+        "item_code": "FIREWOOD",
+        "qty": 4000.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.05
+      },
+      {
+        "item_code": "BULK BEER",
+        "qty": 19084.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.15
+      },
+      {
+        "item_code": "2L PUNGWE",
+        "qty": 515.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.8
+      },
+      {
+        "item_code": "LOOSE BOTTLES",
+        "qty": 750.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "CLOSURES (unit )",
+        "qty": 6000.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.0
+      },
+      {
+        "item_code": "SHAKE-SHAKE SLEEVES",
+        "qty": 10150.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.15
+      },
+      {
+        "item_code": "CRATES IN CIRCULATION",
+        "qty": 1618.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 7.52
+      },
+      {
+        "item_code": "BOTTLES IN CIRCULATION",
+        "qty": 9708.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "SAFIER SET (kgs)",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.0
+      },
+      {
+        "item_code": "REDCAST",
+        "qty": 25.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.2
+      },
+      {
+        "item_code": "BIOCHEMELL(ltrs)",
+        "qty": 34.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.0
+      },
+      {
+        "item_code": "CHEMELL 160 (ltrs)",
+        "qty": 24.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.0
+      },
+      {
+        "item_code": "BACTERGENT (kgs)",
+        "qty": 50.4,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 2.4
+      },
+      {
+        "item_code": "FLOOR CLEANER (kgs)",
+        "qty": 38.8,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 2.6
+      },
+      {
+        "item_code": "ONLINE DESCALENT",
+        "qty": 30.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.2
+      },
+      {
+        "item_code": "DAMAGED BOTTLES",
+        "qty": 870.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "DAMAGED CRATES",
+        "qty": 54.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 7.52
+      }
+    ]
+  },
+  {
+    "posting_date": "2026-07-31",
+    "items": [
+      {
+        "item_code": "YEAST (kgs)",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 7.29
+      },
+      {
+        "item_code": "LACTIC ACID (kgs)",
+        "qty": 39.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 4.12
+      },
+      {
+        "item_code": "SORGHUM MALT (kgs )",
+        "qty": 1600.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.2564
+      },
+      {
+        "item_code": "SUGAR (kgs)",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.225
+      },
+      {
+        "item_code": "MAIZE MEAL (kgs )",
+        "qty": 1168.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.47
+      },
+      {
+        "item_code": "COAL",
+        "qty": 10340.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.14
+      },
+      {
+        "item_code": "DIESEL",
+        "qty": 60.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.35
+      },
+      {
+        "item_code": "FIREWOOD",
+        "qty": 1000.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.0535
+      },
+      {
+        "item_code": "BULK BEER",
+        "qty": 15099.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.15
+      },
+      {
+        "item_code": "2L PUNGWE",
+        "qty": 734.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.8
+      },
+      {
+        "item_code": "LOOSE BOTTLES",
+        "qty": 1450.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "SHAKE-SHAKE CLOSURES",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.02
+      },
+      {
+        "item_code": "SHAKE-SHAKE SLEEVES",
+        "qty": 10150.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.15
+      },
+      {
+        "item_code": "CRATES IN CIRCULATION",
+        "qty": 1658.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 7.52
+      },
+      {
+        "item_code": "BOTTLES IN CIRCULATION",
+        "qty": 9948.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "CLOSURES (unit )",
+        "qty": 35600.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.06
+      },
+      {
+        "item_code": "SAFIER SET (kgs)",
+        "qty": 30.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.0
+      },
+      {
+        "item_code": "REDCAST",
+        "qty": 30.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.2
+      },
+      {
+        "item_code": "BIOCHEMELL(ltrs)",
+        "qty": 30.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.0
+      },
+      {
+        "item_code": "CHEMELL 160 (ltrs)",
+        "qty": 23.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.0
+      },
+      {
+        "item_code": "BACTERGENT (kgs)",
+        "qty": 45.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 2.4
+      },
+      {
+        "item_code": "FLOOR CLEANER (kgs)",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 2.6
+      },
+      {
+        "item_code": "ONLINE DESCALENT",
+        "qty": 30.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.2
+      },
+      {
+        "item_code": "DAMAGED BOTTLES",
+        "qty": 762.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "DAMAGED CRATES",
+        "qty": 55.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 8.0
+      }
+    ]
+  },
+  {
+    "posting_date": "2026-08-31",
+    "items": [
+      {
+        "item_code": "YEAST (kgs)",
+        "qty": 6.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 7.666
+      },
+      {
+        "item_code": "LACTIC ACID (kgs)",
+        "qty": 31.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.71
+      },
+      {
+        "item_code": "SORGHUM MALT (kgs )",
+        "qty": 860.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.26
+      },
+      {
+        "item_code": "SUGAR (kgs)",
+        "qty": 40.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.26
+      },
+      {
+        "item_code": "MAIZE MEAL (kgs )",
+        "qty": 7380.6,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.35
+      },
+      {
+        "item_code": "COAL",
+        "qty": 10340.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.14
+      },
+      {
+        "item_code": "DIESEL",
+        "qty": 80.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.85
+      },
+      {
+        "item_code": "FIREWOOD",
+        "qty": 5000.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.05
+      },
+      {
+        "item_code": "BULK BEER",
+        "qty": 3369.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.15
+      },
+      {
+        "item_code": "2L PUNGWE",
+        "qty": 992.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.8
+      },
+      {
+        "item_code": "LOOSE BOTTLES",
+        "qty": 450.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.57
+      },
+      {
+        "item_code": "CLOSURES (unit )",
+        "qty": 26000.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "SHAKE-SHAKE SLEEVES",
+        "qty": 10150.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.15
+      },
+      {
+        "item_code": "CRATES IN CIRCULATION",
+        "qty": 1980.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 7.55
+      },
+      {
+        "item_code": "BOTTLES IN CIRCULATION",
+        "qty": 11880.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.57
+      },
+      {
+        "item_code": "SAFIER SET (kgs)",
+        "qty": 0.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.0
+      },
+      {
+        "item_code": "REDCAST",
+        "qty": 12.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 1.2
+      },
+      {
+        "item_code": "BIOCHEMELL(ltrs)",
+        "qty": 30.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.0
+      },
+      {
+        "item_code": "CHEMELL 160 (ltrs)",
+        "qty": 12.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.0
+      },
+      {
+        "item_code": "BACTERGENT (kgs)",
+        "qty": 50.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 2.4
+      },
+      {
+        "item_code": "FLOOR CLEANER (kgs)",
+        "qty": 50.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 2.6
+      },
+      {
+        "item_code": "ONLINE DESCALENT",
+        "qty": 12.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 3.2
+      },
+      {
+        "item_code": "DAMAGED BOTTLES",
+        "qty": 900.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 0.52
+      },
+      {
+        "item_code": "DAMAGED CRATES",
+        "qty": 40.0,
+        "warehouse": "Stores - PB",
+        "valuation_rate": 8.0
+      }
+    ]
+  }
+]

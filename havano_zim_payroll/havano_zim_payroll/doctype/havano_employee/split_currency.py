@@ -11,13 +11,14 @@ def main(self):
     total_deduction_usd = 0.0
     total_deduction_zwg = 0.0
 
-    # 2. FIND BASIC SALARY FIRST
+    # 2. FIND BASIC SALARY FIRST (+ Backpay, which is taxable and treated the same)
     basic_salary_usd = 0.0
     basic_salary_zwg = 0.0
     for e in self.employee_earnings:
         if not e.components:
             continue
-        if (e.components or "").strip().title().startswith("Basic Salary"):
+        comp_upper = (e.components or "").strip().upper()
+        if comp_upper.startswith("BASIC SALARY") or comp_upper == "BACKPAY":
             basic_salary_usd += flt(e.amount_usd)
             basic_salary_zwg += flt(e.amount_zwg)
 
@@ -166,8 +167,8 @@ def main(self):
             nec_pct = frappe.db.get_value("havano_salary_component", d.components, "nec_percentage")
             nec_multiplier = flt(nec_pct) / 100.0 if flt(nec_pct) > 0 else 0.015
 
-            basic_usd = sum(flt(e.amount_usd) for e in self.employee_earnings if (e.components or "").strip().title().startswith("Basic Salary"))
-            basic_zwg = sum(flt(e.amount_zwg) for e in self.employee_earnings if (e.components or "").strip().title().startswith("Basic Salary"))
+            basic_usd = sum(flt(e.amount_usd) for e in self.employee_earnings if (e.components or "").strip().upper() in ["BACKPAY"] or (e.components or "").strip().title().startswith("Basic Salary"))
+            basic_zwg = sum(flt(e.amount_zwg) for e in self.employee_earnings if (e.components or "").strip().upper() in ["BACKPAY"] or (e.components or "").strip().title().startswith("Basic Salary"))
             d.amount_usd = round(basic_usd * nec_multiplier, 2)
             d.amount_zwg = round(basic_zwg * nec_multiplier, 2)
             
