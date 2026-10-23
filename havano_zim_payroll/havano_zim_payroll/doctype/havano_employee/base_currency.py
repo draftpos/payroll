@@ -46,6 +46,7 @@ def main(self):
 
     # 2. FIND BASIC SALARY FIRST (+ Backpay, taxable and treated the same as Basic Salary)
     basic_salary = 0.0
+    pure_basic_salary = 0.0
     for e in self.employee_earnings:
         if not e.components:
             continue
@@ -53,6 +54,8 @@ def main(self):
         comp_upper = (e.components or "").strip().upper()
         if comp_upper.startswith("BASIC SALARY") or comp_upper == "BACKPAY":
             basic_salary += amount
+        if comp_upper.startswith("BASIC SALARY"):
+            pure_basic_salary += amount
 
     self.basic_salary_calculated = basic_salary
 
@@ -61,13 +64,13 @@ def main(self):
     apply_motoring_benefit(self, default_currency, exchange_rate)
 
     # --- CASH IN LIEU OF LEAVE ---
-    apply_cash_in_lieu(self, basic_salary, default_currency)
+    apply_cash_in_lieu(self, pure_basic_salary, default_currency)
 
     # --- OVERTIME ---
-    apply_overtime(self, basic_salary, default_currency)
+    apply_overtime(self, pure_basic_salary, default_currency)
 
     # --- SHORT TIME ---
-    apply_short_time(self, basic_salary, default_currency)
+    apply_short_time(self, pure_basic_salary, default_currency)
 
     # 4. CALCULATE TOTAL EARNINGS AND TAXABLE INCOME
     taxable_earnings = 0.0
@@ -198,11 +201,12 @@ def main(self):
             # Skip these for now, calculate later
             continue
 
-        elif d.components.upper() in ["LAPF", "UFAWUZ", "ZFBAWU"]:
+        elif d.components.upper() in ["LAPF", "UFAWUZ", "ZFBAWU", "ZIBAWU"]:
             comp_data = frappe.db.get_value("havano_salary_component", d.components,
                 ["employee_amount", "employer_amount"], as_dict=True) or {}
             emp_pct = flt(comp_data.get("employee_amount") or 0) / 100.0
-            emp_amt = round(basic_salary * emp_pct, 2)
+            calc_salary = pure_basic_salary if d.components.upper() in ["UFAWUZ", "ZIBAWU", "ZFBAWU"] else basic_salary
+            emp_amt = round(calc_salary * emp_pct, 2)
             if self.salary_currency == "USD":
                 d.amount_usd = emp_amt
                 d.amount_zwg = 0
@@ -409,8 +413,7 @@ def main(self):
     aids_levy = round(final_payee * 0.03, 2)
     
     # SDL = 5% of Gross (reference only, not a deduction)
-    # self.sdl = round(self.total_income * 0.05, 2)
-    self.sdl = 0
+    self.sdl = round(self.total_income * 0.05, 2)
 
     # 6. UPDATE DEDUCTION TABLE ROWS
     for d in self.employee_deductions:

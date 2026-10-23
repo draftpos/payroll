@@ -53,9 +53,9 @@ def get_data(filters):
 		gross_usd = flt(emp.total_earnings_usd)
 		gross_zwg = flt(emp.total_earnings_zwg)
 
-		# SDL is standard 1% of gross wage
-		sdl_usd = round(gross_usd * 0.01, 2)
-		sdl_zwg = round(gross_zwg * 0.01, 2)
+		# SDL is standard 5% of gross wage
+		sdl_usd = round(gross_usd * 0.05, 2)
+		sdl_zwg = round(gross_zwg * 0.05, 2)
 
 		row = {
 			"employee_id": emp.name,

@@ -14,6 +14,8 @@ def main(self):
     # 2. FIND BASIC SALARY FIRST (+ Backpay, which is taxable and treated the same)
     basic_salary_usd = 0.0
     basic_salary_zwg = 0.0
+    pure_basic_salary_usd = 0.0
+    pure_basic_salary_zwg = 0.0
     for e in self.employee_earnings:
         if not e.components:
             continue
@@ -21,6 +23,9 @@ def main(self):
         if comp_upper.startswith("BASIC SALARY") or comp_upper == "BACKPAY":
             basic_salary_usd += flt(e.amount_usd)
             basic_salary_zwg += flt(e.amount_zwg)
+        if comp_upper.startswith("BASIC SALARY"):
+            pure_basic_salary_usd += flt(e.amount_usd)
+            pure_basic_salary_zwg += flt(e.amount_zwg)
 
     self.basic_salary_calculated = basic_salary_usd + basic_salary_zwg
 
@@ -33,17 +38,17 @@ def main(self):
     apply_motoring_benefit(self, _mot_currency, exchange_rate)
 
     # --- CASH IN LIEU OF LEAVE ---
-    _cil_basic    = basic_salary_usd if basic_salary_usd else basic_salary_zwg
-    _cil_currency = "USD" if basic_salary_usd else "ZWG"
+    _cil_basic    = pure_basic_salary_usd if pure_basic_salary_usd else pure_basic_salary_zwg
+    _cil_currency = "USD" if pure_basic_salary_usd else "ZWG"
     apply_cash_in_lieu(self, _cil_basic, _cil_currency)
 
     # --- OVERTIME ---
-    _ot_basic    = basic_salary_usd if basic_salary_usd else basic_salary_zwg
-    _ot_currency = "USD" if basic_salary_usd else "ZWG"
+    _ot_basic    = pure_basic_salary_usd if pure_basic_salary_usd else pure_basic_salary_zwg
+    _ot_currency = "USD" if pure_basic_salary_usd else "ZWG"
     apply_overtime(self, _ot_basic, _ot_currency)
 
     # --- SHORT TIME ---
-    apply_short_time(self, basic_salary_usd, basic_salary_zwg)
+    apply_short_time(self, pure_basic_salary_usd, pure_basic_salary_zwg)
 
     # 4. CALCULATE TOTAL EARNINGS AND TAXABLE INCOME
     taxable_earnings_usd = 0.0
@@ -282,12 +287,16 @@ def main(self):
         elif d.components.upper() in ["PAYE", "AIDS LEVY", "SDL"]:
             continue
 
-        elif d.components.upper() in ["LAPF", "UFAWUZ", "ZFBAWU"]:
+        elif d.components.upper() in ["LAPF", "UFAWUZ", "ZFBAWU", "ZIBAWU"]:
             comp_data = frappe.db.get_value("havano_salary_component", d.components,
                 ["employee_amount", "employer_amount"], as_dict=True) or {}
             emp_pct = flt(comp_data.get("employee_amount") or 0) / 100.0
-            emp_amt_usd = round(basic_salary_usd * emp_pct, 2)
-            emp_amt_zwg = round(basic_salary_zwg * emp_pct, 2)
+            
+            calc_usd = pure_basic_salary_usd if d.components.upper() in ["UFAWUZ", "ZIBAWU", "ZFBAWU"] else basic_salary_usd
+            calc_zwg = pure_basic_salary_zwg if d.components.upper() in ["UFAWUZ", "ZIBAWU", "ZFBAWU"] else basic_salary_zwg
+            
+            emp_amt_usd = round(calc_usd * emp_pct, 2)
+            emp_amt_zwg = round(calc_zwg * emp_pct, 2)
             
             if zero_out_zwg:
                 emp_amt_zwg = 0.0
@@ -429,10 +438,8 @@ def main(self):
             d.amount_usd = aids_levy_usd
             d.amount_zwg = aids_levy_zwg
         elif d.components.upper() == "SDL":
-            d.amount_usd = round(total_earnings_usd * 0.05, 2)
-            d.amount_zwg = round(total_earnings_zwg * 0.05, 2)
-            if zero_out_zwg:
-                d.amount_zwg = 0.0
+            d.amount_usd = 0
+            d.amount_zwg = 0
 
     # 9. FINAL SUMMARY
     existing = [(d.components or "").upper() for d in self.employee_deductions]

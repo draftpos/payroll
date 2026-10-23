@@ -94,19 +94,29 @@ function apply_formula_mode(frm) {
 
 function auto_calculate_rate(frm) {
 	frappe.call({
-		method: "frappe.client.get_value",
+		method: "frappe.client.get",
 		args: {
 			doctype: "havano_employee",
-			filters: { name: frm.doc.employee },
-			fieldname: ["basic_salary_calculated"]
+			name: frm.doc.employee
 		},
 		callback: function(r) {
-			if (r && r.message && r.message.basic_salary_calculated) {
-				const rate = r.message.basic_salary_calculated / 26.0;
-				frm.set_value("rate_per_day", Math.round(rate * 100) / 100);
-				calculate_encashment(frm);
-			} else {
-				frappe.msgprint({title: __("No Salary Found"), message: __("Basic Salary Calculated is not set for this employee."), indicator: "orange"});
+			if (r && r.message) {
+				let pure_basic = 0.0;
+				if (r.message.employee_earnings) {
+					r.message.employee_earnings.forEach(function(e) {
+						let comp = (e.components || "").trim().toUpperCase();
+						if (comp.startsWith("BASIC SALARY")) {
+							pure_basic += flt(e.amount_usd) + flt(e.amount_zwg);
+						}
+					});
+				}
+				if (pure_basic > 0) {
+					const rate = pure_basic / 26.0;
+					frm.set_value("rate_per_day", Math.round(rate * 100) / 100);
+					calculate_encashment(frm);
+				} else {
+					frappe.msgprint({title: __("No Salary Found"), message: __("Basic Salary is not set for this employee."), indicator: "orange"});
+				}
 			}
 		}
 	});
