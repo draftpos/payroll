@@ -134,7 +134,9 @@ def get_columns_and_data(filters):
 			val = entry_data_map[entry.name]["deductions"].get(comp, 0.0)
 			fname = frappe.scrub(comp) + "_ded_usd"
 			row[fname] = val
-			row["total_deduction_usd"] += val
+			# SDL is an employer contribution, display it on payslip/register but do NOT deduct from employee net pay
+			if comp.upper() != "SDL":
+				row["total_deduction_usd"] += val
 
 		row["net_pay_usd"] = row["total_earnings_usd"] - row["total_deduction_usd"]
 		data.append(row)
