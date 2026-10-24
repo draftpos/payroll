@@ -407,9 +407,10 @@ def main(self):
         frappe.log_error(f"FDS Calculation Error for {self.name}: {e}")
     print(f'-> base_payee after FDS block: {base_payee}')
     
-    # Final Payee = Base Payee - Total Tax Credits
-    final_payee = round(max(base_payee - tax_credits, 0), 2)
-    
+    # Final Total Tax = Base Payee - Total Tax Credits
+    # The statutory tax bracket amount is inclusive of the 3% Aids Levy (PAYE = Total Tax / 1.03, Aids Levy = PAYE * 0.03)
+    total_tax = max(base_payee - tax_credits, 0.0)
+    final_payee = round(total_tax / 1.03, 2)
     aids_levy = round(final_payee * 0.03, 2)
     
     # SDL = 5% of Gross (reference only, not a deduction)

@@ -416,8 +416,12 @@ def main(self):
     except Exception as e:
         frappe.log_error(f"FDS Calculation Error for {self.name}: {e}")
 
-    final_payee_usd = round(max(payee_usd - tax_credits_usd, 0), 2)
-    final_payee_zwg = round(max(payee_zwg - tax_credits_zwg, 0), 2)
+    # Final Total Tax = Base Payee - Total Tax Credits
+    # The statutory tax bracket amount is inclusive of the 3% Aids Levy (PAYE = Total Tax / 1.03, Aids Levy = PAYE * 0.03)
+    total_tax_usd = max(payee_usd - tax_credits_usd, 0.0)
+    total_tax_zwg = max(payee_zwg - tax_credits_zwg, 0.0)
+    final_payee_usd = round(total_tax_usd / 1.03, 2)
+    final_payee_zwg = round(total_tax_zwg / 1.03, 2)
 
     aids_levy_usd = round(final_payee_usd * 0.03, 2)
     aids_levy_zwg = round(final_payee_zwg * 0.03, 2)

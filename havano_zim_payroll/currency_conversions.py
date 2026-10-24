@@ -2,7 +2,10 @@ import frappe
 
 def validate_currency_conversions(doc, method):
     # Determine if dual currency feature is enabled
-    enabled = frappe.db.get_single_value("Havano Payroll Settings", "dual_currency_with_conversions")
+    try:
+        enabled = frappe.db.get_single_value("Havano Payroll Settings", "dual_currency_with_conversions")
+    except Exception:
+        enabled = 0
     if not enabled:
         return
 
